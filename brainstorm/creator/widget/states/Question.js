@@ -42,6 +42,7 @@ define([
         Sform.html(formTpl({
             serial : response.serial,
             interval: interaction.prop('interval'),
+            nickname: interaction.prop('nickname'),
             names: interaction.prop('names'),
             messages: interaction.prop('messages'),
             identifier : interaction.attr('responseIdentifier')
@@ -63,6 +64,10 @@ define([
             interval: function(interaction, value){
                 interaction.prop('interval', parseInt(value) || 10);
                 interaction.triggerPci('cfgChange', ['interval', parseInt(value)]);
+            },
+            nickname: function(interaction, value){
+                interaction.prop('nickname', value);
+                interaction.triggerPci('cfgChange', ['nickname',value]);
             },
             identifier : function(i, value){
                 response.id(value);

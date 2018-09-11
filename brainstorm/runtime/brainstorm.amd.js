@@ -7,8 +7,9 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
     'use strict';
 
     function startBrainstorm(dom, config, resultObject){
+      console.log(config)
       var names = config.names.split('\n');
-      var playerName = config.playerName || 'Test-tager';
+      var playerName = config.nickname || 'Test-tager';
       var messages = config.messages.split('\n');
       var interval = parseInt(config.interval) || 5;
       var timeLimit = interval*messages.length;
@@ -41,7 +42,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       function writeChatLine(elapsed, name, msg, player){
         var $time = $('<span>').text(timestamp(elapsed));
         var $name = $('<span>',{class:'name'}).text(name);
-        var $msg = $('<div>').append([$time,$name, msg]);
+        var $msg = $('<div>').append([/*$time,*/$name, msg]);
         if(player){
           $msg.addClass('is-player');
         }

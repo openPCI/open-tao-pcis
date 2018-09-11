@@ -44,6 +44,7 @@ define([
         getDefaultProperties : function(pci){
             console.log('getDefaultProperties', arguments);
             return {
+                nickname: "Dig",
                 names: "Anne\nLars\nPreben\nIgor\nLouise",
                 messages: "besked 1\nbesked 2",
                 interval: 5
