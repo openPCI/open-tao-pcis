@@ -6,22 +6,16 @@
     <span class="tooltip-content">{{__ "Tooltip_nickname"}}</span>
     <input type="text" name="nickname" value="{{nickname}}" />
 
-    <label for="names">"Bot" Navne</label>
-    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "Tooltip_names"}}</span>
-    <textarea name="names">{{names}}</textarea>
-
-
     <label for="messages">"Bot" Beskeder</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_messages"}}</span>
     <textarea name="messages">{{messages}}</textarea>
 
 
-    <label for="messages">Interval</label>
+    <label for="messages">Tidsbegrænsning (Sekunder)</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_interval"}}</span>
-    <input type="number" name="interval" value="{{interval}}" />
+    <input type="number" name="timeLimit" value="{{timeLimit}}" />
 </div>
 
 <div class="panel">

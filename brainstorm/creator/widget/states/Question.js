@@ -41,9 +41,8 @@ define([
         //render the form using the form template
         Sform.html(formTpl({
             serial : response.serial,
-            interval: interaction.prop('interval'),
+            timeLimit: interaction.prop('timeLimit'),
             nickname: interaction.prop('nickname'),
-            names: interaction.prop('names'),
             messages: interaction.prop('messages'),
             identifier : interaction.attr('responseIdentifier')
         }));
@@ -53,17 +52,13 @@ define([
 
         //init data change callbacks
         formElement.setChangeCallbacks(Sform, interaction, {
-            names : function(interaction, value){
-                interaction.prop('names', value);
-                interaction.triggerPci('cfgChange', ['names',value]);
-            },
             messages : function(interaction, value){
                 interaction.prop('messages', value);
                 interaction.triggerPci('cfgChange', ['messages',value]);
             },
-            interval: function(interaction, value){
-                interaction.prop('interval', parseInt(value) || 10);
-                interaction.triggerPci('cfgChange', ['interval', parseInt(value)]);
+            timeLimit: function(interaction, value){
+                interaction.prop('timeLimit', parseInt(value) || 60);
+                interaction.triggerPci('cfgChange', ['timeLimit', parseInt(value)]);
             },
             nickname: function(interaction, value){
                 interaction.prop('nickname', value);

@@ -45,9 +45,8 @@ define([
             console.log('getDefaultProperties', arguments);
             return {
                 nickname: "Dig",
-                names: "Anne\nLars\nPreben\nIgor\nLouise",
-                messages: "besked 1\nbesked 2",
-                interval: 5
+                messages: "10;Anne;red;Besked efter ti sekunder\n15;Lars;green;Besked efter femten sekunder\n16;Igor;#00a8a7;Besked efter seksten sekunder",
+                timeLimit: 60
             };
         },
         /**

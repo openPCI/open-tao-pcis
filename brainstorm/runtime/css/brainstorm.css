@@ -17,6 +17,10 @@
     overflow-x:hidden;
 }
 
+.chat.brainstorm-ended {
+  opacity: 0.5;
+}
+
 .brainstorm .chat span {
   margin-right:8px;
   font-weight: bold;

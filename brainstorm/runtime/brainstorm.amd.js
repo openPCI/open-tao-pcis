@@ -8,26 +8,15 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
     function startBrainstorm(dom, config, resultObject){
       console.log(config)
-      var names = config.names.split('\n');
       var playerName = config.nickname || 'Test-tager';
       var messages = config.messages.split('\n');
-      var interval = parseInt(config.interval) || 5;
-      var timeLimit = interval*messages.length;
-      var nameI = 0;
-      var msgI = 0;
+      var timeLimit = parseInt(config.timeLimit) || 60;
       var $dom = $(dom);
-      var botHelpInterval = 0;
-      var timeLimitTimeout = 0;
+      var timeouts = [];
       var timeStart;
 
       $dom.find('.chat').empty();
       $dom.find('.prompt').val('');
-
-      function randName(){
-        var name = names[nameI++];
-        if(nameI == names.length) nameI = 0;
-        return name;
-      }
 
       function timestamp(s){
         var m=Math.floor(s/60);
@@ -35,38 +24,41 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         return (''+m).padStart(2,"0") + ":" + (''+Math.round(s)).padStart(2,"0");
       }
 
-      function writeBotLine(msg, elapsed){
-        writeChatLine(elapsed, randName(), msg);
+      function writeBotLine(msg, now){
+        msg = msg.split(';');
+        if(msg.length == 4){
+          var t = parseInt(msg[0])*1000;
+          setTimeout( function(){
+            writeChatLine(t, msg[1], msg[3], false, msg[2]);
+          }, now ? 0 : t);
+        }
       }
 
-      function writeChatLine(elapsed, name, msg, player){
+      function writeChatLine(elapsed, name, msg, player, color){
         var $time = $('<span>').text(timestamp(elapsed));
         var $name = $('<span>',{class:'name'}).text(name);
         var $msg = $('<div>').append([/*$time,*/$name, msg]);
         if(player){
           $msg.addClass('is-player');
         }
+        if(color) $name.css('color', color);
         $dom.find('.chat').append($msg);
       }
 
-      function simulate(){
-        var t = 0;
-        messages.forEach(function(str){
-          t+=interval;
-          writeBotLine(str, t);
-        });
+      function endBrainstorm(){
+        $dom.find('input').attr('disabled','disabled');
+        $dom.find('.chat').addClass('brainstorm-ended');
       }
 
-      function botSuggestion(){
-        if(msgI == messages.length) clearInterval(botHelpInterval);
-        var t = (new Date() - timeStart) / 1000;
-        writeBotLine(messages[msgI],t);
-        msgI++;
+      function simulate(){
+        messages.forEach(function(str){
+          writeBotLine(str, true);
+        });
       }
 
       function addUserReply(str){
         var t = (new Date() - timeStart) / 1000;
-        resultObject.base.string += "\n" + [timestamp(t), playerName, str].join(' ');
+        resultObject.base.string += "\n" + [timestamp(t), playerName, str].join(';');
         writeChatLine(t, playerName, str, true);
       }
 
@@ -78,8 +70,12 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             $(this).val('');
           }
         });
-        botHelpInterval = setInterval(botSuggestion, interval*1000);
-        timeLimitTimeout = setTimeout(timeLimit*1000);
+
+        messages.forEach(function(str){
+          writeBotLine(str)
+        });
+
+        var timeLimitTimeout = setTimeout(endBrainstorm,timeLimit*1000);
       }
 
       if(window.editor_mode){
