@@ -1,9 +1,9 @@
 {
-    "typeIdentifier": "brainstorm",
-    "label": "Brainstorm",
-    "short": "Brainstorm",
-    "description": "Brainstorm simulated chat",
-    "version": "0.0.6",
+    "typeIdentifier": "gantt",
+    "label": "Gantt Chart",
+    "short": "Gantt",
+    "description": "Gantt chart",
+    "version": "0.0.3",
     "author": "EJTH",
     "email": "ejth@edu.au.dk",
     "tags": [
@@ -14,13 +14,15 @@
         "cardinality": "single"
     },
     "runtime" : {
-        "hook" : "./runtime/brainstorm.amd.js",
+        "hook" : "./runtime/gantt.amd.js",
         "libraries" : [
-            "IMSGlobal/jquery_2_1_1"
+            "IMSGlobal/jquery_2_1_1",
+            "./runtime/ganttjs/gantt.js"
         ],
         "stylesheets" : [
             "./runtime/css/base.css",
-            "./runtime/css/brainstorm.css"
+            "./runtime/css/gantt.css",
+            "./runtime/ganttjs/ganttjs.css"
         ], "mediaFiles" : ["./runtime/assets/download.png","./runtime/css/img/download.png"]
     },
             "creator" : {
