@@ -170,9 +170,24 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       return false;
     });
 
+    var mx, w;
+    $table.on('mousemove', function(e){
+      if(paintMode){
+       w = $container.width()-5;
+       mx = e.pageX - $container.offset().left;
+      }
+    });
+
+    var dragScrollInterval = setInterval(function(){
+      if(paintMode && mx > w || mx < 5){
+        $container.scrollLeft($container.scrollLeft()+((mx>w?1:-1)*5));
+      }
+    }, 100);
+
     this.destroy = function(){
       $container.children().remove();
-      $container.removeClass('ganttjs-container')
+      $container.removeClass('ganttjs-container');
+      clearInterval(dragScrollInterval);
     };
 
     this.getData = function(){

@@ -47,14 +47,14 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             console.log('initialize', qtiCustomInteractionContext);
 
             var ganttChart = new GanttJS(dom, deserializeConfig(_this.config));
-
+            this.ganttChart = ganttChart;
             //listening to dynamic configuration change
             this.on('cfgChange', function(key, value){
               console.log('cfgChange');
                 _this.config[key] = value;
                 ganttChart.destroy();
                 ganttChart = new GanttJS(dom, deserializeConfig(_this.config));
-
+                this.ganttChart = ganttChart;
             });
 
 
@@ -68,7 +68,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} response
          */
         setResponse : function setResponse(response){
-            var Scontainer = $(this.dom),value;
+            console.log('SetResponse', arguments, this)
         },
         /**
          * Get the response in the json format described in
@@ -78,7 +78,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object}
          */
         getResponse : function getResponse(){
-            return this.responseContainer;
+            return this.ganttChart.getResult();
         },
         /**
          * Remove the current response set in the interaction
