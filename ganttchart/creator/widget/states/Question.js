@@ -69,6 +69,10 @@ define([
                 interaction.prop('weekDays', value);
                 interaction.triggerPci('cfgChange', ['weekDays',value]);
             },
+            useHours : function(interaction, value){
+                interaction.prop('weekDays', value);
+                interaction.triggerPci('cfgChange', ['useHours',value]);
+            },
             months : function(interaction, value){
                 interaction.prop('months', value);
                 interaction.triggerPci('cfgChange', ['months',value]);

@@ -49,6 +49,7 @@ define([
               months: true,
               disableWeekends: true,
               startDate: '',
+              useHours: false,
               tasks: "Task #1;#F00\nTask #2;#0F0\nTask #3;#00f"
             };
         },

@@ -1,3 +1,6 @@
+if(typeof define === "undefined"){
+  window.define = function(n,f){ window.GanttJS = f($); }
+}
 define(['IMSGlobal/jquery_2_1_1'], function($){
   function GanttJS(container, options){
     var $container = $(container);
@@ -8,32 +11,38 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
 
     var months = ['Januar', 'Februar', 'Marts', 'April','Maj', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'December'];
     var weekDayShort = ['Sø','Ma','Ti','On','To','Fr','Lø'];
-
+    var optStartDate = options.startDate || new Date('09/01/2018');
+    optStartDate.setHours(0);
     function resultDate(i){
-      if(!options.startDate) return i+1;
+      if(!optStartDate) return i+1;
 
-      var d = new Date(options.startDate);
-      d.setDate(d.getDate() + i);
+      var d = new Date(optStartDate);
+      var h = '';
+      if(options.useHours){
+        d.setHours(d.getHours() + i);
+        h = ' ' + (d.getHours()-1) + ':00';
+      } else {
+        d.setDate(d.getDate() + i);
+      }
 
-
-      return day(i-1) + '.' + months[d.getMonth()].substring(0,3);
+      return day(i-1) + '.' + months[d.getMonth()].substring(0,3)+h;
     }
 
     function day(i){
-      if(!options.startDate) return i+1;
-      var d = new Date(options.startDate);
+      if(!optStartDate) return i+1;
+      var d = new Date(optStartDate);
       d.setDate(d.getDate() + i);
       return d.getDate();
     }
 
     var gi = 1;
     function weekDay(i){
-      if(!options.startDate){
+      if(!optStartDate){
         i++;
         while(i>6) i -= 7;
         return weekDayShort[i];
       }
-      var d = new Date(options.startDate);
+      var d = new Date(optStartDate);
       d.setDate(d.getDate() + i);
       return weekDayShort[d.getDay()];
     }
@@ -41,15 +50,23 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
     function tableHeader(){
       var $tr;
       var ret = [];
-      if(options.months && options.startDate){
+      if(options.months && optStartDate){
         var $tr = $('<tr>', {class:'ganttjs-th-month'});
-        var month = options.startDate.getMonth();
+        var month = new Date(optStartDate).getMonth();
         var $th = $('<th>', {text: months[month]});
         c = 0;
-        for(var i=0; i < options.period; i++){
+        var periods = options.period;
+        if(options.useHours){
+          periods *= 24;
+        }
+        for(var i=0; i < periods; i++){
           c++;
-          var d = new Date(options.startDate);
-          d.setDate(d.getDate() + i);
+          var d = new Date(optStartDate);
+          if(options.useHours){
+            d.setHours(d.getHours() + i);
+          } else {
+            d.setDate(d.getDate() + i);
+          }
           if(d.getMonth() != month){
             $th.attr('colspan', c);
             $tr.append($th);
@@ -67,7 +84,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       $tr.append($('<th>'));
 
       for(var i=0; i < options.period; i++){
-        $tr.append($('<th>', {text: day(i)}));
+        $tr.append($('<th>', {text: day(i), colspan: options.useHours ? 24 : 1}));
       }
 
       ret.push($tr);
@@ -78,7 +95,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
 
         for(var i=0; i < options.period; i++){
           var $th;
-          $tr.append($th = $('<th>', {text: weekDay(i)}));
+          $tr.append($th = $('<th>', {text: weekDay(i), colspan: options.useHours ? 24 : 1}));
           if(options.disableWeekends && ['Lø','Sø'].indexOf(weekDay(i)) > -1){
             $th.addClass('disabled');
           }
@@ -86,6 +103,27 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         ret.push($tr);
       }
 
+    if(options.useHours){
+      var startDate = new Date(optStartDate) || new Date;
+      $tr = $('<tr>', {class:'ganttjs-th-hours'});
+      $tr.append($('<th>'));
+
+      var periods = options.period;
+      if(options.useHours){
+        periods *= 24;
+      }
+
+      for(var i=0; i < periods; i++){
+        var $th;
+        var d = new Date(startDate);
+        d.setHours(d.getHours()+i);
+        $tr.append($th = $('<th>', {text:d.getHours()+':00'}));
+        if(options.disableWeekends && ['Lø','Sø'].indexOf(weekDay(Math.floor(i/24))) > -1){
+          $th.addClass('disabled');
+        }
+      }
+      ret.push($tr);
+    }
 
       return ret;
     }
@@ -93,10 +131,14 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
     $table.append(tableHeader());
 
     function appendTimeSlots($row){
-      for(var i=0; i<options.period;i++){
+      var periods = options.period;
+      if(options.useHours) periods *= 24;
+
+      for(var i=0; i<periods;i++){
         var cls = ['timeslot'];
-        if(options.disableWeekends && ['Lø','Sø'].indexOf(weekDay(i)) > -1){
-          cls.push('disabled')
+
+        if(options.disableWeekends && ['Lø','Sø'].indexOf(weekDay(options.useHours ? Math.floor(i/24) :  i)) > -1 ) {
+          cls.push('disabled');
         }
         $row.append($('<td>', {class: cls.join(' ')}));
       }
