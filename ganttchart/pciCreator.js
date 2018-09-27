@@ -50,6 +50,9 @@ define([
               disableWeekends: true,
               startDate: '',
               useHours: false,
+              useHalfHours: false,
+              dayStart: 8,
+              dayEnd: 16,
               tasks: "Task #1;#F00\nTask #2;#0F0\nTask #3;#00f"
             };
         },

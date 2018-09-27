@@ -12,137 +12,185 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
     var months = ['Januar', 'Februar', 'Marts', 'April','Maj', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'December'];
     var weekDayShort = ['Sø','Ma','Ti','On','To','Fr','Lø'];
     var optStartDate = options.startDate || new Date('09/01/2018');
-    optStartDate.setHours(0);
-    function resultDate(i){
-      if(!optStartDate) return i+1;
 
-      var d = new Date(optStartDate);
-      var h = '';
-      if(options.useHours){
-        d.setHours(d.getHours() + i);
-        h = ' ' + (d.getHours()-1) + ':00';
+
+    var hourIncrement = 24;
+    var dayLength = 24;
+
+    if(options.useHours || options.useHalfHours){
+      hourIncrement = options.useHalfHours ? 0.5 : 1;
+      options.useHours = true;
+      if(options.dayStart && options.dayEnd){
+        dayLength = options.dayEnd - options.dayStart;
       } else {
-        d.setDate(d.getDate() + i);
+        options.dayStart = 0;
+        options.dayEnd = 23;
       }
-
-      return day(i-1) + '.' + months[d.getMonth()].substring(0,3)+h;
+      if(options.hourIncrement){
+        hourIncrement = options.hourIncrement;
+      }
     }
 
-    function day(i){
-      if(!optStartDate) return i+1;
-      var d = new Date(optStartDate);
-      d.setDate(d.getDate() + i);
+    var dateIncrement = hourIncrement * 3600000;
+
+    function resultDate(d){
+      return d.getDate() + '/' + d.getMonth() + (options.useHours ? ' ' + time(d) : '');
+    }
+
+    function day(d){
       return d.getDate();
     }
 
-    var gi = 1;
-    function weekDay(i){
-      if(!optStartDate){
-        i++;
-        while(i>6) i -= 7;
-        return weekDayShort[i];
-      }
-      var d = new Date(optStartDate);
-      d.setDate(d.getDate() + i);
+    function weekDay(d){
       return weekDayShort[d.getDay()];
+    }
+
+    function time(d){
+      return (d.getHours()+'').padStart(2,'0') + ':' + (d.getMinutes()+'').padStart(2,'0')
+    }
+    function appendTimeSlots($tr){
+      var ret = [];
+
+      var mc = 0;
+      var dc = 0;
+      var tdc = 0;
+      var c = -1;
+
+      var dateStart = new Date(optStartDate);
+      dateStart.setHours(options.dayStart);
+      dateStart.setMinutes(0);
+
+      var ld = new Date(dateStart);
+      var d = new Date(dateStart);
+      var i = 0;
+
+      while(tdc < options.period){
+
+        if(d.getHours() > options.dayEnd){
+          d.setHours(options.dayStart);
+          d.setDate(d.getDate()+1);
+        }
+
+        $td = $('<td>', {class:'timeslot'});
+        $td.prop('gantt-date', d);
+        $tr.append($td);
+
+
+        c++; dc++;
+
+        if(d.getDate() != ld.getDate()){
+          c = 0;
+          tdc++;
+        }
+
+        if(d.getMonth() != ld.getMonth()){
+          dc=0;
+        }
+
+        if(options.useHours && options.disableWeekends && [6,0].indexOf(d.getDay()) > -1){
+          ld = new Date(d);
+          d.setHours(options.dayEnd+1);
+        }
+
+        ld = d;
+        d = new Date(ld.getTime() + dateIncrement);
+        i++;
+      }
+
+      $tr.children().last().remove();
+
     }
 
     function tableHeader(){
       var $tr;
       var ret = [];
-      if(options.months && optStartDate){
-        var $tr = $('<tr>', {class:'ganttjs-th-month'});
-        var month = new Date(optStartDate).getMonth();
-        var $th = $('<th>', {text: months[month]});
-        c = 0;
-        var periods = options.period;
+
+      var $monthTr = $('<tr>', {class:'ganttjs-th-month'});
+      var $dateTr =  $('<tr>', {class: 'ganttjs-th-day'});
+      $dateTr.append($('<th>'));
+      var $weekdayTr = $('<tr>', {class:'ganttjs-th-weekday'});
+      $weekdayTr.append($('<th>'));
+      var $timeTr  = $('<tr>', {class:'ganttjs-th-time'});
+      $timeTr.append($('<th>'));
+
+      var $th;
+      var mc = 0;
+      var dc = 0;
+      var tdc = 0;
+      var c = -1;
+      var first = true;
+
+      var dateStart = new Date(optStartDate);
+      dateStart.setHours(options.dayStart);
+      dateStart.setMinutes(0);
+
+      var ld = new Date(dateStart);
+      var d = new Date(dateStart);
+      var i = 0;
+
+      while(tdc < options.period){
+
+        if(d.getHours() > options.dayEnd){
+          d.setHours(options.dayStart);
+          d.setDate(d.getDate()+1);
+        }
+
         if(options.useHours){
-          periods *= 24;
-        }
-        for(var i=0; i < periods; i++){
-          c++;
-          var d = new Date(optStartDate);
-          if(options.useHours){
-            d.setHours(d.getHours() + i);
-          } else {
-            d.setDate(d.getDate() + i);
-          }
-          if(d.getMonth() != month){
-            $th.attr('colspan', c);
-            $tr.append($th);
-            c=0;
-            month = d.getMonth();
-            $th = $('<th>', {text: months[month]});
+          console.log(tdc, options.period)
+          $th = $('<th>', {text: time(d)});
+          $timeTr.append($th);
+          if(options.disableWeekends && [6,0].indexOf(d.getDay()) > -1){
+            $th.text('-');
           }
         }
-        $th.attr('colspan', c+1);
-        $tr.append($th);
-        ret.push($tr);
-      }
 
-      $tr = $('<tr>', {class: 'ganttjs-th-day'});
-      $tr.append($('<th>'));
+        c++; dc++;
 
-      for(var i=0; i < options.period; i++){
-        $tr.append($('<th>', {text: day(i), colspan: options.useHours ? 24 : 1}));
-      }
+        if(d.getDate() != ld.getDate()){
+          $th = $('<th>', {text: ld.getDate()});
+          $th.attr('colspan', c);
+          $dateTr.append($th);
 
-      ret.push($tr);
+          $th = $('<th>', {text: weekDay(ld)});
 
-      if(options.weekDays){
-        $tr = $('<tr>', {class:'ganttjs-th-weekday'});
-        $tr.append($('<th>'));
-
-        for(var i=0; i < options.period; i++){
-          var $th;
-          $tr.append($th = $('<th>', {text: weekDay(i), colspan: options.useHours ? 24 : 1}));
-          if(options.disableWeekends && ['Lø','Sø'].indexOf(weekDay(i)) > -1){
+          if(options.disableWeekends && [6,0].indexOf(ld.getDay()) > -1){
             $th.addClass('disabled');
           }
+
+          $th.attr('colspan', c);
+          $weekdayTr.append($th);
+          c = 0;
+          tdc++;
         }
-        ret.push($tr);
-      }
 
-    if(options.useHours){
-      var startDate = new Date(optStartDate) || new Date;
-      $tr = $('<tr>', {class:'ganttjs-th-hours'});
-      $tr.append($('<th>'));
-
-      var periods = options.period;
-      if(options.useHours){
-        periods *= 24;
-      }
-
-      for(var i=0; i < periods; i++){
-        var $th;
-        var d = new Date(startDate);
-        d.setHours(d.getHours()+i);
-        $tr.append($th = $('<th>', {text:d.getHours()+':00'}));
-        if(options.disableWeekends && ['Lø','Sø'].indexOf(weekDay(Math.floor(i/24))) > -1){
-          $th.addClass('disabled');
+        if(d.getMonth() != ld.getMonth()){
+          $th = $('<th>', {text: months[ld.getMonth()]});
+          $th.attr('colspan', dc);
+          $monthTr.append($th);
+          dc=0;
         }
-      }
-      ret.push($tr);
-    }
 
-      return ret;
+        if(options.useHours && options.disableWeekends && [6,0].indexOf(d.getDay()) > -1){
+          ld = new Date(d);
+          d.setHours(options.dayEnd+1);
+        }
+
+        ld = d;
+        d = new Date(ld.getTime() + dateIncrement);
+        i++;
+      }
+
+      if(dc > 0){
+        $th = $('<th>', {text: months[ld.getMonth()]});
+        $th.attr('colspan', dc);
+        $monthTr.append($th);
+      }
+      $timeTr.children().last().remove();
+      return [$monthTr, $dateTr, $weekdayTr, $timeTr];
     }
 
     $table.append(tableHeader());
 
-    function appendTimeSlots($row){
-      var periods = options.period;
-      if(options.useHours) periods *= 24;
-
-      for(var i=0; i<periods;i++){
-        var cls = ['timeslot'];
-
-        if(options.disableWeekends && ['Lø','Sø'].indexOf(weekDay(options.useHours ? Math.floor(i/24) :  i)) > -1 ) {
-          cls.push('disabled');
-        }
-        $row.append($('<td>', {class: cls.join(' ')}));
-      }
-    }
 
     function addTask(t){
       var $row = $('<tr>', {class:'ganttjs-task'});
@@ -252,24 +300,28 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         var taskData = [];
 
         var selStart = 0;
-        var input = '';
         var last = 0;
+        var lastDate;
+        var selStartDate;
         $($container.find('.ganttjs-task').get(ti)).children().each(function(i, item){
           if(selStart){
             if(!$(this).is('.selected')){
-              taskData.push(''+(selStart+1 == i ? resultDate(selStart) : resultDate(selStart) + '-' + resultDate(i-1)));
-              selStart = 0;
+              taskData.push(''+(selStart+1 == i ? resultDate(selStartDate) : resultDate(selStartDate) + ' - ' + resultDate(lastDate)));
+              selStart = false;
+              selStartDate = false;
             }
           } else {
             if($(this).is('.selected')){
               selStart = i;
+              selStartDate = $(this).prop('gantt-date');
             }
           }
+          lastDate = $(this).prop('gantt-date')
           last = i;
         });
 
-        if(selStart==last) taskData.push(resultDate(selStart));
-        else if(selStart) taskData.push(resultDate(selStart) + '-' + resultDate(last));
+        if(selStart==last) taskData.push(resultDate(selStartDate));
+        else if(selStart) taskData.push(resultDate(selStartDate) + ' - ' + resultDate(lastDate));
 
         res.push(taskData);
       });

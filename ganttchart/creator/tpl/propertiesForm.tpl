@@ -13,10 +13,16 @@
     <input type="text" name="startDate" value="{{startDate}}" placeholder="mm-dd-yyyy" />
 
     <div><input type="checkbox" name="weekDays" {{#if weekDays}}checked{{/if}} /><label for="weekDays"> Vis ugedage</label></div>
-    <div><input type="checkbox" name="useHours" {{#if useHours}}checked{{/if}} /><label for="disableWeekends">Vis timer</label></div>
+    <div><input type="checkbox" name="useHours" {{#if useHours}}checked{{/if}} /><label for="useHours">Vis timer</label></div>
+    <div><input type="checkbox" name="useHalfHours" {{#if useHalfHours}}checked{{/if}} /><label for="useHalfHours">vis halve timer</label></div>
     <div><input type="checkbox" name="months" {{#if months}}checked{{/if}} /><label for="months"> Vis måneder</label></div>
     <div><input type="checkbox" name="disableWeekends" {{#if disableWeekends}}checked{{/if}} /><label for="disableWeekends">Brug ikke weekend</label></div>
 
+    <label for="messages">Start klokkeslæt</label>
+    <input type="text" name="dayStart" value="{{dayStart}}" placeholder="8" />
+
+    <label for="messages">Slut klokkeslæt</label>
+    <input type="text" name="dayEnd" value="{{dayEnd}}" placeholder="16" />
 
     <label for="messages">Gantt tasks</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
