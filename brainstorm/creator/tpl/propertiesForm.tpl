@@ -15,7 +15,7 @@
     <label for="messages">Tidsbegrænsning (Sekunder)</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_interval"}}</span>
-    <input type="number" name="timeLimit" value="{{timeLimit}}" />
+    <input type="text" name="timeLimit" value="{{timeLimit}}" />
 </div>
 
 <div class="panel">
