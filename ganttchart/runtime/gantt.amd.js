@@ -78,9 +78,10 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object}
          */
         getResponse : function getResponse(){
-            return this.ganttChart.getResult().map(function(a){
+            return {base : {string : this.ganttChart.getResult().map(function(a){
               return a.join(', ');
-            }).join('\n');
+            }).join(';\n')
+          }};
         },
         /**
          * Remove the current response set in the interaction
