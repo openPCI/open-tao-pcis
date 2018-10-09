@@ -17,14 +17,14 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
     var hourIncrement = 24;
     var dayLength = 24;
 
+    if(!options.dayStart) options.dayStart = 0;
+    if(!options.dayEnd) options.dayEnd = 23;
+
     if(options.useHours || options.useHalfHours){
       hourIncrement = options.useHalfHours ? 0.5 : 1;
       options.useHours = true;
       if(options.dayStart && options.dayEnd){
         dayLength = options.dayEnd - options.dayStart;
-      } else {
-        options.dayStart = 0;
-        options.dayEnd = 23;
       }
       if(options.hourIncrement){
         hourIncrement = options.hourIncrement;
@@ -75,6 +75,9 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         $td.prop('gantt-date', d);
         $tr.append($td);
 
+        if(options.disableWeekends && [6,0].indexOf(d.getDay()) > -1){
+          $td.addClass('disabled');
+        }
 
         c++; dc++;
 
@@ -186,7 +189,15 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         $monthTr.append($th);
       }
       $timeTr.children().last().remove();
-      return [$monthTr, $dateTr, $weekdayTr, $timeTr];
+
+      var ret = [];
+
+      if(options.months) ret.push($monthTr);
+      ret.push($dateTr);
+      if(options.weekDays) ret.push($weekdayTr);
+      if(options.useHours) ret.push($timeTr);
+
+      return ret;
     }
 
     $table.append(tableHeader());

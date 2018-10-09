@@ -45,6 +45,10 @@ define([
             period: interaction.prop('period'),
             weekDays: interaction.prop('weekDays'),
             months: interaction.prop('months'),
+            dayStart: interaction.prop('dayStart'),
+            dayEnd: interaction.prop('dayEnd'),
+            useHours: interaction.prop('useHours'),
+            useHalfHours: interaction.prop('useHalfHours'),
             disableWeekends: interaction.prop('disableWeekends'),
             tasks: interaction.prop('tasks'),
             tasks_str: 'strstr',
@@ -70,8 +74,20 @@ define([
                 interaction.triggerPci('cfgChange', ['weekDays',value]);
             },
             useHours : function(interaction, value){
-                interaction.prop('weekDays', value);
+                interaction.prop('useHours', value);
                 interaction.triggerPci('cfgChange', ['useHours',value]);
+            },
+            useHalfHours : function(interaction, value){
+                interaction.prop('useHalfHours', value);
+                interaction.triggerPci('cfgChange', ['useHalfHours',value]);
+            },
+            dayStart : function(interaction, value){
+                interaction.prop('dayStart', value);
+                interaction.triggerPci('cfgChange', ['dayStart',value]);
+            },
+            dayEnd : function(interaction, value){
+                interaction.prop('dayEnd', value);
+                interaction.triggerPci('cfgChange', ['dayEnd',value]);
             },
             months : function(interaction, value){
                 interaction.prop('months', value);

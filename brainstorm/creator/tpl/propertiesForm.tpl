@@ -11,21 +11,21 @@
     <span class="tooltip-content">{{__ "Tooltip_messages"}}</span>
     <textarea name="messages">{{messages}}</textarea>
 
-
     <label for="messages">Tidsbegrænsning (Sekunder)</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_interval"}}</span>
-    <input type="number" name="timeLimit" value="{{timeLimit}}" />
+    <input type="text" name="timeLimit" value="{{timeLimit}}" />
 
     <label for="messages">Start tekst</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_interval"}}</span>
-    <input type="number" name="startText" value="{{startText}}" />
+    <input type="text" name="startText" value="{{startText}}" />
 
     <label for="messages">Slut tekst</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_interval"}}</span>
-    <input type="number" name="endText" value="{{endText}}" />
+    <input type="text" name="endText" value="{{endText}}" />
+
 </div>
 
 <div class="panel">
