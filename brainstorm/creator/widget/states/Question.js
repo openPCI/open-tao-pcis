@@ -64,6 +64,14 @@ define([
                 interaction.prop('nickname', value);
                 interaction.triggerPci('cfgChange', ['nickname',value]);
             },
+            startText: function(interaction, value){
+                interaction.prop('startText', value);
+                interaction.triggerPci('cfgChange', ['startText',value]);
+            },
+            endText: function(interaction, value){
+                interaction.prop('endText', value);
+                interaction.triggerPci('cfgChange', ['endText',value]);
+            },
             identifier : function(i, value){
                 response.id(value);
                 interaction.attr('responseIdentifier', value);

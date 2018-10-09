@@ -16,6 +16,16 @@
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_interval"}}</span>
     <input type="number" name="timeLimit" value="{{timeLimit}}" />
+
+    <label for="messages">Start tekst</label>
+    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+    <span class="tooltip-content">{{__ "Tooltip_interval"}}</span>
+    <input type="number" name="startText" value="{{startText}}" />
+
+    <label for="messages">Slut tekst</label>
+    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+    <span class="tooltip-content">{{__ "Tooltip_interval"}}</span>
+    <input type="number" name="endText" value="{{endText}}" />
 </div>
 
 <div class="panel">

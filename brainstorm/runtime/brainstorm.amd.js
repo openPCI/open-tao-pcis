@@ -78,10 +78,30 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         var timeLimitTimeout = setTimeout(endBrainstorm,timeLimit*1000);
       }
 
+      function showMsg(msg, onClick){
+        var $overlay = $dom.find('.msg-overlay');
+        $dom.find('.overlay-inner').text(msg);
+        $overlay.unbind('click');
+        $overlay.on('click', function(){ $(this).hide(); })
+        $overlay.on('click', onClick);
+        $overlay.show();
+      }
+
+      function showStartMsg(){
+        showMsg(config.startText, funtion(){ start(); })
+      }
+
+
+
+
       if(window.editor_mode){
         simulate();
       } else {
-        start();
+        if(config.startText){
+          showStartMsg();
+        } else {
+          start();
+        }
       }
 
     }
