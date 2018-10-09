@@ -1,0 +1,35 @@
+
+
+/*add some style, need to scope (using the typeIdentifier as class prefix) every style declaration to prevent collision */
+@import url('base.css');
+
+.qti-customInteraction .theroom .prompt {
+  position:relative;
+  width: 100%;
+}
+
+.qti-customInteraction .theroom .chat {
+    height: 200px;
+    border: 1px solid #ccc;
+    margin-bottom: 8px;
+    padding:4px;
+    overflow-y:scroll;
+    overflow-x:hidden;
+}
+
+.chat.theroom-ended {
+  opacity: 0.5;
+}
+
+.theroom .chat span {
+  margin-right:8px;
+  font-weight: bold;
+}
+.theroom .chat .name {
+  display:inline-block;
+  min-  width:60px;
+}
+
+.is-player {
+  font-style:italic;
+}
