@@ -46,6 +46,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       }
 
       function endBrainstorm(){
+        showMsg(config.endText);
         $dom.find('input').attr('disabled','disabled');
         $dom.find('.chat').addClass('brainstorm-ended');
       }
@@ -75,24 +76,26 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
           writeBotLine(str)
         });
 
+        $dom.find('input').focus();
+
         var timeLimitTimeout = setTimeout(endBrainstorm,timeLimit*1000);
       }
 
       function showMsg(msg, onClick){
+        $dom.append('<div class="msg-overlay"><span class="overlay-inner"></span></div>');
         var $overlay = $dom.find('.msg-overlay');
+
         $dom.find('.overlay-inner').text(msg);
-        $overlay.unbind('click');
-        $overlay.on('click', function(){ $(this).hide(); })
-        $overlay.on('click', onClick);
+        if(onClick){
+          $overlay.on('click', function(){ $(this).remove(); })
+          $overlay.on('click', onClick);
+        }
         $overlay.show();
       }
 
       function showStartMsg(){
-        showMsg(config.startText, funtion(){ start(); })
+        showMsg(config.startText, function(){ start(); })
       }
-
-
-
 
       if(window.editor_mode){
         simulate();
