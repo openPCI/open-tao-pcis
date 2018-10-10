@@ -77,7 +77,9 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         });
 
         $dom.find('input').focus();
-
+        $dom.find('input').on('keydown', function(evt){
+          evt.stopPropagation();
+        });
         var timeLimitTimeout = setTimeout(endBrainstorm,timeLimit*1000);
       }
 
