@@ -15,29 +15,55 @@ document.body.appendChild( renderer.domElement );
 //
 // TODO:
 // - [X] Camera movement
-// - [ ] Item placement
-// - [ ] Item Rotation
+// - [-] Item placement
+// - [ ] Wall sticky objects
+// - [X] Item Rotation
 // - [ ] Scoring
 // - [ ] Settings
 // - [ ] Postprocessing (outline selected prop) https://threejs.org/examples/webgl_postprocessing_outline.html
 
-
+// Currently loaded room scene
 var room;
+
+// Plane used for mouse hit detection
 var movePlane;
+
+// 3DObject with camera
 var lookObject;
+
+// 3DObject Camera object
 var cameraObject;
+
+// The scene camera
 var camera;
+
+// Mouse coordinates -1 - 1
 var mouse = new THREE.Vector2();
-var hudMouse = new THREE.Vector2();
+
+// Mouse movement delta
 var mouseDelta = new THREE.Vector2();
+
+// Last mouse position
 var lastMouse = new THREE.Vector2();
+
+// Left mouse down
 var mouseDown = false;
+
+// Currently moving / dragging object
 var movingObject;
+
+// Offset relative to mouse coord.
 var movingObjectOffset;
+
+// List of objects which should be collidable with the moving object
 var collisionObjects = [];
 
+// Initialize game HUD
 var hud = new GameHud();
 
+/**
+ * Load a GLTF resource from path
+ **/
 function loadGLtf(path, callback){
   // Instantiate a loader
   var loader = new THREE.GLTFLoader();
@@ -67,6 +93,13 @@ function loadGLtf(path, callback){
   );
 }
 
+
+/**
+ * addLighting - Adds default lighting to scene
+ *
+ * @param  {THREE.Scene} scene THREEJS Scene object
+ * @return {undefined}
+ */
 function addLighting(scene){
   // Add global light
   var globalLight = new THREE.AmbientLight( 0xffffff, 0.7 );
@@ -90,6 +123,13 @@ function addLighting(scene){
   scene.add(sunLight);
 };
 
+
+/**
+ * clearThree - Clears all children form a threejs object (scene / 3dObject). Also disposes gemoetries, textures and materials
+ *
+ * @param  {THREE.3DObject} obj The object t oclear
+ * @return {type}     description
+ */
 function clearThree(obj){
   while(obj.children.length > 0){
     clearThree(obj.children[0])
@@ -100,8 +140,17 @@ function clearThree(obj){
   if(obj.texture) obj.texture.dispose()
 }
 
+
+/**
+ * loadScene - load a scene and adds it to collision testing
+ *
+ * @param  {type} file GLTF scene to load
+ * @return {undefined}
+ */
 function loadScene(file){
   clearThree(scene);
+  collisionObjects = [];
+
   loadGLtf(file, function(gltf){
 
     movePlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(500, 500, 2, 2),
@@ -129,6 +178,88 @@ function loadScene(file){
 }
 
 
+
+function setMaterialProps(obj, props){
+  console.log(obj);
+  if(obj.matPropsSet) return;
+  obj.matPropsSet = true;
+  obj.traverse(function(o){
+    if(!o.material) return;
+    var mat = o.material;
+    for(var prop in props){
+      var value = props[prop];
+      if(!mat.defaultProps) mat.defaultProps = {};
+      if(typeof mat.defaultProps[prop] === "undefined"){
+        if(mat[prop].clone) mat.defaultProps[prop] = mat[prop].clone();
+        else mat.defaultProps[prop] = mat[prop] ;
+      }
+      if(mat[prop].set) mat[prop].set(value);
+      else mat[prop] = value;
+    }
+  });
+}
+
+function resetMaterial(obj){
+  if(!obj.matPropsSet) return
+  obj.matPropsSet = false;
+  obj.traverse(function(o){
+    if(!o.material) return;
+    var mat = o.material;
+    if(!mat.defaultProps) return;
+    for(var prop in mat.defaultProps){
+      if(mat[prop].set) mat[prop].set(mat.defaultProps[prop]);
+      else mat[prop] = mat.defaultProps[prop];
+    }
+  });
+}
+
+
+/**
+ * wallSnapObject - Handle snapping objects.
+ *
+ * @param  {type} object description
+ * @return {type}        description
+ */
+function wallSnapObject(object){
+  var snappers = [];
+  var targetObjects = [];
+  var snapped = false;
+  room.traverse(function(o){
+    if(o instanceof THREE.Mesh){
+      targetObjects.push(o);
+    }
+  });
+
+  object.traverse(function(o){
+    if(/snap/.test(o.name)){
+      snappers.push(o);
+    }
+  });
+  var rotation = new THREE.Quaternion();
+  snappers.forEach(function(snapper){
+    snapper.getWorldQuaternion(rotation);
+    var v = new THREE.Vector3(0,1,0);
+    v.applyQuaternion(rotation);
+    var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
+    var raycaster = new THREE.Raycaster( snapperPos, v, -0.4, 0.4);
+    var result = raycaster.intersectObjects(targetObjects);
+    if(result.length){
+      snapperPos.sub(result[0].point);
+      object.position.sub(snapperPos);
+      snapped = true;
+    }
+  });
+  return snapped;
+}
+
+
+/**
+ * collisionTest - Test collision between two objects by raytracing from the vertex "normals".
+ *
+ * @param  {type} test   Object A
+ * @param  {type} target Object B
+ * @return {type}        list of collision points
+ */
 function collisionTest(test, target){
   var testObjects = [];
   var targetObjects = [];
@@ -148,6 +279,14 @@ function collisionTest(test, target){
   });
 }
 
+
+/**
+ * getCollisions - Test collision between  a THREE.Mesh and a list of THREE.Mesh
+ *
+ * @param  {type} object        description
+ * @param  {type} targetObjects description
+ * @return {type}               description
+ */
 function getCollisions(object, targetObjects){
     var results = [];
     var geometry = object.geometry instanceof THREE.BufferGeometry ? new THREE.Geometry().fromBufferGeometry( object.geometry ) : object.geometry;
@@ -176,63 +315,58 @@ function getCollisions(object, targetObjects){
     return results;
 }
 
+
+/**
+ * testCollisionObjects - on frame handler for collision testing moving object.
+ *
+ * @return {type}  description
+ */
 function testCollisionObjects(){
   if(!movingObject) return;
 
   [movingObject].forEach(function(obj, i){
-   if(obj.collisionStatic) return;
+    if(obj.collisionStatic) return;
 
-   obj.traverse(function(o){
-     if(o instanceof THREE.Mesh){
-       if(o.material && o.material.origOpacity){
-         o.material.opacity = o.material.origOpacity;
-         o.material.color.set(o.material.origColor);
-       }
-     }
-   });
+    var objHit = false;
 
-   var others = collisionObjects.filter(item => item !== obj);
-
-   others.forEach(function(other){
-       var test = collisionTest(obj, other);
-       test.forEach(function(r){
-         v = new THREE.Vector3();
-         var hit = false;
-         r.forEach(function(t){
-           v.add(t.point.clone().sub(obj.position));
-           hit = true;
-         });
-         if(other.collisionStatic){
-           v.y=0;
-           v.normalize();
-           v.multiplyScalar(0.03);
-
-           obj.position.sub(v);
-           obj.updateMatrix();
-           obj.updateMatrixWorld(true);
+    collisionObjects.forEach(function(other){
+      if(other === obj) return;
+      var test = collisionTest(obj, other);
+      test.forEach(function(r){
+       v = new THREE.Vector3();
+       var hit = false;
+       r.forEach(function(t){
+         v.add(t.point.clone().sub(obj.position));
+         hit = true;
+       });
+       if(other.collisionStatic){
+         v.y=0;
+         v.normalize();
+         v.multiplyScalar(0.03);
+         obj.position.sub(v);
+         obj.updateMatrix();
+         obj.updateMatrixWorld(true);
         } else {
-          obj.traverse(function(o){
-            if(o instanceof THREE.Mesh){
-              if(o.material && hit){
-                if(!o.material.origOpacity){
-                  o.material.origColor = o.material.color.clone();
-                  o.material.origOpacity = o.material.opacity;
-                }
-
-                o.material.opacity = 0.3;
-
-                o.material.color.setHex(0xff0000);
-                o.material.transparent = true;
-              }
-            }
-          });
+          if(hit) objHit = true;
         }
-     });
+      });
+    });
 
-   });
- });
+    if(objHit){
+      setMaterialProps(obj, {opacity: 0.3, color: 0xff0000})
+    } else {
+      resetMaterial(obj);
+    }
+  });
 }
 
+
+
+/**
+ * addCameraHelper - Adds the camera helper objects to the scene.
+ *
+ * @return {type}  description
+ */
 function addCameraHelper(){
   camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
   camera.position.z = 10;
@@ -247,75 +381,115 @@ function addCameraHelper(){
 
 }
 
+
+/**
+ * addMoveable - add a moveable object to the scene
+ *
+ * @param  {type} group description
+ * @return {type}       description
+ */
 function addMoveable(group){
+  // Clone materials.
   group.traverse(function(o){
     if(o instanceof THREE.Mesh){
       o.material = o.material.clone();
     }
   });
+
   scene.add(group);
   moveables.push(group);
   collisionObjects.push(group);
 }
 
-window.addEventListener( 'mousedown', function(event){
-  mouseDown = true;
-  movingObject = null;
-  console.log(hudMouse);
 
-  for(var i = 0; i < hud.droppables.length; i++){
-    var intersects = hudRaycaster.intersectObjects( hud.droppables[i].prop.children );
-    if(intersects.length){
-      console.log(intersects);
-      var prop = hud.droppables[i].gltf.scene.clone();
-      addMoveable(prop);
-      movingObject = prop;
-      return;
+/**
+ * loadMoveable - Load a GLTF model and put it in the GUI
+ *
+ * @param  {type} asset description
+ * @return {type}       description
+ */
+function loadMoveable(asset){
+  loadGLtf(asset, function(gltf){
+    gltf.scene.traverse(function(o){
+      if(o instanceof THREE.Mesh){
+        if(o.name && /glass/.test(o.name)) return;
+        if(o.name && /^snap/.test(o.name)){
+          gltf.scene.userData.wallSnap = true;
+          o.visible = false;
+        }
+        if(o.name && /obj_snap/.test(o.name)){
+          gltf.scene.userData.objSnap = true;
+          o.visible = false;
+        }
+
+        o.receiveShadow = true;
+        o.castShadow = true;
+      }
+
+    });
+
+    hud.addDroppable(gltf);
+  });
+
+}
+
+function setupInputListeners(){
+  window.addEventListener( 'mousedown', function(event){
+    mouseDown = true;
+    movingObject = null;
+
+    for(var i = 0; i < hud.droppables.length; i++){
+      var intersects = hudRaycaster.intersectObjects( hud.droppables[i].prop.children );
+      if(intersects.length){
+        //console.log(intersects);
+        var prop = hud.droppables[i].gltf.scene.clone();
+        addMoveable(prop);
+        movingObject = prop;
+        return;
+      }
     }
-  }
 
-  for(var i = 0; i < moveables.length; i++){
-    var intersects = raycaster.intersectObjects( moveables[i].children );
-    if(intersects.length){
-      movingObject = moveables[i];
-      return;
+    for(var i = 0; i < moveables.length; i++){
+      var intersects = raycaster.intersectObjects( moveables[i].children );
+      if(intersects.length){
+        movingObject = moveables[i];
+        return;
+      }
     }
-  }
-}, false);
+  }, false);
 
-window.addEventListener( 'mouseup', function(event){
-  mouseDown = false;
-  movingObjectOffset = null;
-}, false);
+  window.addEventListener( 'mouseup', function(event){
+    mouseDown = false;
+    movingObjectOffset = null;
+  }, false);
 
-window.addEventListener( 'mousewheel', function(event){
+  window.addEventListener( 'mousewheel', function(event){
 
-  cameraObject.position.z += event.deltaY/100;
-  event.preventDefault();
-});
+    cameraObject.position.z += event.deltaY/100;
+    event.preventDefault();
+  });
 
-window.addEventListener( 'mousemove', function ( event ) {
-  lastMouse.copy(mouse);
-	// calculate mouse position in normalized device coordinates
-	// (-1 to +1) for both components
-	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  window.addEventListener( 'mousemove', function ( event ) {
+    lastMouse.copy(mouse);
+  	// calculate mouse position in normalized device coordinates
+  	// (-1 to +1) for both components
+  	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-  hudMouse.x = ( event.clientX / window.innerWidth ) * hud.width;
-  hudMouse.y = ( event.clientY / window.innerHeight ) * hud.height;
-  mouseDelta.copy(mouse);
-  mouseDelta.sub(lastMouse);
-}, false );
+    mouseDelta.copy(mouse);
+    mouseDelta.sub(lastMouse);
+  }, false );
 
-window.addEventListener( 'keydown', function( event) {
-  if(!movingObject) return;
-  if(event.key == "ArrowRight"){
-    movingObject.rotation.y -= Math.PI / 2;
-  }
-  if(event.key == "ArrowLeft"){
-    movingObject.rotation.y += Math.PI / 2;
-  }
-}, false)
+  window.addEventListener( 'keydown', function( event) {
+    if(!movingObject) return;
+    if(event.key == "ArrowRight"){
+      movingObject.rotation.y -= Math.PI / 2;
+    }
+    if(event.key == "ArrowLeft"){
+      movingObject.rotation.y += Math.PI / 2;
+    }
+  }, false)
+}
 
 var animate = function () {
 
@@ -333,6 +507,7 @@ var animate = function () {
 
     if(movingObject){
       if(!movingObjectOffset) movingObjectOffset = intersects[0].point.clone().sub(movingObject.position);
+
       var test = collisionTest(movingObject, room);
       var hit = false;
       test.forEach(function(r){
@@ -340,7 +515,7 @@ var animate = function () {
           hit = true;
         });
       });
-      if(!hit){
+      if(!hit || movingObject.userData.wallSnap){
         var v = movingObject.position.clone().sub(intersects[0].point.clone().sub(movingObjectOffset));
         var dist = v.length();
         v.normalize();
@@ -349,6 +524,14 @@ var animate = function () {
         movingObject.position.sub(v);
         movingObject.updateMatrix();
         movingObject.updateMatrixWorld(true);
+      }
+
+      if(movingObject.userData.wallSnap){
+        if(wallSnapObject(movingObject)){
+          resetMaterial(movingObject);
+        } else {
+          setMaterialProps(movingObject, {opacity: 0.3, transparent: true})
+        }
       }
     } else {
       lookObject.position.x -= mouseDelta.x * 10;
@@ -364,40 +547,9 @@ var animate = function () {
 	renderer.render( scene, camera );
 };
 
+setupInputListeners();
+
 loadScene('room1.gltf');
 
-loadGLtf('montre.gltf', function(gltf){
-  gltf.scene.traverse(function(o){
-    if(o instanceof THREE.Mesh){
-      if(o.name && /glass/.test(o.name)) return;
-      o.receiveShadow = true;
-      o.castShadow = true;
-    }
-  })
-  addMoveable(gltf.scene);
-})
-
-loadGLtf('montre.gltf', function(gltf){
-  gltf.scene.traverse(function(o){
-    if(o instanceof THREE.Mesh){
-      if(o.name && /glass/.test(o.name)) return;
-      o.receiveShadow = true;
-      o.castShadow = true;
-      o.material.origOpacity = o.material.opacity;
-    }
-  })
-
-  hud.addDroppable(gltf);
-})
-
-loadGLtf('montre2.gltf', function(gltf){
-  gltf.scene.traverse(function(o){
-    if(o instanceof THREE.Mesh){
-      if(o.name && /glass/.test(o.name)) return;
-      o.receiveShadow = true;
-      o.castShadow = true;
-    }
-  })
-
-  hud.addDroppable(gltf);
-})
+loadMoveable('montre.gltf');
+loadMoveable('montre2.gltf');
