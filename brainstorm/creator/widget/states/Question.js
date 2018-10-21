@@ -44,6 +44,8 @@ define([
             timeLimit: interaction.prop('timeLimit'),
             nickname: interaction.prop('nickname'),
             messages: interaction.prop('messages'),
+            startText: interaction.prop('startText'),
+            endText: interaction.prop('endText'),
             identifier : interaction.attr('responseIdentifier')
         }));
 

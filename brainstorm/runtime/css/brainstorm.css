@@ -33,3 +33,21 @@
 .is-player {
   font-style:italic;
 }
+
+.brainstorm .msg-overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: rgba(100,100,100,0.1);
+  text-align:center;
+}
+.brainstorm .overlay-inner {
+  cursor:pointer;
+  top: 38%;
+  position: relative;
+  font-size: 24px;
+  font-weight: bold;
+  margin: auto;
+}
