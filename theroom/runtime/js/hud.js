@@ -32,9 +32,10 @@ var GameHud = function(){
     prop.rotation.y = 4;
 
     prop.position.x = 2 + (4*droppableProps.length);
-
+    prop.scale.setScalar(0.6);
+    console.log(prop);
     hudScene.add(prop);
-    droppableProps.push(info)
+    droppableProps.push(info);
     console.log(hudScene);
   }
 

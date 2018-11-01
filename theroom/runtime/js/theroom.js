@@ -61,6 +61,8 @@ var collisionObjects = [];
 // Initialize game HUD
 var hud = new GameHud();
 
+var objectBehaviors = [WallSnapObject, PointSnapObject];
+
 /**
  * Load a GLTF resource from path
  **/
@@ -180,7 +182,6 @@ function loadScene(file){
 
 
 function setMaterialProps(obj, props){
-  console.log(obj);
   if(obj.matPropsSet) return;
   obj.matPropsSet = true;
   obj.traverse(function(o){
@@ -213,44 +214,6 @@ function resetMaterial(obj){
   });
 }
 
-
-/**
- * wallSnapObject - Handle snapping objects.
- *
- * @param  {type} object description
- * @return {type}        description
- */
-function wallSnapObject(object){
-  var snappers = [];
-  var targetObjects = [];
-  var snapped = false;
-  room.traverse(function(o){
-    if(o instanceof THREE.Mesh){
-      targetObjects.push(o);
-    }
-  });
-
-  object.traverse(function(o){
-    if(/snap/.test(o.name)){
-      snappers.push(o);
-    }
-  });
-  var rotation = new THREE.Quaternion();
-  snappers.forEach(function(snapper){
-    snapper.getWorldQuaternion(rotation);
-    var v = new THREE.Vector3(0,1,0);
-    v.applyQuaternion(rotation);
-    var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
-    var raycaster = new THREE.Raycaster( snapperPos, v, -0.4, 0.4);
-    var result = raycaster.intersectObjects(targetObjects);
-    if(result.length){
-      snapperPos.sub(result[0].point);
-      object.position.sub(snapperPos);
-      snapped = true;
-    }
-  });
-  return snapped;
-}
 
 
 /**
@@ -340,7 +303,6 @@ function testCollisionObjects(){
          hit = true;
        });
        if(other.collisionStatic){
-         v.y=0;
          v.normalize();
          v.multiplyScalar(0.03);
          obj.position.sub(v);
@@ -351,12 +313,6 @@ function testCollisionObjects(){
         }
       });
     });
-
-    if(objHit){
-      setMaterialProps(obj, {opacity: 0.3, color: 0xff0000})
-    } else {
-      resetMaterial(obj);
-    }
   });
 }
 
@@ -396,6 +352,13 @@ function addMoveable(group){
     }
   });
 
+  objectBehaviors.some(function(b){
+    if(b.onObjectLoad(group)){
+      group.behavior = b;
+      return true;
+    }
+  });
+
   scene.add(group);
   moveables.push(group);
   collisionObjects.push(group);
@@ -410,20 +373,16 @@ function addMoveable(group){
  */
 function loadMoveable(asset){
   loadGLtf(asset, function(gltf){
+    // Force shadows on and handle special case with glass
     gltf.scene.traverse(function(o){
       if(o instanceof THREE.Mesh){
         if(o.name && /glass/.test(o.name)) return;
-        if(o.name && /^snap/.test(o.name)){
-          gltf.scene.userData.wallSnap = true;
-          o.visible = false;
-        }
-        if(o.name && /obj_snap/.test(o.name)){
-          gltf.scene.userData.objSnap = true;
-          o.visible = false;
-        }
-
         o.receiveShadow = true;
         o.castShadow = true;
+
+        if(o.name && /snap/.test(o.name)){
+          o.material.visible = false;
+        }
       }
 
     });
@@ -453,6 +412,7 @@ function setupInputListeners(){
       var intersects = raycaster.intersectObjects( moveables[i].children );
       if(intersects.length){
         movingObject = moveables[i];
+        behavior(movingObject, 'onDragStart', [movingObject]);
         return;
       }
     }
@@ -491,6 +451,14 @@ function setupInputListeners(){
   }, false)
 }
 
+function behavior(obj, listener, params){
+  if(obj.behavior){
+    if(obj.behavior[listener]){
+      return obj.behavior[listener].apply(obj, params);
+    }
+  }
+}
+
 var animate = function () {
 
   // update the picking ray with the camera and mouse position
@@ -499,39 +467,49 @@ var animate = function () {
   hudRaycaster.far = 100;
   hudRaycaster.near = -100
 
-  testCollisionObjects();
 
   // calculate objects intersecting the picking ray
 	var intersects = raycaster.intersectObjects( [movePlane] );
   if(intersects.length && mouseDown){
 
     if(movingObject){
-      if(!movingObjectOffset) movingObjectOffset = intersects[0].point.clone().sub(movingObject.position);
-
       var test = collisionTest(movingObject, room);
       var hit = false;
-      test.forEach(function(r){
-        r.forEach(function(t){
+      test.some(function(r){
+        r.some(function(t){
           hit = true;
+          return true;
         });
+        if(hit) return true;
       });
-      if(!hit || movingObject.userData.wallSnap){
+
+      var ignoreHit = false;
+      if(hit){
+        var result = behavior(movingObject, 'onMovingCollide', [movingObject, test]);
+        if(result) ignoreHit = true;
+      }
+
+      if(!hit || ignoreHit){
+
+        var dontMove = behavior(movingObject, 'onDrag', [movingObject, movingObject.position, oldPos]);
+        if(dontMove){
+          return;
+        }
+        if(!movingObjectOffset) movingObjectOffset = intersects[0].point.clone().sub(movingObject.position);
         var v = movingObject.position.clone().sub(intersects[0].point.clone().sub(movingObjectOffset));
         var dist = v.length();
         v.normalize();
         v.multiplyScalar(dist*0.1);
         v.y = 0;
+
+        var oldPos = movingObject.position.clone();
         movingObject.position.sub(v);
+
+
         movingObject.updateMatrix();
         movingObject.updateMatrixWorld(true);
-      }
 
-      if(movingObject.userData.wallSnap){
-        if(wallSnapObject(movingObject)){
-          resetMaterial(movingObject);
-        } else {
-          setMaterialProps(movingObject, {opacity: 0.3, transparent: true})
-        }
+
       }
     } else {
       lookObject.position.x -= mouseDelta.x * 10;
@@ -551,5 +529,8 @@ setupInputListeners();
 
 loadScene('room1.gltf');
 
-loadMoveable('montre.gltf');
-loadMoveable('montre2.gltf');
+loadMoveable('minigolf/end_piece.gltf');
+loadMoveable('minigolf/straight.gltf');
+loadMoveable('minigolf/slope.gltf');
+loadMoveable('minigolf/start.gltf');
+loadMoveable('minigolf/hole.gltf');
