@@ -278,46 +278,6 @@ function getCollisions(object, targetObjects){
     return results;
 }
 
-
-/**
- * testCollisionObjects - on frame handler for collision testing moving object.
- *
- * @return {type}  description
- */
-function testCollisionObjects(){
-  if(!movingObject) return;
-
-  [movingObject].forEach(function(obj, i){
-    if(obj.collisionStatic) return;
-
-    var objHit = false;
-
-    collisionObjects.forEach(function(other){
-      if(other === obj) return;
-      var test = collisionTest(obj, other);
-      test.forEach(function(r){
-       v = new THREE.Vector3();
-       var hit = false;
-       r.forEach(function(t){
-         v.add(t.point.clone().sub(obj.position));
-         hit = true;
-       });
-       if(other.collisionStatic){
-         v.normalize();
-         v.multiplyScalar(0.03);
-         obj.position.sub(v);
-         obj.updateMatrix();
-         obj.updateMatrixWorld(true);
-        } else {
-          if(hit) objHit = true;
-        }
-      });
-    });
-  });
-}
-
-
-
 /**
  * addCameraHelper - Adds the camera helper objects to the scene.
  *
@@ -329,9 +289,11 @@ function addCameraHelper(){
 
   lookObject = new THREE.Object3D();
   cameraObject = new THREE.Object3D();
+  rotateObject = new THREE.Object3D();
   cameraObject.position.z = 10;
-  lookObject.rotation.x = 5;
-  lookObject.add(cameraObject);
+  rotateObject.rotation.x = 5.5;
+  lookObject.add(rotateObject);
+  rotateObject.add(cameraObject);
   cameraObject.add(camera);
   scene.add(lookObject);
 
@@ -392,7 +354,16 @@ function loadMoveable(asset){
 
 }
 
+var rotate = 0;
+
 function setupInputListeners(){
+  document.getElementById('rotateLeft').addEventListener('mousedown', function(event){
+    rotate = -1;
+  });
+  document.getElementById('rotateRight').addEventListener('mousedown', function(event){
+    rotate = 1;
+  });
+
   window.addEventListener( 'mousedown', function(event){
     mouseDown = true;
     movingObject = null;
@@ -418,9 +389,11 @@ function setupInputListeners(){
     }
   }, false);
 
+
   window.addEventListener( 'mouseup', function(event){
     mouseDown = false;
     movingObjectOffset = null;
+    rotate = 0;
   }, false);
 
   window.addEventListener( 'mousewheel', function(event){
@@ -460,7 +433,7 @@ function behavior(obj, listener, params){
 }
 
 var animate = function () {
-
+  lookObject.rotation.y += rotate * 0.02;
   // update the picking ray with the camera and mouse position
 	raycaster.setFromCamera( mouse, camera );
   hudRaycaster.setFromCamera( mouse, hud.camera );
@@ -512,8 +485,11 @@ var animate = function () {
 
       }
     } else {
-      lookObject.position.x -= mouseDelta.x * 10;
-      lookObject.position.z += mouseDelta.y * 10;
+      var v = mouseDelta.clone();
+      v.rotateAround(new THREE.Vector2(0,0), lookObject.rotation.y);
+      console.log(v);
+      lookObject.position.x -= v.x * 10;
+      lookObject.position.z += v.y * 10;
       mouseDelta.set(0,0);
     }
 
@@ -525,12 +501,15 @@ var animate = function () {
 	renderer.render( scene, camera );
 };
 
-setupInputListeners();
+document.addEventListener("DOMContentLoaded", function(){
 
-loadScene('room1.gltf');
+  setupInputListeners();
 
-loadMoveable('minigolf/end_piece.gltf');
-loadMoveable('minigolf/straight.gltf');
-loadMoveable('minigolf/slope.gltf');
-loadMoveable('minigolf/start.gltf');
-loadMoveable('minigolf/hole.gltf');
+  loadScene('room1.gltf');
+
+  loadMoveable('minigolf/end_piece.gltf');
+  loadMoveable('minigolf/straight.gltf');
+  loadMoveable('minigolf/slope.gltf');
+  loadMoveable('minigolf/start.gltf');
+  loadMoveable('minigolf/hole.gltf');
+});
