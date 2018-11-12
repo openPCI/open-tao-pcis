@@ -3,6 +3,7 @@ var urlPath = '../models/';
 var moveables = [];
 
 var scene = new THREE.Scene();
+var boundingbox;
 var raycaster = new THREE.Raycaster();
 var hudRaycaster = new THREE.Raycaster();
 var renderer = new THREE.WebGLRenderer();
@@ -27,7 +28,7 @@ var room;
 
 // Plane used for mouse hit detection
 var movePlane;
-
+var movePlanePosition;
 // 3DObject with camera
 var lookObject;
 
@@ -55,8 +56,6 @@ var movingObject;
 // Offset relative to mouse coord.
 var movingObjectOffset;
 
-// List of objects which should be collidable with the moving object
-var collisionObjects = [];
 
 // Initialize game HUD
 var hud = new GameHud();
@@ -117,7 +116,7 @@ function addLighting(scene){
   sunLight.position.z = 20;
 
   // Shadow stuff
-  sunLight.shadow = new THREE.LightShadow( new THREE.PerspectiveCamera( 50, 1, 1, 100 ) );
+  sunLight.shadow = new THREE.LightShadow( new THREE.PerspectiveCamera( 75, 1, 1, 100 ) );
   sunLight.shadow.mapSize.x = 512;
   sunLight.shadow.mapSize.y = 512;
   sunLight.shadow.bias = 0.0001;
@@ -151,7 +150,6 @@ function clearThree(obj){
  */
 function loadScene(file){
   clearThree(scene);
-  collisionObjects = [];
 
   loadGLtf(file, function(gltf){
 
@@ -169,8 +167,13 @@ function loadScene(file){
       }
     });
     gltf.scene.collisionStatic = true;
-    collisionObjects.push(gltf.scene);
-    scene.add(gltf.scene)
+    scene.add(gltf.scene);
+    var bbobj = scene.getObjectByName('boundingbox');
+    console.log(bbobj);
+    if(bbobj){
+      boundingbox = new THREE.Box3().setFromObject(bbobj);
+      bbobj.parent.remove(bbobj);
+    }
     room = gltf.scene;
 
     addLighting(scene);
@@ -252,7 +255,8 @@ function collisionTest(test, target){
  */
 function getCollisions(object, targetObjects){
     var results = [];
-    var geometry = object.geometry instanceof THREE.BufferGeometry ? new THREE.Geometry().fromBufferGeometry( object.geometry ) : object.geometry;
+    var geometry = object.tmpGeom || (object.geometry instanceof THREE.BufferGeometry ? new THREE.Geometry().fromBufferGeometry( object.geometry ) : object.geometry);
+    object.tmpGeom = geometry;
     if(geometry.vertices.length < 25)
     for (var vertexIndex = 0; vertexIndex < geometry.vertices.length; vertexIndex++)
     {
@@ -323,8 +327,22 @@ function addMoveable(group){
 
   scene.add(group);
   moveables.push(group);
-  collisionObjects.push(group);
+
+  if(movePlanePosition){
+    group.position.x = movePlanePosition.x;
+    group.position.z = movePlanePosition.z;
+  }
+
 }
+
+function removeMoveable(group){
+    scene.remove(group);
+
+    moveables = moveables.filter(function(o){
+      return o !== group;
+    });
+}
+
 
 
 /**
@@ -391,6 +409,11 @@ function setupInputListeners(){
 
 
   window.addEventListener( 'mouseup', function(event){
+    if(movingObject && boundingbox){
+      if(!boundingbox.containsPoint(movingObject.position)){
+        removeMoveable(movingObject);
+      }
+    }
     mouseDown = false;
     movingObjectOffset = null;
     rotate = 0;
@@ -414,11 +437,12 @@ function setupInputListeners(){
   }, false );
 
   window.addEventListener( 'keydown', function( event) {
+    console.log('key', event);
     if(!movingObject) return;
-    if(event.key == "ArrowRight"){
+    if(/Right$/.test(event.key)){
       movingObject.rotation.y -= Math.PI / 2;
     }
-    if(event.key == "ArrowLeft"){
+    if(/Left$/.test(event.key)){
       movingObject.rotation.y += Math.PI / 2;
     }
   }, false)
@@ -443,6 +467,8 @@ var animate = function () {
 
   // calculate objects intersecting the picking ray
 	var intersects = raycaster.intersectObjects( [movePlane] );
+  movePlanePosition = intersects[0].point.clone();
+  movePlanePosition.y = 0;
   if(intersects.length && mouseDown){
 
     if(movingObject){
@@ -483,13 +509,26 @@ var animate = function () {
         movingObject.updateMatrixWorld(true);
 
 
+      } else if(hit){
+        test.forEach(function(r){
+         v = new THREE.Vector3();
+         r.forEach(function(t){
+           v.add(t.point.clone().sub(movingObject.position));
+         });
+         v.normalize();
+         v.multiplyScalar(0.01);
+         v.y = 0;
+         movingObject.position.sub(v);
+         movingObject.updateMatrix();
+         movingObject.updateMatrixWorld(true);
+        });
       }
     } else {
       var v = mouseDelta.clone();
       v.rotateAround(new THREE.Vector2(0,0), lookObject.rotation.y);
-      console.log(v);
       lookObject.position.x -= v.x * 10;
       lookObject.position.z += v.y * 10;
+      boundingbox.clampPoint(lookObject.position, lookObject.position);
       mouseDelta.set(0,0);
     }
 
@@ -505,11 +544,18 @@ document.addEventListener("DOMContentLoaded", function(){
 
   setupInputListeners();
 
+  loadScene('museum.gltf');
+  loadMoveable('museum/montre_svaerd.gltf');
+  loadMoveable('museum/montre_skjold.gltf');
+  loadMoveable('museum/plakat_svaerd.gltf');
+  loadMoveable('museum/vagt.gltf');
+  loadMoveable('test.gltf');
+/*
   loadScene('room1.gltf');
 
   loadMoveable('minigolf/end_piece.gltf');
   loadMoveable('minigolf/straight.gltf');
   loadMoveable('minigolf/slope.gltf');
   loadMoveable('minigolf/start.gltf');
-  loadMoveable('minigolf/hole.gltf');
+  loadMoveable('minigolf/hole.gltf');*/
 });

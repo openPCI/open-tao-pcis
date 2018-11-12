@@ -55,6 +55,10 @@
       <button id="rotateLeft" class="btn rotate-left"><img src="assets/rotate_right.png" /></button>
       <button id="rotateRight" class="btn rotate-left"><img src="assets/rotate_left.png" /></button>
     </div>
+    <script type="text/javascript">
+        if(/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');
+    </script>
 		<script src="js/three.js"></script>
     <script src="js/loaders/GLTFLoader.js"></script>
     <script src="js/hud.js"></script>

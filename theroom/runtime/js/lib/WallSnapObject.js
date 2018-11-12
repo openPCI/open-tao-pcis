@@ -66,7 +66,7 @@ var WallSnapObject = function(){
       }
     },
     onMovingCollide: function(object, collisionData){
-      return true;
+      return true; //Ignore collision
     },
     onDragStart: function(){
 
