@@ -494,11 +494,11 @@ var animate = function () {
   hudRaycaster.far = 100;
   hudRaycaster.near = -100
 
-
-  // calculate objects intersecting the picking ray
 	var intersects = raycaster.intersectObjects( [movePlane] );
-  movePlanePosition = intersects[0].point.clone();
-  movePlanePosition.y = 0;
+  if(intersects.length){
+    movePlanePosition = intersects[0].point.clone();
+    movePlanePosition.y = 0;
+  }
   if(intersects.length && mouseDown){
 
     if(movingObject){
