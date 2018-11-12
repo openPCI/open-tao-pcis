@@ -142,6 +142,30 @@ function clearThree(obj){
 }
 
 
+function loadExcersize(definitionUrl){
+  var xmlhttp = new XMLHttpRequest();
+
+  function readDefinition(json){
+    loadScene(json.scene);
+
+    var loadNext = function(){
+      var asset = json.assets.shift();
+      loadMoveable(asset.model, asset.count || 1, loadNext);
+    }
+
+    loadNext();
+  }
+
+  xmlhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+          readDefinition(JSON.parse(this.responseText));
+      }
+  };
+
+  xmlhttp.open("GET", urlPath + definitionUrl, true);
+  xmlhttp.send();
+}
+
 /**
  * loadScene - load a scene and adds it to collision testing
  *
@@ -337,7 +361,7 @@ function addMoveable(group){
 
 function removeMoveable(group){
     scene.remove(group);
-
+    hud.removeDroppable(group.info)
     moveables = moveables.filter(function(o){
       return o !== group;
     });
@@ -351,7 +375,7 @@ function removeMoveable(group){
  * @param  {type} asset description
  * @return {type}       description
  */
-function loadMoveable(asset){
+function loadMoveable(asset, count, callback){
   loadGLtf(asset, function(gltf){
     // Force shadows on and handle special case with glass
     gltf.scene.traverse(function(o){
@@ -367,7 +391,8 @@ function loadMoveable(asset){
 
     });
 
-    hud.addDroppable(gltf);
+    hud.addDroppable(gltf, count);
+    if(callback) callback();
   });
 
 }
@@ -390,8 +415,13 @@ function setupInputListeners(){
       var intersects = hudRaycaster.intersectObjects( hud.droppables[i].prop.children );
       if(intersects.length){
         //console.log(intersects);
+        var hudInfo = hud.droppables[i];
         var prop = hud.droppables[i].gltf.scene.clone();
-        addMoveable(prop);
+        prop.info = hudInfo;
+        if(hudInfo.count > 0){
+          addMoveable(prop);
+          hud.placeDroppable(hudInfo);
+        }
         movingObject = prop;
         return;
       }
@@ -544,12 +574,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
   setupInputListeners();
 
-  loadScene('museum.gltf');
-  loadMoveable('museum/montre_svaerd.gltf');
-  loadMoveable('museum/montre_skjold.gltf');
-  loadMoveable('museum/plakat_svaerd.gltf');
-  loadMoveable('museum/vagt.gltf');
-  loadMoveable('test.gltf');
+  loadExcersize('museum.json');
 /*
   loadScene('room1.gltf');
 

@@ -22,9 +22,9 @@ var GameHud = function(){
 
   hudScene.add( hudCamera )
 
-  function hudAddDroppable(gltf){
+  function hudAddDroppable(gltf, count){
     var prop = gltf.scene.clone();
-    var info = {gltf: gltf, prop: prop};
+    var info = {gltf: gltf, prop: prop, count: count};
 
     prop.info = info;
     prop.rotation.x = Math.PI / 4
@@ -33,22 +33,32 @@ var GameHud = function(){
 
     prop.position.x = 2 + (4*droppableProps.length);
     prop.scale.setScalar(0.6);
-    console.log(prop);
     hudScene.add(prop);
     droppableProps.push(info);
-    console.log(hudScene);
+  }
+
+  function placeDroppable(info){
+    if(info.count > 0){
+      info.count --;
+      if(info.count == 0){
+        setMaterialProps(info.prop, {opacity: 0.3, transparent: true})
+      }
+    }
+  }
+
+  function removeDroppable(info){
+    resetMaterial(info.prop);
+    info.count ++;
   }
 
   var raycaster = new THREE.Raycaster();
 
 
   this.render = function(){
-    droppableProps.forEach(function(p){
-      //p.prop.rotation.y += 0.005;
-    });
-
     hudRenderer.render( hudScene, hudCamera );
   }
 
   this.addDroppable = hudAddDroppable;
+  this.placeDroppable = placeDroppable;
+  this.removeDroppable = removeDroppable;
 }
