@@ -414,13 +414,11 @@ function setupInputListeners(){
     for(var i = 0; i < hud.droppables.length; i++){
       var intersects = hudRaycaster.intersectObjects( hud.droppables[i].prop.children );
       if(intersects.length){
-        //console.log(intersects);
         var hudInfo = hud.droppables[i];
-        var prop = hud.droppables[i].gltf.scene.clone();
-        prop.info = hudInfo;
-        if(hudInfo.count > 0){
+        if(hud.placeDroppable(hudInfo)){
+          var prop = hud.droppables[i].gltf.scene.clone();
+          prop.info = hudInfo;
           addMoveable(prop);
-          hud.placeDroppable(hudInfo);
         }
         movingObject = prop;
         return;

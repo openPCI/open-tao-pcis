@@ -24,6 +24,11 @@ var GameHud = function(){
 
   function hudAddDroppable(gltf, count){
     var prop = gltf.scene.clone();
+    prop.traverse(function(o){
+      if(o instanceof THREE.Mesh){
+        o.material = o.material.clone();
+      }
+    });
     var info = {gltf: gltf, prop: prop, count: count};
 
     prop.info = info;
@@ -43,7 +48,9 @@ var GameHud = function(){
       if(info.count == 0){
         setMaterialProps(info.prop, {opacity: 0.3, transparent: true})
       }
+      return true;
     }
+    return false;
   }
 
   function removeDroppable(info){
