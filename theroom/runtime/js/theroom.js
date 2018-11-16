@@ -3,6 +3,7 @@ var urlPath = '../models/';
 var moveables = [];
 
 var scene = new THREE.Scene();
+var scenePath;
 var boundingbox;
 var raycaster = new THREE.Raycaster();
 var hudRaycaster = new THREE.Raycaster();
@@ -62,12 +63,57 @@ var hud = new GameHud();
 
 var objectBehaviors = [WallSnapObject, PointSnapObject];
 
+
+function sendMessage(type, value){
+  if(window.parent)
+    window.parent.postMessage({
+      type: type,
+      value: value
+    },'*');
+}
+
+function postResult(){
+  sendMessage('updateResult', JSON.stringify(serializeMoveables()));
+}
+
+function serializeMoveables(){
+  var result = [];
+  moveables.forEach(function(o){
+    var obj = {
+      id: o.userData.modelPath,
+      pos: o.position.toArray(),
+      rot: o.rotation.toArray()
+    }
+    result.push(obj);
+  });
+  return {scene: scenePath, objects: result};
+}
+
+function deserializeMoveables(data){
+  if(data.scene !== scenePath)
+    loadScene(data.scene);
+
+  data.objects.forEach(function(info){
+    loadGLtf(info.id, function(gltf){
+      modifyModel(gltf.scene);
+      scene.add(gltf.scene);
+      gltf.scene.position.fromArray(info.pos);
+      gltf.scene.rotation.fromArray(info.rot);
+    })
+  });
+}
+
 /**
  * Load a GLTF resource from path
  **/
 function loadGLtf(path, callback){
   // Instantiate a loader
   var loader = new THREE.GLTFLoader();
+
+  var cb = function(gltf){
+    gltf.scene.userData.modelPath = path;
+    callback(gltf);
+  }
 
   // Optional: Provide a DRACOLoader instance to decode compressed mesh data
   // THREE.DRACOLoader.setDecoderPath( '/examples/js/libs/draco' );
@@ -78,7 +124,7 @@ function loadGLtf(path, callback){
   	// resource URL
   	urlPath + path,
   	// called when the resource is loaded
-  	callback,
+  	cb,
   	// called while loading is progressing
   	function ( xhr ) {
 
@@ -176,6 +222,7 @@ function loadScene(file){
   clearThree(scene);
 
   loadGLtf(file, function(gltf){
+    scenePath = file;
 
     movePlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(500, 500, 2, 2),
        new THREE.MeshBasicMaterial( {
@@ -367,6 +414,19 @@ function removeMoveable(group){
     });
 }
 
+function modifyModel(scene){
+  scene.traverse(function(o){
+    if(o instanceof THREE.Mesh){
+      if(o.name && /glass/.test(o.name)) return;
+      o.receiveShadow = true;
+      o.castShadow = true;
+
+      if(o.name && /snap/.test(o.name)){
+        o.material.visible = false;
+      }
+    }
+  });
+}
 
 
 /**
@@ -378,18 +438,7 @@ function removeMoveable(group){
 function loadMoveable(asset, count, callback){
   loadGLtf(asset, function(gltf){
     // Force shadows on and handle special case with glass
-    gltf.scene.traverse(function(o){
-      if(o instanceof THREE.Mesh){
-        if(o.name && /glass/.test(o.name)) return;
-        o.receiveShadow = true;
-        o.castShadow = true;
-
-        if(o.name && /snap/.test(o.name)){
-          o.material.visible = false;
-        }
-      }
-
-    });
+    modifyModel(gltf.scene)
 
     hud.addDroppable(gltf, count);
     if(callback) callback();
@@ -400,6 +449,27 @@ function loadMoveable(asset, count, callback){
 var rotate = 0;
 
 function setupInputListeners(){
+  window.addEventListener('message', function(event){
+    if(event.data && event.data.type){
+      switch(event.data.type){
+        case 'loadExcersize':
+          loadExcersize(event.data.value);
+        break;
+      }
+    }
+  }, false);
+
+  window.addEventListener('paste', function(e){
+    console.log('test');
+    var data = (e.clipboardData || window.clipboardData).getData('text');
+    try {
+      var serialized = JSON.parse(data);
+      if(serialized.scene && serialized.objects){
+        deserializeMoveables(serialized);
+      }
+    } catch(ex){}
+  });
+
   document.getElementById('rotateLeft').addEventListener('mousedown', function(event){
     rotate = -1;
   });
@@ -447,6 +517,8 @@ function setupInputListeners(){
     mouseDown = false;
     movingObjectOffset = null;
     rotate = 0;
+
+    postResult();
   }, false);
 
   window.addEventListener( 'mousewheel', function(event){
@@ -475,6 +547,8 @@ function setupInputListeners(){
     if(/Left$/.test(event.key)){
       movingObject.rotation.y += Math.PI / 2;
     }
+
+    postResult();
   }, false)
 }
 
@@ -571,16 +645,6 @@ var animate = function () {
 };
 
 document.addEventListener("DOMContentLoaded", function(){
-
+  sendMessage('ready', 1)
   setupInputListeners();
-
-  loadExcersize('museum.json');
-/*
-  loadScene('room1.gltf');
-
-  loadMoveable('minigolf/end_piece.gltf');
-  loadMoveable('minigolf/straight.gltf');
-  loadMoveable('minigolf/slope.gltf');
-  loadMoveable('minigolf/start.gltf');
-  loadMoveable('minigolf/hole.gltf');*/
 });

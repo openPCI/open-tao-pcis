@@ -6,6 +6,27 @@ Build by Wiquid's PCI Generator for TAO platform Free to use
 define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event'], function(qtiCustomInteractionContext, $, event){
     'use strict';
 
+    var $iframe;
+    var cfg;
+
+    window.addEventListener('message', function(event){
+      if(event.data && event.data.type == 'ready'){
+        $iframe[0].contentWindow.postMessage({
+          type :'loadExcersize',
+          value : cfg.excersize
+        },'*');
+      }
+    });
+
+    function startTheRoom(dom, config, $container){
+      cfg = config;
+      if(!$iframe){
+        var $iframe = $('<iframe>');
+      }
+
+      $iframe.attr('src', gameUrl + '?' + Date.now());
+    }
+
     var theroom = {
         id : -1,
         getTypeIdentifier : function getTypeIdentifier(){
@@ -27,6 +48,14 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             this.dom = dom;
             this.config = config || {};
             this.responseContainer = {base : {string : ''}};
+
+            window.addEventListener('message', function(event){
+              if(event.data && event.data.type){
+                if(event.data.type == "updateResult"){
+                  this.responseContainer.base.string = event.data.value;
+                }
+              }
+            });
 
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);

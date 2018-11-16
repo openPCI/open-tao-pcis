@@ -41,10 +41,7 @@ define([
         //render the form using the form template
         Sform.html(formTpl({
             serial : response.serial,
-            timeLimit: interaction.prop('timeLimit'),
-            nickname: interaction.prop('nickname'),
-            messages: interaction.prop('messages'),
-            identifier : interaction.attr('responseIdentifier')
+            excersize: interaction.prop('excersize')
         }));
 
         //init form javascript
@@ -52,21 +49,9 @@ define([
 
         //init data change callbacks
         formElement.setChangeCallbacks(Sform, interaction, {
-            messages : function(interaction, value){
-                interaction.prop('messages', value);
-                interaction.triggerPci('cfgChange', ['messages',value]);
-            },
-            timeLimit: function(interaction, value){
-                interaction.prop('timeLimit', parseInt(value) || 60);
-                interaction.triggerPci('cfgChange', ['timeLimit', parseInt(value)]);
-            },
-            nickname: function(interaction, value){
-                interaction.prop('nickname', value);
-                interaction.triggerPci('cfgChange', ['nickname',value]);
-            },
-            identifier : function(i, value){
-                response.id(value);
-                interaction.attr('responseIdentifier', value);
+            excersize : function(interaction, value){
+                interaction.prop('excersize', value);
+                interaction.triggerPci('cfgChange', ['excersize',value]);
             }
         });
 

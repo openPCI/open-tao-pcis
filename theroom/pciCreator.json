@@ -1,8 +1,8 @@
 {
-    "typeIdentifier": "theroom",
+    "typeIdentifier": "",
     "label": "theroom",
     "short": "theroom",
-    "description": "theroom simulated chat",
+    "description": "3D Design excersize",
     "version": "0.0.6",
     "author": "EJTH",
     "email": "ejth@edu.au.dk",
@@ -17,13 +17,16 @@
         "hook" : "./runtime/theroom.amd.js",
         "libraries" : [
             "IMSGlobal/jquery_2_1_1",
-            "./runtime/js/three.js",
-            "./runtime/js/theroom.js"
+            "./runtime/js/pciframe.js"
         ],
         "stylesheets" : [
             "./runtime/css/base.css",
             "./runtime/css/theroom.css"
-        ], "mediaFiles" : ["./runtime/assets/download.png","./runtime/css/img/download.png"]
+        ],
+        "mediaFiles" : [
+            "./runtime/assets/download.png",
+            "./runtime/css/img/download.png"
+        ]
     },
             "creator" : {
                 "icon": "./creator/img/icon.svg",
