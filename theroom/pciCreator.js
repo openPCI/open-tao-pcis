@@ -44,7 +44,8 @@ define([
         getDefaultProperties : function(pci){
             console.log('getDefaultProperties', arguments);
             return {
-                excersize: 'museum'
+                excersize: 'museum.json',
+                gameUrl: 'http://pci.localhost/theroom/runtime/theroom.html'
             };
         },
         /**

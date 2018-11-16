@@ -52,6 +52,10 @@ define([
             excersize : function(interaction, value){
                 interaction.prop('excersize', value);
                 interaction.triggerPci('cfgChange', ['excersize',value]);
+            },
+            gameUrl : function(interaction, value){
+                interaction.prop('gameUrl', value);
+                interaction.triggerPci('cfgChange', ['gameUrl',value]);
             }
         });
 

@@ -644,5 +644,6 @@ var animate = function () {
 
 document.addEventListener("DOMContentLoaded", function(){
   sendMessage('ready', 1)
+  loadExcersize('museum.json');
   setupInputListeners();
 });

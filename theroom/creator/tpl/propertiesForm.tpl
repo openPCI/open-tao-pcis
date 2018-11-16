@@ -5,6 +5,11 @@
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_nickname"}}</span>
     <input type="text" name="excersize" value="{{excersize}}" />
+
+    <label for="messages">Game Url</label>
+    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+    <span class="tooltip-content">{{__ "Tooltip_nickname"}}</span>
+    <input type="text" name="gameUrl" value="{{gameUrl}}" />
 </div>
 
 <div class="panel">

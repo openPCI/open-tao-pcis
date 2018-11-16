@@ -24,7 +24,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         var $iframe = $('<iframe>');
       }
 
-      $iframe.attr('src', gameUrl + '?' + Date.now());
+      $iframe.attr('src', cfg.gameUrl + '?' + Date.now());
     }
 
     var theroom = {
