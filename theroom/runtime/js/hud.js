@@ -53,6 +53,13 @@ var GameHud = function(){
     return false;
   }
 
+  function reset(){
+    droppableProps.forEach(function(prop){
+      hudScene.remove(prop.prop);
+    });
+    droppableProps = [];
+  }
+
   function removeDroppable(info){
     resetMaterial(info.prop);
     info.count ++;
@@ -68,4 +75,5 @@ var GameHud = function(){
   this.addDroppable = hudAddDroppable;
   this.placeDroppable = placeDroppable;
   this.removeDroppable = removeDroppable;
+  this.reset = reset;
 }

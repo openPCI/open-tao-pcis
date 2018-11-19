@@ -90,9 +90,8 @@ function serializeMoveables(){
 }
 
 function deserializeMoveables(data){
-  if(data.scene !== scenePath)
-    loadScene(data.scene);
-
+  loadScene(data.scene);
+  hud.reset();
   data.objects.forEach(function(info){
     loadGLtf(info.id, function(gltf){
       modifyModel(gltf.scene);
@@ -628,8 +627,8 @@ var animate = function () {
     } else {
       var v = mouseDelta.clone();
       v.rotateAround(new THREE.Vector2(0,0), lookObject.rotation.y);
-      lookObject.position.x -= v.x * 10;
-      lookObject.position.z += v.y * 10;
+      lookObject.position.x -= v.x * 15;
+      lookObject.position.z += v.y * 15;
       boundingbox.clampPoint(lookObject.position, lookObject.position);
       mouseDelta.set(0,0);
     }
@@ -644,6 +643,6 @@ var animate = function () {
 
 document.addEventListener("DOMContentLoaded", function(){
   sendMessage('ready', 1)
-  loadExcersize('museum.json');
+  if(window === window.parent) loadExcersize('museum.json');
   setupInputListeners();
 });
