@@ -354,7 +354,9 @@
       }
 
       function onDocumentScroll( event ){
+
         camera.position.x += event.deltaY;
+        camera.position.clampLength(300,3600);
         event.preventDefault();
       }
 
