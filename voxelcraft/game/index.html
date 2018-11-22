@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>three.js webgl - interactive - voxel painter</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<style>
-			body {
-				background:#777;
-				padding:0;
-				margin:0;
-				font-weight: bold;
-				overflow:hidden;
-			}
+  <head>
+    <title>three.js webgl - interactive - voxel painter</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+      body {
+        background:#777;
+        padding:0;
+        margin:0;
+        font-weight: bold;
+        overflow:hidden;
+      }
 
       #palette {
         position:absolute;
@@ -28,16 +28,16 @@
         margin:2px;
       }
 
-			a {
-				color: #ff0000;
-			}
-		</style>
-	</head>
-	<body>
+      a {
+        color: #ff0000;
+      }
+    </style>
+  </head>
+  <body>
 
-		<script src="three.js"></script>
+    <script src="three.js"></script>
 
-		<script>
+    <script>
       var colors = [
         '#cc0000',
         '#cc6900',
@@ -60,27 +60,33 @@
         left:  37,
         right: 39,
         up: 38,
-        down: 40
+        down: 40,
+        control: 17
       }
 
-			var camera, cameraObject, scene, renderer;
-			var plane, cube;
-			var mouse, raycaster
+      var mouseDelta = new THREE.Vector2();
+      var lastMouse = new THREE.Vector2();
 
-			var rollOverMesh;
+      var camera, cameraObject, scene, renderer;
+      var plane, cube;
+      var mouse, raycaster
+
+      var rollOverMesh;
       var rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0, opacity: 0.5, transparent: true } );
-			var cubeGeo, cubeMaterial;
+      var cubeGeo, cubeMaterial;
 
       var keyStates = {};
 
-			var objects = [];
+      var objects = [];
 
       var cubeMaterials = [];
       var color = 0;
       var voxels = [];
 
-			init();
-			render();
+      var mouseDown, mouseClick;
+
+      init();
+      render();
 
       function setPalette(colors){
 
@@ -105,81 +111,82 @@
         rollOverMaterial.color = cubeMaterials[0].color
       }
 
-			function init() {
+      function init() {
 
         cameraObject = new THREE.Object3D();
         cameraObject.rotation.fromArray([2.1316924171107e-16, -0.12000000000000163, 0.5400000000000049, "XYZ"]);
 
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-				camera.position.set( 2000, 0, 0 );
+        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.set( 2000, 0, 0 );
         cameraObject.add(camera);
 
 
-				camera.lookAt( 0, 0, 0 );
+        camera.lookAt( 0, 0, 0 );
 
-				scene = new THREE.Scene();
+        scene = new THREE.Scene();
 
         scene.add(cameraObject);
-				scene.background = new THREE.Color( 0xf0f0f0 );
+        scene.background = new THREE.Color( 0xf0f0f0 );
 
-				// roll-over helpers
+        // roll-over helpers
 
-				var rollOverGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
-				rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
-				scene.add( rollOverMesh );
+        var rollOverGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
+        rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
+        scene.add( rollOverMesh );
 
-				// cubes
+        // cubes
 
-				cubeGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
+        cubeGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
 
-				// grid
+        // grid
 
-				var gridHelper = new THREE.GridHelper( 1000, 20 );
-				scene.add( gridHelper );
+        var gridHelper = new THREE.GridHelper( 1000, 20 );
+        scene.add( gridHelper );
 
-				//
+        //
 
-				raycaster = new THREE.Raycaster();
-				mouse = new THREE.Vector2();
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
 
-				var geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
-				geometry.rotateX( - Math.PI / 2 );
+        var geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
+        geometry.rotateX( - Math.PI / 2 );
 
-				plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
-				scene.add( plane );
+        plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
+        scene.add( plane );
 
-				objects.push( plane );
+        objects.push( plane );
 
-				// lights
+        // lights
 
-				var ambientLight = new THREE.AmbientLight( 0x606060 );
-				scene.add( ambientLight );
+        var ambientLight = new THREE.AmbientLight( 0x606060 );
+        scene.add( ambientLight );
 
-				var directionalLight = new THREE.DirectionalLight( 0xffffff );
-				directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
-				scene.add( directionalLight );
+        var directionalLight = new THREE.DirectionalLight( 0xffffff );
+        directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
+        scene.add( directionalLight );
 
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				document.body.appendChild( renderer.domElement );
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
 
 
 
-				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-				document.addEventListener( 'keydown', onDocumentKeyDown, false );
-				document.addEventListener( 'keyup', onDocumentKeyUp, false );
+        document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+        document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+        document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+        document.addEventListener( 'keydown', onDocumentKeyDown, false );
+        document.addEventListener( 'keyup', onDocumentKeyUp, false );
         document.addEventListener( 'mousewheel', onDocumentScroll, false);
         document.addEventListener('contextmenu', onDocumentRightClick, false);
 
         window.addEventListener('paste', onWindowPaste);
 
-				window.addEventListener( 'resize', onWindowResize, false );
+        window.addEventListener( 'resize', onWindowResize, false );
 
         window.addEventListener('message', onPostMessage, false)
 
-			}
+      }
 
       function onPostMessage(event){
         if(event.data){
@@ -200,71 +207,66 @@
         } catch(ex){}
       }
 
-			function onWindowResize() {
+      function onWindowResize() {
 
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
 
-				renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setSize( window.innerWidth, window.innerHeight );
 
-			}
+      }
 
-			function onDocumentMouseMove( event ) {
+      function onDocumentMouseMove( event ) {
+        event.preventDefault();
 
-				event.preventDefault();
+        mouseDelta.copy(mouse)
+        mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+        mouseDelta.sub(mouse);
 
-				mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+        raycastVoxelHelper();
 
-				raycastVoxelHelper();
-
-			}
+      }
 
       function onDocumentRightClick(event){
         event.preventDefault();
       }
 
-			function onDocumentMouseDown( event ) {
+      function onDocumentMouseUp( event ){
+        mouseClick = Date.now() - mouseDown < 500;
+        mouseDown = false;
 
-        if(event.target && event.target.parentNode.id == 'palette'){
-          color = event.target.paintColor;
-          rollOverMaterial.color = cubeMaterials[color].color;
-          return;
-        }
-				event.preventDefault();
 
-				mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+        raycaster.setFromCamera( mouse, camera );
 
-				raycaster.setFromCamera( mouse, camera );
+        var intersects = raycaster.intersectObjects( objects );
 
-				var intersects = raycaster.intersectObjects( objects );
+        if ( mouseClick && intersects.length > 0 ) {
 
-				if ( intersects.length > 0 ) {
+          var intersect = intersects[ 0 ];
 
-					var intersect = intersects[ 0 ];
+          // delete cube
 
-					// delete cube
+          if ( keyStates[KEY.shift] || event.button == 2 ) {
 
-					if ( keyStates[KEY.shift] || event.button == 2 ) {
+            if ( intersect.object !== plane ) {
 
-						if ( intersect.object !== plane ) {
-
-							scene.remove( intersect.object );
+              scene.remove( intersect.object );
               voxels.splice( voxels.indexOf( intersect.object ), 1 );
-							objects.splice( objects.indexOf( intersect.object ), 1 );
+              objects.splice( objects.indexOf( intersect.object ), 1 );
 
-						}
+            }
 
-						// create cube
+            // create cube
 
-					} else {
+          } else {
 
-						var voxel = new THREE.Mesh( cubeGeo, cubeMaterials[color] );
+            var voxel = new THREE.Mesh( cubeGeo, cubeMaterials[color] );
             voxel.userData.color = color;
-						voxel.position.copy( intersect.point ).add( intersect.face.normal );
-						voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
-						scene.add( voxel );
+            voxel.position.copy( intersect.point ).add( intersect.face.normal );
+            voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+            scene.add( voxel );
 
-						objects.push( voxel );
+            objects.push( voxel );
             voxels.push(voxel);
 
             window.parent.postMessage({
@@ -272,11 +274,25 @@
               value: getScene(),
             },"*");
 
-					}
+          }
 
-				}
+        }
 
-			}
+      }
+
+      function onDocumentMouseDown( event ) {
+        mouseDown = Date.now();
+
+        if(event.target && event.target.parentNode.id == 'palette'){
+          color = event.target.paintColor;
+          rollOverMaterial.color = cubeMaterials[color].color;
+          return;
+        }
+        event.preventDefault();
+
+        //mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+
+      }
 
       function getScene(){
         return voxels.map(function(o){
@@ -300,35 +316,51 @@
         });
       }
 
-			function onDocumentKeyDown( event ) {
-				keyStates[event.keyCode] = true;
-			}
+      function onDocumentKeyDown( event ) {
+        keyStates[event.keyCode] = true;
+      }
 
-			function onDocumentKeyUp( event ) {
+      function onDocumentKeyUp( event ) {
         keyStates[event.keyCode] = false;
-			}
+      }
 
       function onDocumentScroll( event ){
-        camera.position.x += event.deltaY;
-        console.log(camera.position, event);
+        if(keyStates[KEY.shift]){
+          cameraObject.position.y -= event.deltaY/3;
+        } else {
+          camera.position.x += event.deltaY;
+        }
+        event.preventDefault();
       }
 
       function raycastVoxelHelper(){
         raycaster.setFromCamera( mouse, camera );
 
-				var intersects = raycaster.intersectObjects( objects );
+        var intersects = raycaster.intersectObjects( objects );
 
-				if ( intersects.length > 0 ) {
+        if ( intersects.length > 0 ) {
           var intersect = intersects[ 0 ];
 
-					rollOverMesh.position.copy( intersect.point ).add( intersect.face.normal );
-					rollOverMesh.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+          rollOverMesh.position.copy( intersect.point ).add( intersect.face.normal );
+          rollOverMesh.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
 
-				}
+        }
       }
 
-			function render() {
+      function render() {
         var cameraChanged = false;
+        if(keyStates[KEY.shift] && mouseDown){
+          cameraObject.translateZ(mouseDelta.x * -400);
+          cameraObject.translateY(mouseDelta.y * 400);
+        } else
+        if(keyStates[KEY.control] && mouseDown){
+          console.log(mouseDelta);
+          cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), mouseDelta.x );
+          cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), mouseDelta.y);
+        }
+
+        mouseDelta.set(0,0);
+
         if(keyStates[KEY.left] || keyStates[KEY.right]){
           cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), (keyStates[KEY.right] ? 1 : -1) * 0.015 );
           cameraChanged = true;
@@ -341,9 +373,9 @@
 
         if(cameraChanged) raycastVoxelHelper();
 
-				renderer.render( scene, camera );
+        renderer.render( scene, camera );
         window.requestAnimationFrame(render);
-			}
+      }
       render();
 
       if(window.parent !== window){
@@ -354,7 +386,7 @@
         setPalette(colors);
       }
 
-		</script>
+    </script>
 
-	</body>
+  </body>
 </html>
