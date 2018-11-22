@@ -7,16 +7,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
     'use strict';
 
     var $iframe;
-    var cfg;
-
-    window.addEventListener('message', function(event){
-      if(event.data && event.data.type == 'ready'){
-        $iframe[0].contentWindow.postMessage({
-          type :'loadExcersize',
-          value : cfg.excersize
-        },'*');
-      }
-    });
 
     function startTheRoom(dom, config, $container){
       cfg = config;
@@ -24,7 +14,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         var $iframe = $('<iframe>');
       }
 
-      $iframe.attr('src', cfg.gameUrl + '?' + Date.now());
+      $iframe.attr('src', config.gameUrl + '?' + Date.now());
     }
 
     var theroom = {
@@ -55,19 +45,30 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                   this.responseContainer.base.string = event.data.value;
                 }
               }
+
+              if(event.data && event.data.type == 'ready'){
+                $iframe[0].contentWindow.postMessage({
+                  type :'loadExcersize',
+                  value : config.excersize
+                },'*');
+              }
             });
 
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);
 
-            //
+
             console.log('initialize', qtiCustomInteractionContext);
+
+            var cfgTimeout = 0;
 
             //listening to dynamic configuration change
             this.on('cfgChange', function(key, value){
-              console.log('cfgChange');
-                _this.config[key] = value;
-              starttheroom(dom, _this.config);
+              _this.config[key] = value;
+              clearTimeout(cfgTimeout);
+              cfgTimeout = setTimeout(function(){
+                starttheroom(dom, _this.config, this.responseContainer);
+              }, 5000);
             });
             starttheroom(dom, config, this.responseContainer);
         },

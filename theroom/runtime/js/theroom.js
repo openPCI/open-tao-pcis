@@ -14,15 +14,6 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 document.body.appendChild( renderer.domElement );
-//
-// TODO:
-// - [X] Camera movement
-// - [-] Item placement
-// - [ ] Wall sticky objects
-// - [X] Item Rotation
-// - [ ] Scoring
-// - [ ] Settings
-// - [ ] Postprocessing (outline selected prop) https://threejs.org/examples/webgl_postprocessing_outline.html
 
 // Currently loaded room scene
 var room;
