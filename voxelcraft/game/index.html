@@ -93,12 +93,11 @@
            btn.paintColor = i;
            palette.appendChild(btn);
         });
+        rollOverMaterial = new THREE.MeshBasicMaterial( { color: cubeMaterials[0].color, opacity: 0.5, transparent: true } );
         document.body.appendChild(palette);
       }
 
 			function init() {
-
-        colorPicker(colors);
 
         cameraObject = new THREE.Object3D();
         cameraObject.rotation.fromArray([2.1316924171107e-16, -0.12000000000000163, 0.5400000000000049, "XYZ"]);
@@ -118,7 +117,6 @@
 				// roll-over helpers
 
 				var rollOverGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
-				rollOverMaterial = new THREE.MeshBasicMaterial( { color: cubeMaterials[0].color, opacity: 0.5, transparent: true } );
 				rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
 				scene.add( rollOverMesh );
 
