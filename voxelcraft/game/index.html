@@ -67,7 +67,8 @@
 			var plane, cube;
 			var mouse, raycaster
 
-			var rollOverMesh, rollOverMaterial;
+			var rollOverMesh;
+      var rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0, opacity: 0.5, transparent: true } );
 			var cubeGeo, cubeMaterial;
 
       var keyStates = {};
@@ -82,10 +83,15 @@
 			render();
 
       function colorPicker(colors){
-        var palette = document.createElement('div');
+
+        var palette = document.getElementById('palette');
+        if(!palette){
+          palette = document.createElement('div');
+          document.body.appendChild(palette);
+        }
         palette.innerHTML = '';
         palette.id = 'palette';
-        var cubeMaterials = [];
+        cubeMaterials = [];
         colors.forEach(function(color, i){
            cubeMaterials.push(new THREE.MeshLambertMaterial( { color: parseInt(color.slice(1),16) } ));
            var btn = document.createElement('span');
@@ -93,8 +99,10 @@
            btn.paintColor = i;
            palette.appendChild(btn);
         });
-        rollOverMaterial = new THREE.MeshBasicMaterial( { color: cubeMaterials[0].color, opacity: 0.5, transparent: true } );
-        document.body.appendChild(palette);
+
+        color = 0;
+
+        rollOverMaterial.color = cubeMaterials[0].color
       }
 
 			function init() {
@@ -342,6 +350,8 @@
         window.parent.postMessage({
           type: 'ready'
         },'*');
+      } else {
+        colorPicker(colors);
       }
 
 		</script>
