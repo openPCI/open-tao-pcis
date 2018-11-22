@@ -11,6 +11,35 @@
         margin:0;
         font-weight: bold;
         overflow:hidden;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+         -khtml-user-select: none; /* Konqueror HTML */
+           -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                      supported by Chrome and Opera */
+      }
+      #help img {
+        height: 24px;
+        position:relative;
+        top:6px;
+      }
+
+      #help span {
+        border: 2px outset;
+        padding: 3px;
+        background-color: #fff;
+      }
+      #help {
+        position:absolute;
+        top:0px;
+        font-size:14px;
+        font-family: Verdana;
+        font-weight:lighter;
+        margin:2px;
+        opacity:0.5;
+        width:100%;
+        text-align:center;
       }
 
       #palette {
@@ -232,7 +261,7 @@
       }
 
       function onDocumentMouseUp( event ){
-        mouseClick = Date.now() - mouseDown < 500;
+        mouseClick = Date.now() - mouseDown < 250;
         mouseDown = false;
 
 
@@ -350,7 +379,6 @@
           cameraObject.translateY(mouseDelta.y * 400);
         } else
         if(keyStates[KEY.control] && mouseDown){
-          console.log(mouseDelta);
           cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), mouseDelta.x );
           cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), mouseDelta.y);
         }
@@ -383,6 +411,9 @@
       }
 
     </script>
-
+    <div id="help">
+      <img src="leftclick.png" alt="Venstreklik" />: Tegn, <img src="rightclick.png" alt="Højreklik" />: Slet, <span>Shift</span>+<img src="leftclick.png" alt="Træk med mus" />: Flyt kamera, <span>Ctrl</span>+<img src="leftclick.png" alt="Træk med mus" />: Rotér kamera, <img src="scroll.png" alt="Musehjul" />: Zoom
+    </div>
   </body>
+
 </html>
