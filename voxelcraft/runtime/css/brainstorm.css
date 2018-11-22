@@ -1,0 +1,53 @@
+
+
+/*add some style, need to scope (using the typeIdentifier as class prefix) every style declaration to prevent collision */
+@import url('base.css');
+
+.qti-customInteraction .voxelcraft .prompt {
+  position:relative;
+  width: 100%;
+}
+
+.qti-customInteraction .voxelcraft .chat {
+    height: 200px;
+    border: 1px solid #ccc;
+    margin-bottom: 8px;
+    padding:4px;
+    overflow-y:scroll;
+    overflow-x:hidden;
+}
+
+.chat.voxelcraft-ended {
+  opacity: 0.5;
+}
+
+.voxelcraft .chat span {
+  margin-right:8px;
+  font-weight: bold;
+}
+.voxelcraft .chat .name {
+  display:inline-block;
+  min-  width:60px;
+}
+
+.is-player {
+  font-style:italic;
+}
+
+.voxelcraft .msg-overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: rgba(100,100,100,0.1);
+  text-align:center;
+}
+.voxelcraft .overlay-inner {
+  cursor:pointer;
+  top: 38%;
+  position: relative;
+  font-size: 24px;
+  font-weight: bold;
+  margin: auto;
+}
