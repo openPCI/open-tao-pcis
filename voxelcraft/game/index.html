@@ -269,6 +269,12 @@
 
         var intersects = raycaster.intersectObjects( objects );
 
+        if(event.target && event.target.parentNode.id == 'palette'){
+          color = event.target.paintColor;
+          rollOverMaterial.color = cubeMaterials[color].color;
+          return;
+        }
+
         if ( mouseClick && intersects.length > 0 ) {
 
           var intersect = intersects[ 0 ];
@@ -288,6 +294,7 @@
             // create cube
 
           } else {
+
 
             var voxel = new THREE.Mesh( cubeGeo, cubeMaterials[color] );
             voxel.userData.color = color;
@@ -311,12 +318,6 @@
 
       function onDocumentMouseDown( event ) {
         mouseDown = Date.now();
-
-        if(event.target && event.target.parentNode.id == 'palette'){
-          color = event.target.paintColor;
-          rollOverMaterial.color = cubeMaterials[color].color;
-          return;
-        }
         event.preventDefault();
 
         //mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
