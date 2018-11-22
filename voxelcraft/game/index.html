@@ -82,7 +82,7 @@
 			init();
 			render();
 
-      function colorPicker(colors){
+      function setPalette(colors){
 
         var palette = document.getElementById('palette');
         if(!palette){
@@ -186,7 +186,7 @@
           switch(event.data.type){
             case 'setPalette':
               colors = event.data.value;
-              colorPicker(colors);
+              setPalette(colors);
             break;
           }
         }
@@ -351,7 +351,7 @@
           type: 'ready'
         },'*');
       } else {
-        colorPicker(colors);
+        setPalette(colors);
       }
 
 		</script>
