@@ -325,11 +325,7 @@
       }
 
       function onDocumentScroll( event ){
-        if(keyStates[KEY.shift]){
-          cameraObject.position.y -= event.deltaY/3;
-        } else {
-          camera.position.x += event.deltaY;
-        }
+        camera.position.x += event.deltaY;
         event.preventDefault();
       }
 
