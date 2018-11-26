@@ -1,5 +1,5 @@
 {
-  "scene" : "museum.gltf",
+  "scene" : "restaurant/room.gltf",
   "assets":[
     {
       "model" : "museum/montre_skjold.gltf",
