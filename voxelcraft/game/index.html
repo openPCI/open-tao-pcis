@@ -206,7 +206,8 @@
         document.addEventListener( 'mouseup', onDocumentMouseUp, false );
         document.addEventListener( 'keydown', onDocumentKeyDown, false );
         document.addEventListener( 'keyup', onDocumentKeyUp, false );
-        document.addEventListener( 'mousewheel', onDocumentScroll, false);
+        document.addEventListener( 'wheel', onDocumentScroll, false);
+
         document.addEventListener('contextmenu', onDocumentRightClick, false);
 
         window.addEventListener('paste', onWindowPaste);
@@ -368,8 +369,7 @@
       }
 
       function onDocumentScroll( event ){
-
-        camera.position.x += event.deltaY;
+        camera.position.x += event.deltaY > 0 ? 100 : -100;
         camera.position.clampLength(300,3600);
         event.preventDefault();
       }
