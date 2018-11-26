@@ -510,9 +510,10 @@ function setupInputListeners(){
     postResult();
   }, false);
 
-  window.addEventListener( 'mousewheel', function(event){
-
-    cameraObject.position.z += event.deltaY/100;
+  window.addEventListener( 'wheel', function(event){
+    var d =  event.deltaY > 0 ? 100 : -100;
+    cameraObject.position.z += d/100;
+    if(cameraObject.position.z < 0) cameraObject.position.z = 0;
     event.preventDefault();
   });
 
@@ -635,6 +636,6 @@ var animate = function () {
 
 document.addEventListener("DOMContentLoaded", function(){
   sendMessage('ready', 1)
-  loadExcersize('museum.json');
+  loadExcersize('restaurant.json');
   setupInputListeners();
 });
