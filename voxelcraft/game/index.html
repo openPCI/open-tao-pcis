@@ -346,8 +346,21 @@
         });
       }
 
+      function copyToClipboard(str){
+        var el = document.createElement('textarea');
+        el.value = str;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      }
+
       function onDocumentKeyDown( event ) {
         keyStates[event.keyCode] = true;
+
+        if(keyStates[KEY.control] && keyStates[67]){
+          copyToClipboard(JSON.stringify(getScene()));
+        }
       }
 
       function onDocumentKeyUp( event ) {
