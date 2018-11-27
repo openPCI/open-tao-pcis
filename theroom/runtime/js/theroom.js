@@ -178,6 +178,9 @@ function clearThree(obj){
   if(obj.texture) obj.texture.dispose()
 }
 
+function setRoomLayout(layout){
+  deserializeMoveables
+}
 
 function loadExcersize(definitionUrl){
   var xmlhttp = new XMLHttpRequest();
@@ -187,6 +190,23 @@ function loadExcersize(definitionUrl){
 
     var loadNext = function(){
       var asset = json.assets.shift();
+      if(!asset){
+        if(json.objects){
+          json.objects.forEach(function(object){
+            console.log()
+            var info = hud.getDroppableByName(object.id);
+            console.log(info, object);
+            if(hud.placeDroppable(info)){
+              var prop = info.gltf.scene.clone();
+              prop.info = info;
+              addMoveable(prop);
+              prop.position.fromArray(object.pos);
+              prop.rotation.fromArray(object.rot);
+            }
+          });
+        }
+        return;
+      }
       loadMoveable(asset.model, asset.count || 1, loadNext);
     }
 
@@ -431,7 +451,7 @@ function loadMoveable(asset, count, callback){
     // Force shadows on and handle special case with glass
     modifyModel(gltf.scene)
 
-    hud.addDroppable(gltf, count);
+    hud.addDroppable(gltf, count, asset);
     if(callback) callback();
   });
 
@@ -636,6 +656,6 @@ var animate = function () {
 
 document.addEventListener("DOMContentLoaded", function(){
   sendMessage('ready', 1)
-  loadExcersize('restaurant.json');
+  loadExcersize('museum.json');
   setupInputListeners();
 });

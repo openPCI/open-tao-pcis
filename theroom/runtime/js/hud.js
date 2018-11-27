@@ -15,6 +15,7 @@ var GameHud = function(){
 
   var hudScene = new THREE.Scene()
   var droppableProps = [];
+  var droppableByName = {}
   this.droppables = droppableProps;
   this.camera = hudCamera;
   // Add global light
@@ -22,14 +23,16 @@ var GameHud = function(){
 
   hudScene.add( hudCamera )
 
-  function hudAddDroppable(gltf, count){
+  function hudAddDroppable(gltf, count, name){
     var prop = gltf.scene.clone();
     prop.traverse(function(o){
       if(o instanceof THREE.Mesh){
         o.material = o.material.clone();
       }
     });
-    var info = {gltf: gltf, prop: prop, count: count};
+    var info = {gltf: gltf, prop: prop, count: count, name: name};
+
+    droppableByName[name] = info;
 
     prop.info = info;
     prop.rotation.x = Math.PI / 4
@@ -58,6 +61,10 @@ var GameHud = function(){
     info.count ++;
   }
 
+  function getDroppableByName(name){
+    return droppableByName[name];
+  }
+
   var raycaster = new THREE.Raycaster();
 
 
@@ -65,6 +72,7 @@ var GameHud = function(){
     hudRenderer.render( hudScene, hudCamera );
   }
 
+  this.getDroppableByName = getDroppableByName;
   this.addDroppable = hudAddDroppable;
   this.placeDroppable = placeDroppable;
   this.removeDroppable = removeDroppable;
