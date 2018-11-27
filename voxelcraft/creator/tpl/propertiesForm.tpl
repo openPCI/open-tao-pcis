@@ -5,6 +5,11 @@
     <span class="tooltip-content">{{__ "colors"}}</span>
     <textarea name="colors">{{colors}}</textarea>
 
+    <label for="colors">Figur</label>
+    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+    <span class="tooltip-content">{{__ "scene"}}</span>
+    <textarea name="scene">{{scene}}</textarea>
+
     <label for="gameUrl">Game Url</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "gameUrl"}}</span>

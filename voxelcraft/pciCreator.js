@@ -44,7 +44,8 @@ define([
         getDefaultProperties : function(pci){
             console.log('getDefaultProperties', arguments);
             return {
-                excersize: 'museum.json',
+                colors: '#cc0000\n#cc6900\n#f7ef00\n#afe000\n#00b512\n#00bfa5\n#009bbf\n#008af4\n#ae00f4\n#f400e3\n#f40000\n#cccccc\n#ffffff\n#222222',
+                scene: '[]',
                 gameUrl: 'http://pci.localhost/voxelcraft/index.html'
             };
         },

@@ -61,8 +61,17 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                 case 'ready':
                   $iframe[0].contentWindow.postMessage({
                     type :'setPalette',
-                    colors : config.colors.split('\n')
+                    value : config.colors.split('\n')
                   },'*');
+                  try {
+                    var scene = JSON.parse(config.scene)
+                    $iframe[0].contentWindow.postMessage({
+                      type :'setScene',
+                      value : scene
+                    },'*');
+                  } catch(e){}
+
+
                 break;
               }
             }, false);

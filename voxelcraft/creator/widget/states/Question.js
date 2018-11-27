@@ -55,6 +55,10 @@ define([
                 interaction.prop('colors', value);
                 interaction.triggerPci('cfgChange', ['colors',value]);
             },
+            scene : function(interaction, value){
+                interaction.prop('scene', value);
+                interaction.triggerPci('cfgChange', ['scene',value]);
+            },
             gameUrl: function(interaction, value){
                 interaction.prop('gameUrl', value);
                 interaction.triggerPci('cfgChange', ['gameUrl', value]);
