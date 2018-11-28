@@ -42,6 +42,7 @@ define([
         Sform.html(formTpl({
             serial : response.serial,
             colors: interaction.prop('colors'),
+            scene: interaction.prop('scene'),
             gameUrl: interaction.prop('gameUrl'),
             identifier : interaction.attr('responseIdentifier')
         }));

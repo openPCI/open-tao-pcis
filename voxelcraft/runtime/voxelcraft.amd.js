@@ -9,12 +9,23 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
     var $iframe;
 
     function startGame(dom, config, responseContainer){
-      cfg = config;
       if(!$iframe){
-        var $iframe = $('<iframe>');
+        $iframe = $('<iframe>');
+        $iframe.css('width','100%');
+        $(dom).append($iframe);
+        $iframe.css('height', $iframe.width() * 0.56 + 'px');
+        $iframe.focus();
+
+        if(window.location.search.indexOf('section=authoring') == -1){
+          document.addEventListener('keydown', function(){
+            $iframe.focus();
+          }, false);
+        }
       }
 
       $iframe.attr('src', config.gameUrl + '?' + Date.now());
+
+
     }
 
     var voxelcraft = {
@@ -72,6 +83,9 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                   } catch(e){}
 
 
+                break;
+                case 'updateResult':
+                  _this.responseContainer.base.string = JSON.stringify(event.data.value);
                 break;
               }
             }, false);

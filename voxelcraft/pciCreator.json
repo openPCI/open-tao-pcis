@@ -3,7 +3,7 @@
     "label": "voxelcraft",
     "short": "voxelcraft",
     "description": "voxelcraft",
-    "version": "0.0.2",
+    "version": "0.0.9",
     "author": "EJTH",
     "email": "ejth@edu.au.dk",
     "tags": [
@@ -19,7 +19,7 @@
             "IMSGlobal/jquery_2_1_1"
         ],
         "stylesheets" : [
-            "./runtime/css/base.css",
+            "./runtime/css/base.css"
         ], "mediaFiles" : ["./runtime/assets/download.png","./runtime/css/img/download.png"]
     },
             "creator" : {
