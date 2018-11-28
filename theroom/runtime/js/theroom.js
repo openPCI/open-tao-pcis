@@ -196,7 +196,7 @@ function loadExcersize(definitionUrl){
             if(hud.placeDroppable(info)){
               var prop = info.gltf.scene.clone();
               prop.info = info;
-              addMoveable(prop);
+              addMoveable(prop, object.static);
               prop.position.fromArray(object.pos);
               prop.rotation.fromArray(object.rot);
             }
@@ -389,7 +389,7 @@ function addCameraHelper(){
  * @param  {type} group description
  * @return {type}       description
  */
-function addMoveable(group){
+function addMoveable(group, static){
   // Clone materials.
   group.traverse(function(o){
     if(o instanceof THREE.Mesh){
@@ -397,15 +397,16 @@ function addMoveable(group){
     }
   });
 
-  objectBehaviors.some(function(b){
-    if(b.onObjectLoad(group)){
-      group.behavior = b;
-      return true;
-    }
-  });
-
   scene.add(group);
-  moveables.push(group);
+  if(!static){
+    moveables.push(group);
+    objectBehaviors.some(function(b){
+      if(b.onObjectLoad(group)){
+        group.behavior = b;
+        return true;
+      }
+    });
+  }
 
   if(movePlanePosition){
     group.position.x = movePlanePosition.x;
