@@ -523,7 +523,6 @@ function setupInputListeners(){
         if(hud.placeDroppable(hudInfo)){
           var prop = hud.droppables[i].gltf.scene.clone();
           prop.info = hudInfo;
-          prop.rotation.y = -Math.PI;
           addMoveable(prop);
           addOutline(prop);
           movingObject = prop;
@@ -662,6 +661,6 @@ var animate = function () {
 
 document.addEventListener("DOMContentLoaded", function(){
   sendMessage('ready', 1)
-  if(window === window.parent) loadExcersize('museum.json');
+  if(window === window.parent) loadExcersize('restaurant.json');
   setupInputListeners();
 });
