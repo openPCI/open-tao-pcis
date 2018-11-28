@@ -47,14 +47,16 @@ var GameHud = function(){
 
   function redoHud(){
     var n=0;
-    droppableProps.forEach(function(prop){
-      if(prop.count > 0){
-        prop.prop.visible = true;
-        prop.prop.position.x = 2 + (4*n);
+
+    droppableProps.forEach(function(info){
+      if(info.count > 0){
+        info.prop.position.x = 2 + (4*n);
+        info.prop.position.y = -4;
         n++
       } else {
-        prop.prop.visible = false;
+        info.prop.position.y = 100;
       }
+      info.prop.updateMatrixWorld();
     });
   }
 

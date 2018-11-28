@@ -192,9 +192,7 @@ function loadExcersize(definitionUrl){
       if(!asset){
         if(json.objects){
           json.objects.forEach(function(object){
-            console.log()
             var info = hud.getDroppableByName(object.id);
-            console.log(info, object);
             if(hud.placeDroppable(info)){
               var prop = info.gltf.scene.clone();
               prop.info = info;
@@ -418,6 +416,7 @@ function addMoveable(group){
 
 function removeMoveable(group){
     scene.remove(group);
+    if(group.outline) scene.remove(group.outline);
     hud.removeDroppable(group.info)
     moveables = moveables.filter(function(o){
       return o !== group;
@@ -487,21 +486,49 @@ function setupInputListeners(){
     rotate = 1;
   });
 
+  function addOutline(prop){
+    if(prop.outline){
+      prop.outline.visible = true;
+      return;
+    }
+    var outline = prop.clone();
+    outline.traverse(function(o){
+      if(o instanceof THREE.Mesh){
+        o.geometry.side = THREE.BackSide;
+        o.material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.BackSide } );
+      }
+    });
+  	outline.position.clone(prop.position);
+    outline.rotation.clone(prop.rotation);
+  	outline.scale.multiplyScalar(1.05);
+    scene.add(outline);
+    prop.outline = outline;
+  }
+  function removeOutline(prop){
+    if(prop.outline){
+      prop.outline.visible = false;
+    }
+  }
+
   window.addEventListener( 'mousedown', function(event){
+    if(movingObject) removeOutline(movingObject);
     mouseDown = true;
     movingObject = null;
 
     for(var i = 0; i < hud.droppables.length; i++){
       var intersects = hudRaycaster.intersectObjects( hud.droppables[i].prop.children );
       if(intersects.length){
+        console.log(intersects)
         var hudInfo = hud.droppables[i];
         if(hud.placeDroppable(hudInfo)){
           var prop = hud.droppables[i].gltf.scene.clone();
           prop.info = hudInfo;
+          prop.rotation.y = -Math.PI;
           addMoveable(prop);
+          addOutline(prop);
+          movingObject = prop;
+          return;
         }
-        movingObject = prop;
-        return;
       }
     }
 
@@ -509,6 +536,7 @@ function setupInputListeners(){
       var intersects = raycaster.intersectObjects( moveables[i].children );
       if(intersects.length){
         movingObject = moveables[i];
+        addOutline(movingObject);
         behavior(movingObject, 'onDragStart', [movingObject]);
         return;
       }
@@ -556,7 +584,7 @@ function setupInputListeners(){
     if(/Left$/.test(event.key)){
       movingObject.rotation.y += Math.PI / 2;
     }
-
+    movingObject.outline.rotation.y = movingObject.rotation.y;
     postResult();
   }, false)
 }
@@ -606,6 +634,9 @@ var animate = function () {
       movingObject.updateMatrixWorld(true);
 
 
+      if(movingObject.outline){
+        movingObject.outline.position.copy(movingObject.position);
+      }
 
     } else {
       var v = mouseDelta.clone();
@@ -615,6 +646,7 @@ var animate = function () {
       boundingbox.clampPoint(lookObject.position, lookObject.position);
       mouseDelta.set(0,0);
     }
+
 
   }
 
