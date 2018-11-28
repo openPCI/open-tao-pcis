@@ -50,6 +50,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
               }
 
               if(event.data && event.data.type == 'ready'){
+                if($iframe)
                 $iframe[0].contentWindow.postMessage({
                   type :'loadExcersize',
                   value : config.excersize
