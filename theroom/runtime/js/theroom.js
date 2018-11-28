@@ -238,6 +238,8 @@ function loadScene(file){
 
     gltf.scene.traverse(function(o){
       if(o instanceof THREE.Mesh){
+        if(o.name && /glass/.test(o.name)) return;
+        
         o.receiveShadow = true;
         o.castShadow = true;
       }
