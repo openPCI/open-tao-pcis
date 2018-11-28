@@ -45,7 +45,7 @@ define([
             console.log('getDefaultProperties', arguments);
             return {
                 excersize: 'museum.json',
-                gameUrl: 'http://pci.localhost/theroom/runtime/theroom.html'
+                gameUrl: 'https://surveyinfo.au.dk/pci-external/open-tao-pcis/theroom/runtime/theroom.html'
             };
         },
         /**

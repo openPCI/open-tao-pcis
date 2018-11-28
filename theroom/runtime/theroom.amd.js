@@ -11,7 +11,10 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
     function startTheRoom(dom, config, $container){
       cfg = config;
       if(!$iframe){
-        var $iframe = $('<iframe>');
+        $iframe = $('<iframe>');
+        $iframe.css('width','100%');
+        $container.append($iframe);
+        $iframe.css('height', $iframe.width() * 0.56 + 'px');
       }
 
       $iframe.attr('src', config.gameUrl + '?' + Date.now());
@@ -42,7 +45,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             window.addEventListener('message', function(event){
               if(event.data && event.data.type){
                 if(event.data.type == "updateResult"){
-                  this.responseContainer.base.string = event.data.value;
+                  _this.responseContainer.base.string = event.data.value;
                 }
               }
 
@@ -70,7 +73,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                 starttheroom(dom, _this.config, this.responseContainer);
               }, 5000);
             });
-            starttheroom(dom, config, this.responseContainer);
+            startTheRoom(dom, config, $(dom));
         },
         /**
          * Programmatically set the response following the json schema described in
