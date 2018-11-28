@@ -560,7 +560,12 @@ function setupInputListeners(){
   window.addEventListener( 'wheel', function(event){
     var d =  event.deltaY > 0 ? 100 : -100;
     cameraObject.position.z += d/100;
+    rotateObject.rotation.x -= d/10000;
+    if(rotateObject.rotation.x < 5) rotateObject.rotation.x = 5;
+    if(rotateObject.rotation.x > 5.7) rotateObject.rotation.x = 5.7;
+
     if(cameraObject.position.z < 0) cameraObject.position.z = 0;
+    if(cameraObject.position.z > 20) cameraObject.position.z = 20;
     event.preventDefault();
   });
 
