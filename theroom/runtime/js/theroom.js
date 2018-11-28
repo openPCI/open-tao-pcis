@@ -660,7 +660,7 @@ var animate = function () {
 };
 
 document.addEventListener("DOMContentLoaded", function(){
+  setupInputListeners();
   sendMessage('ready', 1)
   if(window === window.parent) loadExcersize('restaurant.json');
-  setupInputListeners();
 });
