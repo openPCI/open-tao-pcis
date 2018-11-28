@@ -585,57 +585,28 @@ var animate = function () {
   if(intersects.length && mouseDown){
 
     if(movingObject){
-      var test = collisionTest(movingObject, room);
-      var hit = false;
-      test.some(function(r){
-        r.some(function(t){
-          hit = true;
-          return true;
-        });
-        if(hit) return true;
-      });
 
-      var ignoreHit = false;
-      if(hit){
-        var result = behavior(movingObject, 'onMovingCollide', [movingObject, test]);
-        if(result) ignoreHit = true;
+
+      var dontMove = behavior(movingObject, 'onDrag', [movingObject, movingObject.position, oldPos]);
+      if(dontMove){
+        return;
       }
+      if(!movingObjectOffset) movingObjectOffset = intersects[0].point.clone().sub(movingObject.position);
+      var v = movingObject.position.clone().sub(intersects[0].point.clone().sub(movingObjectOffset));
+      var dist = v.length();
+      v.normalize();
+      v.multiplyScalar(dist*0.1);
+      v.y = 0;
 
-      if(!hit || ignoreHit){
-
-        var dontMove = behavior(movingObject, 'onDrag', [movingObject, movingObject.position, oldPos]);
-        if(dontMove){
-          return;
-        }
-        if(!movingObjectOffset) movingObjectOffset = intersects[0].point.clone().sub(movingObject.position);
-        var v = movingObject.position.clone().sub(intersects[0].point.clone().sub(movingObjectOffset));
-        var dist = v.length();
-        v.normalize();
-        v.multiplyScalar(dist*0.1);
-        v.y = 0;
-
-        var oldPos = movingObject.position.clone();
-        movingObject.position.sub(v);
+      var oldPos = movingObject.position.clone();
+      movingObject.position.sub(v);
 
 
-        movingObject.updateMatrix();
-        movingObject.updateMatrixWorld(true);
+      movingObject.updateMatrix();
+      movingObject.updateMatrixWorld(true);
 
 
-      } else if(hit){
-        test.forEach(function(r){
-         v = new THREE.Vector3();
-         r.forEach(function(t){
-           v.add(t.point.clone().sub(movingObject.position));
-         });
-         v.normalize();
-         v.multiplyScalar(0.01);
-         v.y = 0;
-         movingObject.position.sub(v);
-         movingObject.updateMatrix();
-         movingObject.updateMatrixWorld(true);
-        });
-      }
+
     } else {
       var v = mouseDelta.clone();
       v.rotateAround(new THREE.Vector2(0,0), lookObject.rotation.y);
