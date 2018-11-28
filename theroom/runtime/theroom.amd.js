@@ -8,8 +8,8 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
     var $iframe;
 
-    function startTheRoom(dom, config, $container){
-      cfg = config;
+    function startTheRoom(dom, config){
+      var $container = $(dom);
       if(!$iframe){
         $iframe = $('<iframe>');
         $iframe.css('width','100%');
@@ -17,7 +17,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         $iframe.css('height', $iframe.width() * 0.56 + 'px');
       }
 
-      $iframe.attr('src', config.gameUrl + '?' + Date.now());
+      $iframe.attr('src', config.gameurl + '?' + Date.now());
     }
 
     var theroom = {
@@ -70,10 +70,10 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
               _this.config[key] = value;
               clearTimeout(cfgTimeout);
               cfgTimeout = setTimeout(function(){
-                starttheroom(dom, _this.config, this.responseContainer);
+                startTheRoom(dom, _this.config);
               }, 5000);
             });
-            startTheRoom(dom, config, $(dom));
+            startTheRoom(dom, config);
         },
         /**
          * Programmatically set the response following the json schema described in
