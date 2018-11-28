@@ -177,9 +177,6 @@ function clearThree(obj){
   if(obj.texture) obj.texture.dispose()
 }
 
-function setRoomLayout(layout){
-  deserializeMoveables
-}
 
 function loadExcersize(definitionUrl){
   var xmlhttp = new XMLHttpRequest();
@@ -398,14 +395,16 @@ function addMoveable(group, static){
   });
 
   scene.add(group);
+  moveables.push(group);
   if(!static){
-    moveables.push(group);
     objectBehaviors.some(function(b){
       if(b.onObjectLoad(group)){
         group.behavior = b;
         return true;
       }
     });
+  } else {
+    group.static = true;
   }
 
   if(movePlanePosition){
@@ -617,26 +616,25 @@ var animate = function () {
 
 
       var dontMove = behavior(movingObject, 'onDrag', [movingObject, movingObject.position, oldPos]);
-      if(dontMove){
-        return;
-      }
-      if(!movingObjectOffset) movingObjectOffset = intersects[0].point.clone().sub(movingObject.position);
-      var v = movingObject.position.clone().sub(intersects[0].point.clone().sub(movingObjectOffset));
-      var dist = v.length();
-      v.normalize();
-      v.multiplyScalar(dist*0.1);
-      v.y = 0;
+      if(!dontMove && !movingObject.static){
+        if(!movingObjectOffset) movingObjectOffset = intersects[0].point.clone().sub(movingObject.position);
+        var v = movingObject.position.clone().sub(intersects[0].point.clone().sub(movingObjectOffset));
+        var dist = v.length();
+        v.normalize();
+        v.multiplyScalar(dist*0.1);
+        v.y = 0;
 
-      var oldPos = movingObject.position.clone();
-      movingObject.position.sub(v);
+        var oldPos = movingObject.position.clone();
+        movingObject.position.sub(v);
 
 
-      movingObject.updateMatrix();
-      movingObject.updateMatrixWorld(true);
+        movingObject.updateMatrix();
+        movingObject.updateMatrixWorld(true);
 
 
-      if(movingObject.outline){
-        movingObject.outline.position.copy(movingObject.position);
+        if(movingObject.outline){
+          movingObject.outline.position.copy(movingObject.position);
+        }
       }
 
     } else {
