@@ -2,19 +2,19 @@
   "scene" : "restaurant/room.gltf",
   "assets":[
     {
-      "model" : "museum/montre_skjold.gltf",
-      "count" : 1
+      "model" : "restaurant/table.gltf",
+      "count" : 4
     },
     {
-      "model" : "museum/montre_svaerd2.gltf",
-      "count" : 1
+      "model" : "restaurant/tablefortwo.gltf",
+      "count" : 2
     },
     {
-      "model" : "museum/plakat_svaerd.gltf",
-      "count" : 1
+      "model" : "restaurant/playcorner.gltf",
+      "count" : 2
     },
     {
-      "model" : "museum/vagt.gltf",
+      "model" : "restaurant/buffet.gltf",
       "count" : 2
     }
   ]

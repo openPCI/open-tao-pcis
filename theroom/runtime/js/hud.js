@@ -38,18 +38,31 @@ var GameHud = function(){
     prop.rotation.x = Math.PI / 4
     prop.position.y = -4;
     prop.rotation.y = 4;
-
-    prop.position.x = 2 + (4*droppableProps.length);
     prop.scale.setScalar(0.6);
     hudScene.add(prop);
     droppableProps.push(info);
+
+    redoHud();
+  }
+
+  function redoHud(){
+    var n=0;
+    droppableProps.forEach(function(prop){
+      if(prop.count > 0){
+        prop.prop.visible = true;
+        prop.prop.position.x = 2 + (4*n);
+        n++
+      } else {
+        prop.prop.visible = false;
+      }
+    });
   }
 
   function placeDroppable(info){
     if(info.count > 0){
       info.count --;
       if(info.count == 0){
-        setMaterialProps(info.prop, {opacity: 0.3, transparent: true})
+        redoHud();
       }
       return true;
     }
@@ -64,8 +77,8 @@ var GameHud = function(){
   }
 
   function removeDroppable(info){
-    resetMaterial(info.prop);
     info.count ++;
+    redoHud();
   }
 
   function getDroppableByName(name){

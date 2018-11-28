@@ -24,10 +24,6 @@ var WallSnapObject = function(){
 
     var rotation = new THREE.Quaternion();
     var snapper;
-    for(var r = 0; r < 4; r++){
-      object.rotation.y += (Math.PI/2);
-      object.updateMatrix();
-      object.updateMatrixWorld(true);
 
       for(var i=0; i<snappers.length; i++){
         snapper = snappers[i];
@@ -43,7 +39,7 @@ var WallSnapObject = function(){
           return true;
         }
       }
-    }
+    
   }
 
   return {
@@ -67,9 +63,9 @@ var WallSnapObject = function(){
     },
     onDrag: function(movingObject){
       if(wallSnapObject(movingObject)){
-        resetMaterial(movingObject);
+        //resetMaterial(movingObject);
       } else {
-        setMaterialProps(movingObject, {opacity: 0.3, transparent: true})
+        //setMaterialProps(movingObject, {opacity: 0.3, transparent: true})
       }
     },
     onMovingCollide: function(object, collisionData){
