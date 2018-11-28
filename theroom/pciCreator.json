@@ -1,9 +1,9 @@
 {
     "typeIdentifier": "theroom",
     "label": "The Room 3D",
-    "short": "theroom",
+    "short": "Room",
     "description": "3D Design excersize",
-    "version": "0.0.7",
+    "version": "0.0.11",
     "author": "EJTH",
     "email": "ejth@edu.au.dk",
     "tags": [
@@ -27,7 +27,7 @@
         ]
     },
     "creator" : {
-        "icon": "./creator/img/icon.svg",
+        "icon": "./creator/img/icon.png",
         "hook": "./pciCreator.js",
         "libraries" : [
             "./creator/tpl/markup.tpl",
