@@ -239,7 +239,6 @@ function loadScene(file){
     gltf.scene.traverse(function(o){
       if(o instanceof THREE.Mesh){
         if(o.name && /glass/.test(o.name)) return;
-        
         o.receiveShadow = true;
         o.castShadow = true;
       }
@@ -483,10 +482,14 @@ function setupInputListeners(){
 
   document.getElementById('rotateLeft').addEventListener('mousedown', function(event){
     rotate = -1;
-  });
+    mouseDown = false;
+    event.stopPropagation();
+  }, false);
   document.getElementById('rotateRight').addEventListener('mousedown', function(event){
     rotate = 1;
-  });
+    mouseDown = false;
+    event.stopPropagation();
+  }, false);
 
   function addOutline(prop){
     if(prop.outline){
