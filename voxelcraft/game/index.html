@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>three.js webgl - interactive - voxel painter</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+      body {
+        background:#777;
+        padding:0;
+        margin:0;
+        font-weight: bold;
+        overflow:hidden;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+         -khtml-user-select: none; /* Konqueror HTML */
+           -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                      supported by Chrome and Opera */
+      }
+      #help img {
+        height: 24px;
+        position:relative;
+        top:6px;
+      }
+
+      #help span {
+        border: 2px outset;
+        padding: 3px;
+        background-color: #fff;
+      }
+      #help {
+        position:absolute;
+        top:0px;
+        font-size:14px;
+        font-family: Verdana;
+        font-weight:lighter;
+        margin:2px;
+        opacity:0.5;
+        width:100%;
+        text-align:center;
+      }
+
+      #palette {
+        position:absolute;
+        bottom: 10px;
+        text-align:center;
+        width:100%;
+      }
+      #palette span {
+        display:inline-block;
+        border: 1px solid black;
+        width:32px;
+        height: 32px;
+        opacity: 0.7;
+        margin:2px;
+      }
+
+      a {
+        color: #ff0000;
+      }
+    </style>
+  </head>
+  <body>
+
+    <script src="three.js"></script>
+
+    <script>
+      var colors = [
+        '#cc0000',
+        '#cc6900',
+        '#f7ef00',
+        '#afe000',
+        '#00b512',
+        '#00bfa5',
+        '#009bbf',
+        '#008af4',
+        '#ae00f4',
+        '#f400e3',
+        '#f40000',
+        '#cccccc',
+        '#ffffff',
+        '#222222'
+      ];
+
+      var KEY = {
+        shift: 16,
+        left:  37,
+        right: 39,
+        up: 38,
+        down: 40,
+        control: 17
+      }
+
+      var mouseDelta = new THREE.Vector2();
+      var lastMouse = new THREE.Vector2();
+
+      var camera, cameraObject, scene, renderer;
+      var plane, cube;
+      var mouse, raycaster
+
+      var rollOverMesh;
+      var rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0, opacity: 0.5, transparent: true } );
+      var cubeGeo, cubeMaterial;
+
+      var keyStates = {};
+
+      var objects = [];
+
+      var cubeMaterials = [];
+      var color = 0;
+      var voxels = [];
+
+      var mouseDown, mouseClick;
+
+      init();
+      render();
+
+      function setPalette(colors){
+
+        var palette = document.getElementById('palette');
+        if(!palette){
+          palette = document.createElement('div');
+          document.body.appendChild(palette);
+        }
+        palette.innerHTML = '';
+        palette.id = 'palette';
+        cubeMaterials = [];
+        colors.forEach(function(color, i){
+           cubeMaterials.push(new THREE.MeshLambertMaterial( { color: parseInt(color.slice(1),16) } ));
+           var btn = document.createElement('span');
+           btn.style.backgroundColor = color;
+           btn.paintColor = i;
+           palette.appendChild(btn);
+        });
+
+        color = 0;
+
+        rollOverMaterial.color = cubeMaterials[0].color
+      }
+
+      function init() {
+
+        cameraObject = new THREE.Object3D();
+        cameraObject.rotation.fromArray([2.1316924171107e-16, -0.12000000000000163, 0.5400000000000049, "XYZ"]);
+
+        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.set( 2000, 0, 0 );
+        cameraObject.add(camera);
+
+
+        camera.lookAt( 0, 0, 0 );
+
+        scene = new THREE.Scene();
+
+        scene.add(cameraObject);
+        scene.background = new THREE.Color( 0xf0f0f0 );
+
+        // roll-over helpers
+
+        var rollOverGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
+        rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
+        scene.add( rollOverMesh );
+
+        // cubes
+
+        cubeGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
+
+        // grid
+
+        var gridHelper = new THREE.GridHelper( 1000, 20 );
+        scene.add( gridHelper );
+
+        //
+
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+
+        var geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
+        geometry.rotateX( - Math.PI / 2 );
+
+        plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
+        scene.add( plane );
+
+        objects.push( plane );
+
+        // lights
+
+        var ambientLight = new THREE.AmbientLight( 0x606060 );
+        scene.add( ambientLight );
+
+        var directionalLight = new THREE.DirectionalLight( 0xffffff );
+        directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
+        scene.add( directionalLight );
+
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+
+
+
+        document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+        document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+        document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+        document.addEventListener( 'keydown', onDocumentKeyDown, false );
+        document.addEventListener( 'keyup', onDocumentKeyUp, false );
+        document.addEventListener( 'wheel', onDocumentScroll, false);
+
+        document.addEventListener('contextmenu', onDocumentRightClick, false);
+
+        window.addEventListener('paste', onWindowPaste);
+
+        window.addEventListener( 'resize', onWindowResize, false );
+
+        window.addEventListener('message', onPostMessage, false)
+
+      }
+
+      function onPostMessage(event){
+        if(event.data){
+          switch(event.data.type){
+            case 'setPalette':
+              colors = event.data.value;
+              setPalette(colors);
+            break;
+            case 'setScene':
+              setScene(event.data.value);
+            break;
+          }
+        }
+      }
+
+      function onWindowPaste(e){
+        var data = (e.clipboardData || window.clipboardData).getData('text');
+        try {
+          var serialized = JSON.parse(data);
+          setScene(serialized);
+        } catch(ex){}
+      }
+
+      function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+      }
+
+      function onDocumentMouseMove( event ) {
+        event.preventDefault();
+
+        mouseDelta.copy(mouse)
+        mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+        mouseDelta.sub(mouse);
+
+        raycastVoxelHelper();
+
+      }
+
+      function onDocumentRightClick(event){
+        event.preventDefault();
+      }
+
+      function onDocumentMouseUp( event ){
+        mouseClick = Date.now() - mouseDown < 250;
+        mouseDown = false;
+
+
+        raycaster.setFromCamera( mouse, camera );
+
+        var intersects = raycaster.intersectObjects( objects );
+
+        if(event.target && event.target.parentNode.id == 'palette'){
+          color = event.target.paintColor;
+          rollOverMaterial.color = cubeMaterials[color].color;
+          return;
+        }
+
+        if ( mouseClick && intersects.length > 0 ) {
+
+          var intersect = intersects[ 0 ];
+
+          // delete cube
+
+          if ( keyStates[KEY.shift] || event.button == 2 ) {
+
+            if ( intersect.object !== plane ) {
+
+              scene.remove( intersect.object );
+              voxels.splice( voxels.indexOf( intersect.object ), 1 );
+              objects.splice( objects.indexOf( intersect.object ), 1 );
+
+            }
+
+            // create cube
+
+          } else {
+
+
+            var voxel = new THREE.Mesh( cubeGeo, cubeMaterials[color] );
+            voxel.userData.color = color;
+            voxel.position.copy( intersect.point ).add( intersect.face.normal );
+            voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+            scene.add( voxel );
+
+            objects.push( voxel );
+            voxels.push(voxel);
+
+            window.parent.postMessage({
+              type: 'updateResult',
+              value: getScene(),
+            },"*");
+
+          }
+
+        }
+
+      }
+
+      function onDocumentMouseDown( event ) {
+        mouseDown = Date.now();
+        event.preventDefault();
+
+        //mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+
+      }
+
+      function getScene(){
+        return voxels.map(function(o){
+          return {p:o.position.toArray(), c: o.material.color};
+        })
+      }
+
+      function setScene(save){
+        voxels.forEach(function(o){
+          scene.remove(o);
+        });
+        voxels = [];
+        objects = [plane];
+
+        save.forEach(function(def){
+          var voxel = new THREE.Mesh( cubeGeo, new THREE.MeshLambertMaterial( { color: def.c } ) );
+          voxel.position.fromArray(def.p);
+          objects.push(voxel);
+          voxels.push(voxel);
+          scene.add(voxel);
+        });
+      }
+
+      function copyToClipboard(str){
+        var el = document.createElement('textarea');
+        el.value = str;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      }
+
+      function onDocumentKeyDown( event ) {
+        keyStates[event.keyCode] = true;
+
+        if(keyStates[KEY.control] && keyStates[67]){
+          copyToClipboard(JSON.stringify(getScene()));
+        }
+      }
+
+      function onDocumentKeyUp( event ) {
+        keyStates[event.keyCode] = false;
+      }
+
+      function onDocumentScroll( event ){
+        camera.position.x += event.deltaY > 0 ? 100 : -100;
+        camera.position.clampLength(300,3600);
+        event.preventDefault();
+      }
+
+      function raycastVoxelHelper(){
+        raycaster.setFromCamera( mouse, camera );
+
+        var intersects = raycaster.intersectObjects( objects );
+
+        if ( intersects.length > 0 ) {
+          var intersect = intersects[ 0 ];
+
+          rollOverMesh.position.copy( intersect.point ).add( intersect.face.normal );
+          rollOverMesh.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+
+        }
+      }
+
+      function render() {
+        var cameraChanged = false;
+        if(keyStates[KEY.shift] && mouseDown){
+          cameraObject.translateZ(mouseDelta.x * -400);
+          cameraObject.translateY(mouseDelta.y * 400);
+        } else
+        if(keyStates[KEY.control] && mouseDown){
+          cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), mouseDelta.x );
+          cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), mouseDelta.y);
+        }
+
+        mouseDelta.set(0,0);
+
+        if(keyStates[KEY.left] || keyStates[KEY.right]){
+          cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), (keyStates[KEY.right] ? 1 : -1) * 0.015 );
+          cameraChanged = true;
+        }
+
+        if(keyStates[KEY.up] || keyStates[KEY.down]){
+          cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), (keyStates[KEY.up] ? 1 : -1) * 0.015);
+          cameraChanged = true;
+        }
+
+        if(cameraChanged) raycastVoxelHelper();
+
+        renderer.render( scene, camera );
+        window.requestAnimationFrame(render);
+      }
+      render();
+
+      if(window.parent !== window){
+        window.parent.postMessage({
+          type: 'ready'
+        },'*');
+      } else {
+        setPalette(colors);
+      }
+
+    </script>
+    <div id="help">
+      <img src="leftclick.png" alt="Venstreklik" />: Tegn, <img src="rightclick.png" alt="Højreklik" />: Slet, <span>Shift</span>+<img src="leftclick.png" alt="Træk med mus" />: Flyt kamera, <span>Ctrl</span>+<img src="leftclick.png" alt="Træk med mus" />: Rotér kamera, <img src="scroll.png" alt="Musehjul" />: Zoom
+    </div>
+  </body>
+
+</html>

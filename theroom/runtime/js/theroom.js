@@ -14,15 +14,6 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 document.body.appendChild( renderer.domElement );
-//
-// TODO:
-// - [X] Camera movement
-// - [-] Item placement
-// - [ ] Wall sticky objects
-// - [X] Item Rotation
-// - [ ] Scoring
-// - [ ] Settings
-// - [ ] Postprocessing (outline selected prop) https://threejs.org/examples/webgl_postprocessing_outline.html
 
 // Currently loaded room scene
 var room;
@@ -186,6 +177,9 @@ function clearThree(obj){
   if(obj.texture) obj.texture.dispose()
 }
 
+function setRoomLayout(layout){
+  deserializeMoveables
+}
 
 function loadExcersize(definitionUrl){
   var xmlhttp = new XMLHttpRequest();
@@ -195,6 +189,23 @@ function loadExcersize(definitionUrl){
 
     var loadNext = function(){
       var asset = json.assets.shift();
+      if(!asset){
+        if(json.objects){
+          json.objects.forEach(function(object){
+            console.log()
+            var info = hud.getDroppableByName(object.id);
+            console.log(info, object);
+            if(hud.placeDroppable(info)){
+              var prop = info.gltf.scene.clone();
+              prop.info = info;
+              addMoveable(prop);
+              prop.position.fromArray(object.pos);
+              prop.rotation.fromArray(object.rot);
+            }
+          });
+        }
+        return;
+      }
       loadMoveable(asset.model, asset.count || 1, loadNext);
     }
 
@@ -439,7 +450,7 @@ function loadMoveable(asset, count, callback){
     // Force shadows on and handle special case with glass
     modifyModel(gltf.scene)
 
-    hud.addDroppable(gltf, count);
+    hud.addDroppable(gltf, count, asset);
     if(callback) callback();
   });
 
@@ -518,9 +529,10 @@ function setupInputListeners(){
     postResult();
   }, false);
 
-  window.addEventListener( 'mousewheel', function(event){
-
-    cameraObject.position.z += event.deltaY/100;
+  window.addEventListener( 'wheel', function(event){
+    var d =  event.deltaY > 0 ? 100 : -100;
+    cameraObject.position.z += d/100;
+    if(cameraObject.position.z < 0) cameraObject.position.z = 0;
     event.preventDefault();
   });
 

@@ -1,0 +1,21 @@
+{
+  "scene" : "restaurant/room.gltf",
+  "assets":[
+    {
+      "model" : "museum/montre_skjold.gltf",
+      "count" : 1
+    },
+    {
+      "model" : "museum/montre_svaerd2.gltf",
+      "count" : 1
+    },
+    {
+      "model" : "museum/plakat_svaerd.gltf",
+      "count" : 1
+    },
+    {
+      "model" : "museum/vagt.gltf",
+      "count" : 2
+    }
+  ]
+}
