@@ -14,13 +14,13 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         $iframe.css('width','100%');
         $(dom).append($iframe);
         $iframe.css('height', $iframe.width() * 0.56 + 'px');
-        $iframe.focus();
+        $iframe[0].focus();
 
-        if(window.location.search.indexOf('section=authoring') == -1){
-          document.addEventListener('keydown', function(){
-            $iframe.focus();
-          }, false);
-        }
+
+        $(dom).on('mouseover', function(){
+          $iframe[0].focus();
+        }, false);
+
       }
 
       $iframe.attr('src', config.gameUrl + '?' + Date.now());
