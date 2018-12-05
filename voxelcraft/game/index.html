@@ -207,13 +207,9 @@
         document.addEventListener( 'keydown', onDocumentKeyDown, false );
         document.addEventListener( 'keyup', onDocumentKeyUp, false );
         document.addEventListener( 'wheel', onDocumentScroll, false);
-
         document.addEventListener('contextmenu', onDocumentRightClick, false);
-
         window.addEventListener('paste', onWindowPaste);
-
         window.addEventListener( 'resize', onWindowResize, false );
-
         window.addEventListener('message', onPostMessage, false)
 
       }
@@ -342,7 +338,12 @@
         objects = [plane];
 
         save.forEach(function(def){
-          var voxel = new THREE.Mesh( cubeGeo, new THREE.MeshLambertMaterial( { color: def.c } ) );
+          var c = def.c;
+          if(!(c instanceof Number)){
+            c = new THREE.Color(c.r,c.g,c.b);
+          }
+          console.log(c);
+          var voxel = new THREE.Mesh( cubeGeo, new THREE.MeshLambertMaterial( { color: c } ) );
           voxel.position.fromArray(def.p);
           objects.push(voxel);
           voxels.push(voxel);
@@ -372,7 +373,11 @@
       }
 
       function onDocumentScroll( event ){
-        camera.position.x += event.deltaY > 0 ? 100 : -100;
+        // Scroll events has different delta modes depending on browser+input device.
+        var multiplier = event.deltaMode == event.DOM_DELTA_LINE ? 40
+          : event.deltaMode == event.DOM_DELTA_PAGE ? 0.1 : 1;
+
+        camera.position.x += event.deltaY * multiplier;
         camera.position.clampLength(300,3600);
         event.preventDefault();
       }
