@@ -326,7 +326,7 @@
 
       function getScene(){
         return voxels.map(function(o){
-          return {p:o.position.toArray(), c: o.material.color};
+          return {p:o.position.toArray(), c: o.material.color.getHex()};
         })
       }
 
