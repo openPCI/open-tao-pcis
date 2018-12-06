@@ -53,6 +53,8 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       }
 
       function writeChatLine(elapsed, name, msg, player, color){
+        resultObject.base.string += "\n" + [timestamp(t), name, msg].join(';');
+
         var $time = $('<span>').text(timestamp(elapsed));
         var $name = $('<span>',{class:'name'}).text(name);
         var $msg = $('<div>').append([/*$time,*/$name, msg]);
@@ -77,7 +79,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
       function addUserReply(str){
         var t = (new Date() - timeStart) / 1000;
-        resultObject.base.string += "\n" + [timestamp(t), playerName, str].join(';');
         writeChatLine(t, playerName, str, true);
       }
 
