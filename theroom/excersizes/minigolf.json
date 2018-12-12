@@ -1,0 +1,32 @@
+{
+  "scene" : "minigolf/scene.gltf",
+  "assets":[
+    {
+      "model" : "minigolf/end_piece.gltf"
+    },
+    {
+      "model" : "minigolf/hard_bend.gltf"
+    },
+    {
+      "model" : "minigolf/hole.gltf"
+    },
+    {
+      "model" : "minigolf/slope.gltf"
+    },
+    {
+      "model" : "minigolf/start.gltf"
+    },
+    {
+      "model" : "minigolf/straight.gltf"
+    },
+    {
+      "model" : "minigolf/end_piece.gltf"
+    },
+    {
+      "model" : "minigolf/end_piece.gltf"
+    },
+    {
+      "model" : "minigolf/mill.gltf"
+    }
+  ]
+}

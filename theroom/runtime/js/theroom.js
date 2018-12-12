@@ -1,4 +1,4 @@
-var urlPath = '../models/';
+var urlPath = '../excersizes/';
 
 var moveables = [];
 
@@ -137,13 +137,13 @@ function loadGLtf(path, callback){
  * @param  {THREE.Scene} scene THREEJS Scene object
  * @return {undefined}
  */
-function addLighting(scene){
+function addLighting(scene, intensity){
   // Add global light
-  var globalLight = new THREE.AmbientLight( 0xffffff, 0.7 );
+  var globalLight = new THREE.AmbientLight( 0xffffff, intensity * 0.7 );
   scene.add( globalLight );
 
   // Add DirectionalLight for shadows
-  var sunLight = new THREE.DirectionalLight( 0xffffff, 0.3 );
+  var sunLight = new THREE.DirectionalLight( 0xffffff, intensity * 0.3);
   sunLight.castShadow = true;
 
   sunLight.target = scene.children[0];
@@ -252,8 +252,8 @@ function loadScene(file){
       bbobj.parent.remove(bbobj);
     }
     room = gltf.scene;
-
-    addLighting(scene);
+    console.log(room.userData);
+    addLighting(scene, room.userData.light_intensity || 1);
     addCameraHelper();
     animate();
   });
@@ -491,14 +491,27 @@ function setupInputListeners(){
     event.stopPropagation();
   }, false);
 
+  function startAnimation(obj){
+    if(obj.info && obj.info.animations.length){
+      if(!obj.mixer) obj.mixer = new THREE.AnimationMixer( obj );
+      var clip = obj.info.animations[0];
+      console.log(clip);
+      var action = obj.mixer.clipAction(clip);
+      action.loop = THREE.LoopRepeat;
+      action.play();
+    }
+  }
+
   function addOutline(prop){
     if(prop.outline){
       prop.outline.visible = true;
       return;
     }
     var outline = prop.clone();
+    outline.info = prop.info;
     outline.traverse(function(o){
-      if(o instanceof THREE.Mesh){
+      if(o instanceof THREE.Mesh && o.material.visible){
+        if(o.name.indexOf('snap') > -1) return;
         o.geometry.side = THREE.BackSide;
         o.material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.BackSide } );
       }
@@ -508,6 +521,7 @@ function setupInputListeners(){
   	outline.scale.multiplyScalar(1.05);
     scene.add(outline);
     prop.outline = outline;
+    startAnimation(outline);
   }
   function removeOutline(prop){
     if(prop.outline){
@@ -529,6 +543,7 @@ function setupInputListeners(){
           var prop = hud.droppables[i].gltf.scene.clone();
           prop.info = hudInfo;
           addMoveable(prop);
+          startAnimation(prop);
           addOutline(prop);
           movingObject = prop;
           return;
@@ -605,8 +620,16 @@ function behavior(obj, listener, params){
     }
   }
 }
-
+var clock = new THREE.Clock();
 var animate = function () {
+  var deltaTime = clock.getDelta();
+  //play animations
+  scene.children.forEach(function(o){
+    if(o.mixer){
+      o.mixer.update(deltaTime);
+    }
+  });
+
   lookObject.rotation.y += rotate * 0.02;
   // update the picking ray with the camera and mouse position
 	raycaster.setFromCamera( mouse, camera );
@@ -667,5 +690,5 @@ var animate = function () {
 document.addEventListener("DOMContentLoaded", function(){
   setupInputListeners();
   sendMessage('ready', 1)
-  if(window === window.parent) loadExcersize('museum.json');
+  if(window === window.parent) loadExcersize('minigolf.json');
 });

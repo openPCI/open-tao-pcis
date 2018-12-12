@@ -19,18 +19,19 @@ var GameHud = function(){
   this.droppables = droppableProps;
   this.camera = hudCamera;
   // Add global light
-  addLighting(hudScene)
+  addLighting(hudScene,1)
 
   hudScene.add( hudCamera )
 
   function hudAddDroppable(gltf, count, name){
+
     var prop = gltf.scene.clone();
     prop.traverse(function(o){
       if(o instanceof THREE.Mesh){
         o.material = o.material.clone();
       }
     });
-    var info = {gltf: gltf, prop: prop, count: count, name: name};
+    var info = {gltf: gltf, prop: prop, count: count, name: name, animations: gltf.animations};
 
     droppableByName[name] = info;
 
