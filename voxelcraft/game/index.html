@@ -4,6 +4,8 @@
     <title>three.js webgl - interactive - voxel painter</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
     <style>
       body {
         background:#777;
@@ -41,10 +43,23 @@
         width:100%;
         text-align:center;
       }
-
-      #palette {
+      #controls {
         position:absolute;
         bottom: 10px;
+        width:100%;
+        text-align:center;
+      }
+      #controls button {
+        width:48px;
+        height:48px;
+        margin:2px;
+      }
+      button.enabled {
+        border: 1px buttonface inset;
+      }
+      #palette {
+        position:absolute;
+        bottom: 60px;
         text-align:center;
         width:100%;
       }
@@ -114,8 +129,7 @@
 
       var mouseDown, mouseClick;
 
-      init();
-      render();
+      var selectedTool = 'toolDraw';
 
       function setPalette(colors){
 
@@ -200,6 +214,7 @@
         document.body.appendChild( renderer.domElement );
 
 
+        setupToolbar();
 
         document.addEventListener( 'mousemove', onDocumentMouseMove, false );
         document.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -211,7 +226,16 @@
         window.addEventListener('paste', onWindowPaste);
         window.addEventListener( 'resize', onWindowResize, false );
         window.addEventListener('message', onPostMessage, false)
+        document.addEventListener('webkitfullscreenchange', onFullScreenChange, false);
+        document.addEventListener('mozfullscreenchange', onFullScreenChange, false);
+        document.addEventListener('fullscreenchange', onFullScreenChange, false);
+        document.addEventListener('MSFullscreenChange', onFullScreenChange, false);
 
+      }
+
+      function onFullScreenChange(event){
+        fullscreen = (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined);
+        $('#fullscreen').toggleClass('enabled', fullscreen);
       }
 
       function onPostMessage(event){
@@ -280,20 +304,20 @@
           var intersect = intersects[ 0 ];
 
           // delete cube
-
-          if ( keyStates[KEY.shift] || event.button == 2 ) {
+          console.log(event.button);
+          if( selectedTool === 'toolPalette'){
+            intersect.object.material = cubeMaterials[color];
+            intersect.object.userData.color = color;
+          } else
+          if ( (selectedTool === 'toolDraw' && (keyStates[KEY.shift] || event.button == 2)) || (selectedTool == 'toolRemove' && event.button == 0) ) {
 
             if ( intersect.object !== plane ) {
-
               scene.remove( intersect.object );
               voxels.splice( voxels.indexOf( intersect.object ), 1 );
               objects.splice( objects.indexOf( intersect.object ), 1 );
-
             }
 
-            // create cube
-
-          } else {
+          } else if(selectedTool == 'toolDraw' && event.button == 0) {
 
 
             var voxel = new THREE.Mesh( cubeGeo, cubeMaterials[color] );
@@ -398,11 +422,11 @@
 
       function render() {
         var cameraChanged = false;
-        if(keyStates[KEY.shift] && mouseDown){
+        if((keyStates[KEY.shift] || selectedTool == 'cameraMove') && mouseDown){
           cameraObject.translateZ(mouseDelta.x * -400);
           cameraObject.translateY(mouseDelta.y * 400);
         } else
-        if(keyStates[KEY.control] && mouseDown){
+        if((keyStates[KEY.control] || selectedTool == 'cameraRotate') && mouseDown){
           cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), mouseDelta.x );
           cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), mouseDelta.y);
         }
@@ -424,19 +448,59 @@
         renderer.render( scene, camera );
         window.requestAnimationFrame(render);
       }
-      render();
 
-      if(window.parent !== window){
-        window.parent.postMessage({
-          type: 'ready'
-        },'*');
-      } else {
-        setPalette(colors);
+
+      var fullscreen = false;
+      function openFullscreen() {
+        var elem = document.body
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { /* Firefox */
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+          elem.msRequestFullscreen();
+        }
       }
 
+      function setupToolbar(){
+        $('#fullscreen').on('click', function(){
+          if(fullscreen) document.exitFullscreen();
+          else openFullscreen();
+        });
+
+        $('#controls > .tool').on('click', function(){
+          selectedTool = this.id;
+          $(this.parentNode).find('.tool').removeClass('enabled');
+          $(this).addClass('enabled');
+          $('#palette').toggle($('#toolPalette').hasClass('enabled'));
+        });
+      }
+
+      $(function(){
+        init();
+        render();
+        if(window.parent !== window){
+          window.parent.postMessage({
+            type: 'ready'
+          },'*');
+        } else {
+          setPalette(colors);
+        }
+      });
     </script>
+
     <div id="help">
       <img src="leftclick.png" alt="Venstreklik" />: Tegn, <img src="rightclick.png" alt="Højreklik" />: Slet, <span>Shift</span>+<img src="leftclick.png" alt="Træk med mus" />: Flyt kamera, <span>Ctrl</span>+<img src="leftclick.png" alt="Træk med mus" />: Rotér kamera, <img src="scroll.png" alt="Musehjul" />: Zoom
+    </div>
+    <div id="controls">
+      <button id="toolDraw" class="tool fas fa-pencil-alt enabled" />
+      <button id="toolRemove" class="tool fas fa-eraser" />
+      <button id="toolPalette" class="tool fas fa-palette" />
+      <button id="cameraMove" class="tool fas fa-arrows-alt" />
+      <button id="cameraRotate" class="tool fas fa-sync-alt" />
+      <button id="fullscreen" class="fas fa-desktop"/>
     </div>
   </body>
 
