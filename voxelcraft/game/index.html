@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>three.js webgl - interactive - voxel painter</title>
+    <title>Voxelcraft</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -293,10 +293,15 @@
 
         var intersects = raycaster.intersectObjects( objects );
 
-        if(event.target && event.target.parentNode.id == 'palette'){
-          color = event.target.paintColor;
-          rollOverMaterial.color = cubeMaterials[color].color;
-          return;
+        if(event.target){
+          if(event.target.parentNode.id == 'palette'){
+            color = event.target.paintColor;
+            rollOverMaterial.color = cubeMaterials[color].color;
+            return;
+          }
+          if(event.target.parentNode.id == 'controls'){
+            return;
+          }
         }
 
         if ( mouseClick && intersects.length > 0 ) {
@@ -410,7 +415,7 @@
         raycaster.setFromCamera( mouse, camera );
 
         var intersects = raycaster.intersectObjects( objects );
-
+        rollOverMesh.visible = ['toolDraw','toolRemove','toolPalette'].indexOf(selectedTool) > -1;
         if ( intersects.length > 0 ) {
           var intersect = intersects[ 0 ];
 
