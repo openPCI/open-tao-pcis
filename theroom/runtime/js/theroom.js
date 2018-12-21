@@ -513,12 +513,15 @@ function setupInputListeners(){
       if(o instanceof THREE.Mesh && o.material.visible){
         if(o.name.indexOf('snap') > -1) return;
         o.geometry.side = THREE.BackSide;
-        o.material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.BackSide } );
+        o.material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.BackSide, opacity: 0.6, transparent: true } );
       }
     });
   	outline.position.clone(prop.position);
     outline.rotation.clone(prop.rotation);
-  	outline.scale.multiplyScalar(1.05);
+    outline.traverse(function(o){
+     o.scale.multiplyScalar(1.01);
+    });
+
     scene.add(outline);
     prop.outline = outline;
     startAnimation(outline);
