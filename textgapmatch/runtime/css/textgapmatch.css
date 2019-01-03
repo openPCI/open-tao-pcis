@@ -1,0 +1,42 @@
+
+
+/*add some style, need to scope (using the typeIdentifier as class prefix) every style declaration to prevent collision */
+@import url('base.css');
+.gapmatch-wrapper {
+  position:relative;
+  -webkit-touch-callout: none; /* iOS Safari */
+-webkit-user-select: none; /* Safari */
+-khtml-user-select: none; /* Konqueror HTML */
+ -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+      user-select: none; /* Non-prefixed version, currently
+                            supported by Chrome and Opera */
+}
+
+.gapmatch-backdrop {
+  width:100%;
+}
+
+.gapmatch-zones {
+  position:relative;
+}
+
+.gapmatch-dropzone {
+  position: absolute;
+}
+
+.gapmatch-editor-dropzone {
+  border: 1px solid blue;
+  background-color: rgba(0,0,255,0.1);
+
+}
+.gapmatch-string {
+  border: 1px solid #666;
+  background: #fff;
+  padding: 4px;
+  margin: 4px;
+  display: inline-block;
+  font-weight:bold;
+  color: #666;
+  cursor:pointer;
+}
