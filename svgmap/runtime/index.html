@@ -73,6 +73,7 @@
         var distance = 99999;
         var match = null;
         list.forEach(function(dot){
+          if(!dot.endpoint) return;
           var p = dot.point;
           var a = p.x - point.x;
           var b = p.y - point.y;
@@ -167,6 +168,9 @@
 
             i += dotResolution;
           }
+
+          firstDot.endpoint = true;
+          lastDor.endpoint = true;
 
           if(firstDot && lastDot){
             [firstDot, lastDot].forEach(function(dot){
