@@ -21,7 +21,7 @@ return function GapMatch(elem, options){
   $elem.append($zones);
 
   if(options.editor){
-    var dropzones = [];
+    var dropzones = options.dropzones || [];
     var start;
     var indx = 0;
 
@@ -65,9 +65,6 @@ return function GapMatch(elem, options){
         options.editorCallback(dropzones);
       }
     });
-
-
-    return;
   }
 
   var $strings = [];
@@ -89,7 +86,7 @@ return function GapMatch(elem, options){
   options.dropzones.forEach(function(drop, i){
     $dropzones.push($('<div>', {
       data: {dropzone: drop[4] || 'dropzone_' + i},
-      class: 'gapmatch-dropzone',
+      class: options.editor ? 'gapmatch-editor-dropzone' : 'gapmatch-dropzone',
       css: {
         left: drop[0]+'%',
         top: drop[1]+'%',
@@ -100,6 +97,20 @@ return function GapMatch(elem, options){
   });
 
   $zones.append($dropzones);
+
+  function getResult(){
+    var result = {};
+    $elem.find('.gapmatch-dropzone').each(function(){
+      var $dropzone = $(this);
+      var label = $dropzone.data('dropzone');
+      var strings = [];
+      $dropzone.find('.gapmatch-string').each(function(){
+        strings.push($(this).text());
+      });
+      result[label] = strings;
+    });
+    return result;
+  }
 
   function onDrag(){
     if($draggingObject){
@@ -119,96 +130,86 @@ return function GapMatch(elem, options){
     }
   }
 
-  $elem.on('mousedown touchstart', '.gapmatch-string', function(event){
-    console.log(event);
-    $draggingObject = $(this);
-    $draggingObject.remove();
-    $elem.append($draggingObject);
-    var ev = event.originalEvent.touches ? event.originalEvent.touches[0] : event;
-    mousePos.x = ev.pageX - offset.left;
-    mousePos.y = ev.pageY - offset.top;
 
-    clientPos.x = ev.clientX;
-    clientPos.y = ev.clientY;
+  if(!options.editor){
+    $elem.on('mousedown touchstart', '.gapmatch-string', function(event){
+      $draggingObject = $(this);
+      $draggingObject.remove();
+      $elem.append($draggingObject);
+      var ev = event.originalEvent.touches ? event.originalEvent.touches[0] : event;
+      mousePos.x = ev.pageX - offset.left;
+      mousePos.y = ev.pageY - offset.top;
 
-    dragInterval = setInterval(onDrag, 1000/30);
+      clientPos.x = ev.clientX;
+      clientPos.y = ev.clientY;
 
-  });
+      dragInterval = setInterval(onDrag, 1000/30);
 
-  $elem.on('mousemove touchmove', function(event){
-    var ev = event.originalEvent.touches ? event.originalEvent.touches[0] : event;
+    });
 
-    mousePos.x = ev.pageX - offset.left;
-    mousePos.y = ev.pageY - offset.top;
-    clientPos.x = ev.clientX;
-    clientPos.y = ev.clientY;
-    if($draggingObject){
-      event.preventDefault();
+    $elem.on('mousemove touchmove', function(event){
+      var ev = event.originalEvent.touches ? event.originalEvent.touches[0] : event;
+
+      mousePos.x = ev.pageX - offset.left;
+      mousePos.y = ev.pageY - offset.top;
+      clientPos.x = ev.clientX;
+      clientPos.y = ev.clientY;
+      if($draggingObject){
+        event.preventDefault();
+      }
+    });
+
+    function onTouchEnd(e){
+      var t = e.changedTouches[0];
+      var elems = document.elementsFromPoint(t.clientX, t.clientY);
+      var triggered = false;
+      elems.forEach(function(elem){
+          if($(elem).hasClass('gapmatch-dropzone')){
+            $(elem).trigger('touchend');
+            triggered = true;
+          }
+      });
+      if(!triggered) $elem.trigger('mouseup');
     }
-  });
 
-  function onTouchEnd(e){
-    var t = e.changedTouches[0];
-    console.log(e);
-    var elems = document.elementsFromPoint(t.clientX, t.clientY);
-    var triggered = false;
-    elems.forEach(function(elem){
-        if($(elem).hasClass('gapmatch-dropzone')){
-          $(elem).trigger('touchend');
-          triggered = true;
-        }
-    });
-    if(!triggered) $elem.trigger('mouseup');
-  }
+    $elem[0].addEventListener('touchend', onTouchEnd);
 
-  $elem[0].addEventListener('touchend', onTouchEnd);
-
-  $elem.on('mouseup touchend', '.gapmatch-dropzone', function(event){
-    console.log('end');
-    if(!$draggingObject) return;
-    clearInterval(dragInterval);
-    $draggingObject.remove();
-    $draggingObject.css({
-      position:'relative',
-      top: '0px',
-      left: '0px'
-    });
-    $(this).append($draggingObject);
-    $draggingObject = null;
-  });
-
-  $elem.on('mouseup', function(){
-    if($draggingObject){
+    $elem.on('mouseup touchend', '.gapmatch-dropzone', function(event){
+      if(!$draggingObject) return;
+      clearInterval(dragInterval);
       $draggingObject.remove();
       $draggingObject.css({
         position:'relative',
         top: '0px',
         left: '0px'
       });
-      $strings.append($draggingObject);
+      $(this).append($draggingObject);
       $draggingObject = null;
-    }
-  });
 
-  this.createDropzones = createDropzones;
-
-  this.getResult = function(){
-    var result = {};
-    $elem.find('.gapmatch-dropzone').each(function(){
-      var $dropzone = $(this);
-      var label = $dropzone.data('dropzone');
-      var strings = [];
-      $dropzone.find('.gapmatch-string').each(function(){
-        strings.push($(this).text());
-      });
-      result[label] = strings;
+      if(options.onChange){
+        options.onChange(getResult());
+      }
     });
-    return result;
+
+    $elem.on('mouseup', function(){
+      if($draggingObject){
+        $draggingObject.remove();
+        $draggingObject.css({
+          position:'relative',
+          top: '0px',
+          left: '0px'
+        });
+        $strings.append($draggingObject);
+        $draggingObject = null;
+      }
+    });
   }
+  this.getResult = getResult;
 
   this.destroy = function(){
     $elem.off('mousedown mouseup tochend touchstart');
     $elem[0].removeEventListener('touchend', onTouchEnd);
+    $elem.html('');
   }
 };
 });

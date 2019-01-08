@@ -31,10 +31,10 @@
         position: absolute;
       }
 
-      .gapmatch-editor-dropzone {
+      .gapmatch-editor-dropzone, .gapmatch-dropzone {
         border: 1px solid blue;
         background-color: rgba(0,0,255,0.1);
-
+        position:absolute;
       }
       .gapmatch-string {
         border: 1px solid #666;
@@ -258,10 +258,11 @@
 
       var gapMatch = new GapMatch('#gapmatch', {
         image: 'map-of-world.jpg',
-        //editor: true,
+        editor: true,
         editorCallback: function(a){
           console.log(a)
         },
+
         dropzones: [
           [
             7.472178060413355,

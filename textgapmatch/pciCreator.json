@@ -2,8 +2,8 @@
     "typeIdentifier": "textgapmatch",
     "label": "textgapmatch",
     "short": "textgapmatch",
-    "description": "textgapmatch simulated chat",
-    "version": "0.0.10",
+    "description": "textgapmatch",
+    "version": "0.0.15",
     "author": "EJTH",
     "email": "ejth@edu.au.dk",
     "tags": [

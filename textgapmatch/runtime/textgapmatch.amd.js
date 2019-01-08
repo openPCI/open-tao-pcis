@@ -3,17 +3,26 @@
 Build by Wiquid's PCI Generator for TAO platform Free to use
  */
 
-define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event'], function(qtiCustomInteractionContext, $, event){
+define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', 'textgapmatch/runtime/gapmatch'], function(qtiCustomInteractionContext, $, event, GapMatch){
     'use strict';
 
     var gapmatch;
     function startGapmatch(dom, config, resultObject){
       if(gapmatch) gapmatch.destroy();
       gapmatch = new GapMatch(dom, {
-        image: config.image,
+        image: config.backdrop,
         dropzones: JSON.parse(config.dropzones),
         strings: config.strings.split('\n'),
-        editor: window.editor_mode
+        editor: window.editor_mode,
+        onChange: function(result){
+          resultObject.base.string = JSON.stringify(result);
+        },
+        editorCallback: function(dropzones){
+          if(window.editor_mode){
+            // This is absolutely a hack, because this shouldn't be a thing in TAO. Its illegal to do it, but it is the only way :p
+            window.__updateDropzones(dropzones);
+          }
+        }
       });
     }
 
@@ -42,12 +51,8 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);
 
-            //
-            console.log('initialize', qtiCustomInteractionContext);
-
             //listening to dynamic configuration change
             this.on('cfgChange', function(key, value){
-              console.log('cfgChange');
                 _this.config[key] = value;
               startGapmatch(dom, _this.config, _this.responseContainer);
             });

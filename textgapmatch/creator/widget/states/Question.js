@@ -40,16 +40,36 @@ define([
         //render the form using the form template
         Sform.html(formTpl({
             serial : response.serial,
-            timeLimit: interaction.prop('timeLimit'),
-            nickname: interaction.prop('nickname'),
-            messages: interaction.prop('messages'),
-            startText: interaction.prop('startText'),
-            endText: interaction.prop('endText'),
+            strings: interaction.prop('strings'),
+            backdrop: interaction.prop('backdrop'),
+            dropzones: interaction.prop('dropzones'),
             identifier : interaction.attr('responseIdentifier')
         }));
 
-        $form.find('.image-upload').on('change', function(){
-          console.log(this.files);
+        function _arrayBufferToBase64( buffer ) {
+            var binary = '';
+            var bytes = new Uint8Array( buffer );
+            var len = bytes.byteLength;
+            for (var i = 0; i < len; i++) {
+                binary += String.fromCharCode( bytes[ i ] );
+            }
+            return window.btoa( binary );
+        }
+
+        function createDataUrl(file, callback){
+          var reader = new FileReader();
+          reader.addEventListener("loadend", function() {
+             callback('data:' + file.type + ';base64,' + _arrayBufferToBase64(reader.result));
+          });
+          reader.readAsArrayBuffer(file);
+        }
+
+        Sform.find('.bgupload').on('change', function(){
+          createDataUrl(this.files[0], function(url){
+            Sform.find('.imageurl').val(url);
+            interaction.prop('backdrop', url);
+            interaction.triggerPci('cfgChange', ['backdrop',url]);
+          });
         });
 
         //init form javascript
@@ -57,31 +77,30 @@ define([
 
         //init data change callbacks
         formElement.setChangeCallbacks(Sform, interaction, {
-            messages : function(interaction, value){
-                interaction.prop('messages', value);
-                interaction.triggerPci('cfgChange', ['messages',value]);
+            strings : function(interaction, value){
+                interaction.prop('strings', value);
+                interaction.triggerPci('cfgChange', ['strings',value]);
             },
-            timeLimit: function(interaction, value){
-                interaction.prop('timeLimit', parseInt(value) || 60);
-                interaction.triggerPci('cfgChange', ['timeLimit', parseInt(value)]);
+            backdrop : function(interaction, value){
+                interaction.prop('backdrop', value);
+                interaction.triggerPci('cfgChange', ['backdrop',value]);
             },
-            nickname: function(interaction, value){
-                interaction.prop('nickname', value);
-                interaction.triggerPci('cfgChange', ['nickname',value]);
-            },
-            startText: function(interaction, value){
-                interaction.prop('startText', value);
-                interaction.triggerPci('cfgChange', ['startText',value]);
-            },
-            endText: function(interaction, value){
-                interaction.prop('endText', value);
-                interaction.triggerPci('cfgChange', ['endText',value]);
+            dropzones : function(interaction, value){
+                interaction.prop('dropzones', value);
+                interaction.triggerPci('cfgChange', ['dropzones',value]);
             },
             identifier : function(i, value){
                 response.id(value);
                 interaction.attr('responseIdentifier', value);
             }
         });
+
+        window.__updateDropzones = function(dropzones){
+          var stringified = JSON.stringify(dropzones, null, 2);
+          Sform.find('.dropzones').val(stringified);
+          interaction.prop('dropzones', stringified);
+          interaction.triggerPci('cfgChange', ['dropzones',stringified]);
+        }
 
     };
 

@@ -3,12 +3,12 @@
 
     <label>Tekster</label>
     <textarea name="strings">{{strings}}</textarea>
-  
-    <label>billede</label>
-    <input name="image" type="text" />
 
+    <label>billede</label>
+    <input name="backdrop" type="text" class="imageurl" value="{{backdrop}}" />
+    <input type="file" name="background_uploader" class="bgupload" />
     <label>Zoner</label>
-    <textarea name="dropzones">{{dropzones}}</textarea>
+    <textarea name="dropzones" class="dropzones">{{dropzones}}</textarea>
 
 
 
