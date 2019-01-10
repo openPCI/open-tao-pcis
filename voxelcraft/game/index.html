@@ -3,7 +3,7 @@
   <head>
     <title>Voxelcraft</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
     <style>
@@ -80,7 +80,7 @@
   <body>
 
     <script src="three.js"></script>
-
+    <script src="hammer.js"></script>
     <script>
       var colors = [
         '#cc0000',
@@ -112,7 +112,7 @@
       var lastMouse = new THREE.Vector2();
 
       var camera, cameraObject, scene, renderer;
-      var plane, cube;
+      var plane, cube, lineDrawPlane;
       var mouse, raycaster
 
       var rollOverMesh;
@@ -130,6 +130,76 @@
       var mouseDown, mouseClick;
 
       var selectedTool = 'toolDraw';
+
+      var lineDrawVoxels = [];
+      var lineDrawFrom;
+
+      function line(x0, y0, x1, y1) {
+        console.log(arguments);
+        x0 = Math.round(x0);
+        y0 = Math.round(y0);
+        x1 = Math.round(x1);
+        y1 = Math.round(y1);
+        var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+        var dy = Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+        var err = (dx>dy ? dx : -dy)/2;
+
+        while (true) {
+          var point = new THREE.Vector3(x0*50,lineDrawFrom.y,y0*50)
+          lineDrawVoxels.push(createVoxel(point, true));
+          if (x0 === x1 && y0 === y1) break;
+          var e2 = err;
+          if (e2 > -dx) { err -= dy; x0 += sx; }
+          if (e2 < dy) { err += dx; y0 += sy; }
+        }
+      }
+
+      function createVoxel(point, preview){
+        var voxel = new THREE.Mesh( cubeGeo, preview ? rollOverMaterial : cubeMaterials[color] );
+        voxel.userData.color = color;
+        voxel.position.copy(point);
+        voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+        scene.add( voxel );
+        if(!preview){
+          objects.push( voxel );
+          voxels.push(voxel);
+        }
+        return voxel;
+      }
+
+      function beginLine(point){
+        lineDrawFrom = point;
+        objects.push(lineDrawPlane);
+        scene.add(lineDrawPlane);
+        lineDrawPlane.position.y = point.y
+      }
+
+      function updateLine(point){
+        lineDrawVoxels.forEach(function(o){
+          scene.remove(o);
+        });
+        lineDrawVoxels = [];
+        line(lineDrawFrom.x/50, lineDrawFrom.z/50, point.x/50, point.z/50)
+      }
+
+      function commitLine(){
+        lineDrawVoxels.forEach(function(voxel){
+          createVoxel(voxel.position);
+          scene.remove(voxel);
+        });
+        lineDrawFrom = null;
+        lineDrawVoxels = [];
+        scene.remove(lineDrawPlane);
+        objects.splice( objects.indexOf( lineDrawPlane ), 1 );
+      }
+      function cancelLine(){
+        lineDrawVoxels.forEach(function(voxel){
+          scene.remove(voxel);
+        });
+        lineDrawVoxels = [];
+        scene.remove(lineDrawPlane);
+        objects.splice( objects.indexOf( lineDrawPlane ), 1 );
+      }
 
       function setPalette(colors){
 
@@ -197,7 +267,14 @@
         plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
         scene.add( plane );
 
+
         objects.push( plane );
+
+
+        geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
+        geometry.rotateX( - Math.PI / 2 );
+        lineDrawPlane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
+        scene.add(lineDrawPlane);
 
         // lights
 
@@ -215,6 +292,62 @@
 
 
         setupToolbar();
+
+        var lastPinchDist = -1;
+        var pinchZoom = 0;
+        var emulatedMouseDown = false;
+
+        renderer.domElement.addEventListener('touchmove', function(e){
+          e.preventDefault();
+          if(emulatedMouseDown){
+            var touch = e.changedTouches[0];
+            var event = new Event('mousemove');
+            event.clientX = touch.clientX;
+            event.clientY = touch.clientY;
+            event.button = 0;
+            document.dispatchEvent(event);
+          }
+          if(e.touches.length == 2){
+            var a = e.touches[0].clientX - e.touches[1].clientX;
+            var b = e.touches[0].clientY - e.touches[1].clientY;
+            var dist = Math.sqrt(a*a+b*b);
+            if(lastPinchDist > 0){
+              pinchZoom = lastPinchDist - dist;
+              if(camera.position.x+pinchZoom > 100) camera.position.x += pinchZoom * 2;
+            }
+            lastPinchDist = dist;
+          }
+        });
+
+        renderer.domElement.addEventListener('touchstart', function(e){
+          e.preventDefault();
+          if(e.touches.length == 1){
+            emulatedMouseDown = true;
+            var touch = e.touches[0];
+            var event = new Event('mousedown');
+            event.clientX = touch.clientX;
+            event.clientY = touch.clientY;
+            event.button = 0;
+            mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+            document.dispatchEvent(event);
+          } else {
+            emulatedMouseDown = false;
+          }
+        });
+
+        renderer.domElement.addEventListener('touchend', function(e){
+          e.preventDefault();
+          if(e.touches.length == 0 && emulatedMouseDown){
+            var touch = e.changedTouches[0];
+            var event = new Event('mouseup');
+            event.clientX = touch.clientX;
+            event.clientY = touch.clientY;
+            event.button = 0;
+            document.dispatchEvent(event);
+          }
+          emulatedMouseDown = false;
+          lastPinchDist = -1;
+        });
 
         document.addEventListener( 'mousemove', onDocumentMouseMove, false );
         document.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -290,10 +423,14 @@
 
 
         raycaster.setFromCamera( mouse, camera );
-
         var intersects = raycaster.intersectObjects( objects );
 
-        if(event.target){
+        if(lineDrawFrom) {
+          commitLine();
+          return;
+        }
+
+        if(event.target && event.target.parentNode){
           if(event.target.parentNode.id == 'palette'){
             color = event.target.paintColor;
             rollOverMaterial.color = cubeMaterials[color].color;
@@ -304,12 +441,12 @@
           }
         }
 
+
         if ( mouseClick && intersects.length > 0 ) {
 
           var intersect = intersects[ 0 ];
 
           // delete cube
-          console.log(event.button);
           if( selectedTool === 'toolPalette'){
             intersect.object.material = cubeMaterials[color];
             intersect.object.userData.color = color;
@@ -323,16 +460,9 @@
             }
 
           } else if(selectedTool == 'toolDraw' && event.button == 0) {
-
-
-            var voxel = new THREE.Mesh( cubeGeo, cubeMaterials[color] );
-            voxel.userData.color = color;
-            voxel.position.copy( intersect.point ).add( intersect.face.normal );
-            voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
-            scene.add( voxel );
-
-            objects.push( voxel );
-            voxels.push(voxel);
+            if(!lineDrawFrom){
+              createVoxel(intersect.point.add( intersect.face.normal ));
+            }
 
             window.parent.postMessage({
               type: 'updateResult',
@@ -348,7 +478,17 @@
       function onDocumentMouseDown( event ) {
         mouseDown = Date.now();
         event.preventDefault();
-
+        if(selectedTool == 'toolDraw'){
+          raycaster.setFromCamera( mouse, camera );
+          var intersects = raycaster.intersectObjects( objects );
+          if(intersects.length){
+            var intersect = intersects[0];
+            intersect.point.add( intersect.face.normal );
+            intersect.point.divideScalar( 50 ).floor().multiplyScalar( 50 )
+            beginLine(intersect.point);
+            updateLine(intersect.point);
+          }
+        }
         //mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
 
       }
@@ -371,7 +511,6 @@
           if(!(c instanceof Number)){
             c = new THREE.Color(c.r,c.g,c.b);
           }
-          console.log(c);
           var voxel = new THREE.Mesh( cubeGeo, new THREE.MeshLambertMaterial( { color: c } ) );
           voxel.position.fromArray(def.p);
           objects.push(voxel);
@@ -412,17 +551,26 @@
       }
 
       function raycastVoxelHelper(){
+
         raycaster.setFromCamera( mouse, camera );
 
         var intersects = raycaster.intersectObjects( objects );
-        rollOverMesh.visible = ['toolDraw','toolRemove','toolPalette'].indexOf(selectedTool) > -1;
+
+        rollOverMesh.visible = ['toolDraw','toolRemove','toolPalette'].indexOf(selectedTool) > -1 && !lineDrawFrom;
         if ( intersects.length > 0 ) {
           var intersect = intersects[ 0 ];
-
-          rollOverMesh.position.copy( intersect.point ).add( intersect.face.normal );
-          rollOverMesh.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
-
+          if(lineDrawFrom){
+            intersect.point.add( intersect.face.normal );
+            intersect.point.divideScalar( 50 ).floor().multiplyScalar( 50 )
+            updateLine(intersect.point);
+            return;
+          } else {
+            intersect.point.add( intersect.face.normal );
+            rollOverMesh.position.copy(intersect.point);
+            rollOverMesh.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+          }
         }
+
       }
 
       function render() {
@@ -432,8 +580,8 @@
           cameraObject.translateY(mouseDelta.y * 400);
         } else
         if((keyStates[KEY.control] || selectedTool == 'cameraRotate') && mouseDown){
-          cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), mouseDelta.x );
-          cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), mouseDelta.y);
+          cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), mouseDelta.x*2 );
+          cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), mouseDelta.y*2);
         }
 
         mouseDelta.set(0,0);
