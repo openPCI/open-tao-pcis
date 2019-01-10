@@ -134,6 +134,8 @@
       var lineDrawVoxels = [];
       var lineDrawFrom;
 
+      var noHit = false;
+
       function line(x0, y0, x1, y1) {
         console.log(arguments);
         x0 = Math.round(x0);
@@ -168,6 +170,7 @@
       }
 
       function beginLine(point){
+        if(lineDrawFrom) return;
         lineDrawFrom = point;
         objects.push(lineDrawPlane);
         scene.add(lineDrawPlane);
@@ -483,7 +486,7 @@
 
         mouseDown = Date.now();
         event.preventDefault();
-        if(selectedTool == 'toolDraw'){
+        if(selectedTool == 'toolDraw' && event.button == 0){
           raycaster.setFromCamera( mouse, camera );
           var intersects = raycaster.intersectObjects( objects );
           if(intersects.length){
@@ -492,6 +495,9 @@
             intersect.point.divideScalar( 50 ).floor().multiplyScalar( 50 )
             beginLine(intersect.point);
             updateLine(intersect.point);
+            noHit = false;
+          } else {
+            noHit = true;
           }
         }
         //mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
@@ -585,7 +591,7 @@
           cameraObject.translateZ(mouseDelta.x * -400);
           cameraObject.translateY(mouseDelta.y * 400);
         } else
-        if((keyStates[KEY.control] || selectedTool == 'cameraRotate') && mouseDown){
+        if((keyStates[KEY.control] || selectedTool == 'cameraRotate' || noHit) && mouseDown){
           cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), mouseDelta.x*2 );
           cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), mouseDelta.y*2);
         }
