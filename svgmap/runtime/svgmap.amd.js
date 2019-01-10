@@ -3,11 +3,25 @@
 Build by Wiquid's PCI Generator for TAO platform Free to use
  */
 
-define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event'], function(qtiCustomInteractionContext, $, event){
+define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', './runtime/svgmap.js'], function(qtiCustomInteractionContext, $, event, SvgMap){
     'use strict';
-
+    var svgmap;
     function startsvgmap(dom, config, resultObject){
+      if(svgmap) svgmap.destroy();
 
+      var pois = [];
+      try { pois = JSON.parse(config.poi); } catch(e){}
+
+      svgmap = new SvgMap({
+        element: dom,
+        dotResolution: parseInt(config.dotResolution),
+        pathLayer: config.pathlayer,
+        svg: config.backdrop,
+        poi: pois,
+        editorCallback: window.editor_mode ? function(point){
+          __updateSvgMapPoi(point);
+        } : false
+      });
     }
 
     var svgmap = {

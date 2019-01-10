@@ -1,30 +1,18 @@
 
 <div class="panel">
 
-    <label for="messages">Testtager navn</label>
-    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "Tooltip_nickname"}}</span>
-    <input type="text" name="nickname" value="{{nickname}}" />
+  <label>Interessepunkter</label>
+  <textarea name="poi" class="poifield">{{poi}}</textarea>
 
-    <label for="messages">"Bot" Beskeder</label>
-    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "Tooltip_messages"}}</span>
-    <textarea name="messages">{{messages}}</textarea>
+  <label>billede</label>
+  <input type="file" name="background_uploader" class="bgupload" />
+  <textarea name="backdrop" class="imageurl">{{backdrop}}</textarea>
 
-    <label for="messages">Tidsbegrænsning (Sekunder)</label>
-    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "Tooltip_interval"}}</span>
-    <input type="text" name="timeLimit" value="{{timeLimit}}" />
+  <label>Sti lag</label>
+  <input name="pathlayer" type="text" value="{{pathlayer}}" />
 
-    <label for="messages">Start tekst</label>
-    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "Tooltip_interval"}}</span>
-    <input type="text" name="startText" value="{{startText}}" />
-
-    <label for="messages">Slut tekst</label>
-    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "Tooltip_interval"}}</span>
-    <input type="text" name="endText" value="{{endText}}" />
+  <label>Punkt densitet</label>
+  <input name="dotresolution" type="text" value="{{dotresolution}}" />
 
 </div>
 

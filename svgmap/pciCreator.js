@@ -44,11 +44,10 @@ define([
         getDefaultProperties : function(pci){
             console.log('getDefaultProperties', arguments);
             return {
-                nickname: "Dig",
-                messages: "10;Anne;red;Besked efter ti sekunder\n15;Lars;green;Besked efter femten sekunder\n16;Igor;#00a8a7;Besked efter seksten sekunder",
-                timeLimit: 60,
-                startText: 'Klik her når du er klar til at svgmape',
-                endText: 'Tiden er gået, gå til næste opgave.'
+                backdrop: "",
+                poi: "{}",
+                pathlayer: "path",
+                dotresolution: 5
             };
         },
         /**

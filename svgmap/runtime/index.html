@@ -11,11 +11,11 @@
     <style>
       .dot {
         position:absolute;
-        background: red;
+        background: white;;
         width: 15px;
         height: 15px;
         border-radius: 7px;
-        border: 1px solid white;
+        border: 1px solid black;
       }
       .dots {
         position:absolute;
@@ -25,6 +25,9 @@
       .svgmap {
         width:100%;
         position: relative;
+      }
+      .svgmap-junction {
+        background: red;
       }
     </style>
   </head>
@@ -134,7 +137,6 @@
               i: dots.length
             };
 
-            $dot.text(dots.length);
             $dot.data('dotinfo', info);
 
             $dot.on('click', function(){
@@ -170,7 +172,7 @@
           }
 
           firstDot.endpoint = true;
-          lastDor.endpoint = true;
+          lastDot.endpoint = true;
 
           if(firstDot && lastDot){
             [firstDot, lastDot].forEach(function(dot){
@@ -178,18 +180,54 @@
               if(match && dot.connected.indexOf(match) == -1){
                 match.connected.push(dot);
                 dot.connected.push(match);
-                console.log('connected endpoints', dot, match)
               }
             });
           }
 
         });
 
+        // All paths should be connected now, clean up merging points...
+        dots.forEach(function(info){
+          if(info.merged) return;
+          if(!info.endpoint) return;
+
+          var endpoints = [info];
+          var connections = [];
+          var nx = info.point.x;
+          var ny = info.point.y;
+
+          info.connected.forEach(function(connection){
+            if(connection.endpoint){
+              endpoints.push(connection);
+              nx += connection.point.x;
+              ny += connection.point.y;
+            }
+          });
+
+          endpoints.forEach(function(endpoint,i){
+            endpoint.connected.forEach(function(connection){
+              if(!connection.endpoint) connections.push(connection);
+            });
+            if(i>0)endpoint.dot.remove();
+            endpoint.merged = true;
+          });
+
+          info.connected = connections;
+
+          nx = nx / endpoints.length;
+          ny = ny / endpoints.length;
+
+          var $dot = info.dot;
+          $dot.css('top', ny+ 'px');
+          $dot.css('left', nx + 'px');
+          $dot.addClass('svgmap-junction');
+        });
+
         return $dots;
       }
       $(function(){
 
-        $.get('drawing2.svg', function(data){
+        $.get('test.svg', function(data){
           var svg = data.childNodes[1];
           $(svg).css('width','100%');
           $(svg).attr('width',null);

@@ -99,11 +99,20 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
             i: dots.length
           };
 
+          if(options.poi && options.poi[dots.length]){
+            info.poi = options.poi[dots.length];
+            $dot.addClass('svgmap-poi');
+          }
+
           $dot.data('dotinfo', info);
 
           $dot.on('click', function(){
             var data = $(this).data('dotinfo');
-            console.log(data, pathFrom, pathTo);
+
+            if(options.editorCallback){
+              options.editorCallback(data);
+              return;
+            }
 
             if(pathFrom !== null) pathTo = data.i;
             else pathFrom = data.i;
@@ -190,13 +199,24 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
 
     if(options.svg){
       var parser = new DOMParser();
-      var svg = parser.parseFromString(options.svg, "image/svg+xml");
-      var svg = data.childNodes[1];
+      var svg;
+      try {
+        svg = parser.parseFromString(options.svg, "image/svg+xml");
+        if(svg.childNodes.length == 0) return;
+        svg = data.childNodes[1];
+      } catch(e){
+        return;
+      }
+
       $(svg).css('width','100%');
       $(svg).attr('width',null);
       $(svg).attr('height',null);
       $('.svgmap').append(svg);
       var $dots = drawPathDots(svg, options.pathLayer || 'layer1', options.element);
+    }
+
+    this.destroy = function(){
+      $(options.element).html('');
     }
   });
 });

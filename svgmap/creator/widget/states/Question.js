@@ -41,44 +41,71 @@ define([
         //render the form using the form template
         Sform.html(formTpl({
             serial : response.serial,
-            timeLimit: interaction.prop('timeLimit'),
-            nickname: interaction.prop('nickname'),
-            messages: interaction.prop('messages'),
-            startText: interaction.prop('startText'),
-            endText: interaction.prop('endText'),
+            backdrop: interaction.prop('backdrop'),
+            poi: interaction.prop('poi'),
+            dotresolution: interaction.prop('dotresolution'),
+            pathlayer: interaction.prop('pathlayer'),
             identifier : interaction.attr('responseIdentifier')
         }));
+
+        function fileToString(file, callback){
+          var reader = new FileReader();
+          reader.addEventListener("loadend", function() {
+             callback(reader.result);
+          });
+          reader.readAsText(file);
+        }
+
+        Sform.find('.bgupload').on('change', function(){
+          createDataUrl(this.files[0], function(url){
+            Sform.find('.imageurl').val(url);
+            interaction.prop('backdrop', url);
+            interaction.triggerPci('cfgChange', ['backdrop',url]);
+          });
+        });
 
         //init form javascript
         formElement.initWidget(Sform);
 
         //init data change callbacks
         formElement.setChangeCallbacks(Sform, interaction, {
-            messages : function(interaction, value){
-                interaction.prop('messages', value);
-                interaction.triggerPci('cfgChange', ['messages',value]);
+            backdrop: function(interaction, value){
+                interaction.prop('backdrop', value);
+                interaction.triggerPci('cfgChange', ['backdrop',value]);
             },
-            timeLimit: function(interaction, value){
-                interaction.prop('timeLimit', parseInt(value) || 60);
-                interaction.triggerPci('cfgChange', ['timeLimit', parseInt(value)]);
+            poi: function(interaction, value){
+                interaction.prop('poi', value);
+                interaction.triggerPci('cfgChange', ['poi',value]);
             },
-            nickname: function(interaction, value){
-                interaction.prop('nickname', value);
-                interaction.triggerPci('cfgChange', ['nickname',value]);
+            dotresolution: function(interaction, value){
+                interaction.prop('dotresolution', value);
+                interaction.triggerPci('cfgChange', ['dotresolution',value]);
             },
-            startText: function(interaction, value){
-                interaction.prop('startText', value);
-                interaction.triggerPci('cfgChange', ['startText',value]);
-            },
-            endText: function(interaction, value){
-                interaction.prop('endText', value);
-                interaction.triggerPci('cfgChange', ['endText',value]);
+            pathlayer: function(interaction, value){
+                interaction.prop('pathlayer', value);
+                interaction.triggerPci('cfgChange', ['pathlayer',value]);
             },
             identifier : function(i, value){
                 response.id(value);
                 interaction.attr('responseIdentifier', value);
             }
         });
+
+        window.__updateSvgMapPoi = function(point){
+          var val = JSON.parse(ineraction.prop('poi'));
+
+          var poiName = prompt('Navngiv interessepunkt');
+          if(!poiName) return;
+          
+          val[point.i] = poiName;
+
+          var stringified = JSON.stringify(val);
+
+          Sform.find('.poifield').val(stringified);
+          interaction.prop('poi', stringified);
+          interaction.triggerPci('cfgChange', ['poi',stringified]);
+        }
+
 
     };
 
