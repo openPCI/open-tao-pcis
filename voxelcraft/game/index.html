@@ -508,9 +508,10 @@
 
         save.forEach(function(def){
           var c = def.c;
-          if(!(c instanceof Number)){
+          if(typeof c !== "number"){
             c = new THREE.Color(c.r,c.g,c.b);
           }
+          console.log(c)
           var voxel = new THREE.Mesh( cubeGeo, new THREE.MeshLambertMaterial( { color: c } ) );
           voxel.position.fromArray(def.p);
           objects.push(voxel);
