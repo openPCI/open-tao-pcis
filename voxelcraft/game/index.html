@@ -448,6 +448,7 @@
 
           // delete cube
           if( selectedTool === 'toolPalette'){
+            if(intersect.object !== plane)
             intersect.object.material = cubeMaterials[color];
             intersect.object.userData.color = color;
           } else
@@ -476,6 +477,10 @@
       }
 
       function onDocumentMouseDown( event ) {
+        if(event.target && event.target && event.target.parentNode && event.target.parentNode.id == 'controls'){
+          return;
+        }
+
         mouseDown = Date.now();
         event.preventDefault();
         if(selectedTool == 'toolDraw'){
@@ -625,9 +630,16 @@
         });
 
         $('#controls > .tool').on('click', function(){
+          if(this.id == 'toolClear'){
+            var sure = confirm("Er du sikker på at du vil rydde alt?")
+            if(sure) setScene([]);
+            return;
+          }
+
           selectedTool = this.id;
           $(this.parentNode).find('.tool').removeClass('enabled');
           $(this).addClass('enabled');
+
           $('#palette').toggle($('#toolPalette').hasClass('enabled'));
         });
       }
@@ -645,15 +657,13 @@
       });
     </script>
 
-    <div id="help">
-      <img src="leftclick.png" alt="Venstreklik" />: Tegn, <img src="rightclick.png" alt="Højreklik" />: Slet, <span>Shift</span>+<img src="leftclick.png" alt="Træk med mus" />: Flyt kamera, <span>Ctrl</span>+<img src="leftclick.png" alt="Træk med mus" />: Rotér kamera, <img src="scroll.png" alt="Musehjul" />: Zoom
-    </div>
     <div id="controls">
       <button id="toolDraw" class="tool fas fa-pencil-alt enabled" />
       <button id="toolRemove" class="tool fas fa-eraser" />
       <button id="toolPalette" class="tool fas fa-palette" />
       <button id="cameraMove" class="tool fas fa-arrows-alt" />
       <button id="cameraRotate" class="tool fas fa-sync-alt" />
+      <button id="toolClear" class="tool fas fa-trash" />
       <button id="fullscreen" class="fas fa-desktop"/>
     </div>
   </body>
