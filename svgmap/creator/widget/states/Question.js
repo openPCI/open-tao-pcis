@@ -57,10 +57,10 @@ define([
         }
 
         Sform.find('.bgupload').on('change', function(){
-          createDataUrl(this.files[0], function(url){
-            Sform.find('.imageurl').val(url);
-            interaction.prop('backdrop', url);
-            interaction.triggerPci('cfgChange', ['backdrop',url]);
+          fileToString(this.files[0], function(xml){
+            Sform.find('.imageurl').val(xml);
+            interaction.prop('backdrop', xml);
+            interaction.triggerPci('cfgChange', ['backdrop',xml]);
           });
         });
 
@@ -92,14 +92,14 @@ define([
         });
 
         window.__updateSvgMapPoi = function(point){
-          var val = JSON.parse(ineraction.prop('poi'));
+          var val = JSON.parse(interaction.prop('poi'));
 
           var poiName = prompt('Navngiv interessepunkt');
           if(!poiName) return;
-          
-          val[point.i] = poiName;
 
-          var stringified = JSON.stringify(val);
+          val[poiName] = point.i;
+
+          var stringified = JSON.stringify(val, null, 2);
 
           Sform.find('.poifield').val(stringified);
           interaction.prop('poi', stringified);

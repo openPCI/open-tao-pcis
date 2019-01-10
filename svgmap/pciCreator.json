@@ -1,9 +1,9 @@
 {
     "typeIdentifier": "svgmap",
-    "label": "svgmap",
-    "short": "svgmap",
-    "description": "svgmap simulated chat",
-    "version": "0.0.10",
+    "label": "svg map",
+    "short": "SVG map",
+    "description": "Svg map excersize",
+    "version": "0.0.2",
     "author": "EJTH",
     "email": "ejth@edu.au.dk",
     "tags": [
@@ -17,12 +17,11 @@
         "hook" : "./runtime/svgmap.amd.js",
         "libraries" : [
             "IMSGlobal/jquery_2_1_1",
-            "./runtime/svgmap.js",
+            "./runtime/svgmap.js"
         ],
         "stylesheets" : [
-            "./runtime/css/base.css",
-            "./runtime/css/svgmap.css"
-        ], "mediaFiles" : ["./runtime/assets/download.png","./runtime/css/img/download.png"]
+            "./runtime/css/base.css"
+        ], "mediaFiles" : []
     },
             "creator" : {
                 "icon": "./creator/img/icon.svg",

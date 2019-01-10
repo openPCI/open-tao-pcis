@@ -1,6 +1,33 @@
 
 .qti-customInteraction .svgmap{
     width:100%;
-    padding:10px 20px 16px;
+    padding:0px;
+    margin:0px;
     margin-bottom:20px;
+}
+
+.dot {
+  position:absolute;
+  background: white;;
+  width: 15px;
+  height: 15px;
+  border-radius: 7px;
+  border: 1px solid black;
+}
+.dots {
+  position:absolute;
+  top:-7px;
+  left: -7px;
+}
+
+.svgmap-visited {
+  background: green;
+}
+
+.svgmap {
+  width:100%;
+  position: relative;
+}
+.svgmap-junction {
+  background: red;
 }

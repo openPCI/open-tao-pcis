@@ -1,11 +1,39 @@
 define(['IMSGlobal/jquery_2_1_1'], function($){
   return function SvgMap(options){
+    var $svg;
+    var $el;
     var dotResolution = options.dotResolution || 5;
 
     var pathTo = null;
     var pathFrom = null;
 
     var dots = [];
+    var result = [];
+
+    this.destroy = function(){
+      $(options.element).html('');
+      $(window).off('resize', onWindowResize);
+    }
+
+    function getResult(){
+      return result;
+    }
+
+    this.getResult = getResult;
+
+    function onWindowResize(){
+      var viewBox = svg.viewBox.baseVal;
+      var viewBoxWidth = viewBox.width;
+      var viewBoxHeight = viewBox.height;
+      var scale = $svg.width() / viewBoxWidth;
+      $(svg).css('height', viewBoxHeight*scale + 'px');
+      dots.forEach(function(dot){
+        dot.dot.css({
+          top: dot.point.y*scale,
+          left: dot.point.x*scale
+        });
+      });
+    }
 
     function findShortestPath(from, to){
       var paths = findPaths(from, to);
@@ -51,19 +79,19 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       return match;
     }
 
-    function createDot(point){
+    function createDot(point,scale){
       var $dot = $('<div>', {class: 'dot'});
-      $dot.css('top',point.y + 'px');
-      $dot.css('left',point.x + 'px');
+      $dot.css('top',point.y*scale + 'px');
+      $dot.css('left',point.x*scale + 'px');
       return $dot;
     }
 
     function drawPathDots(svg, layerId, el){
-      var $el = $(el);
-      var $svg = $(svg);
-      var viewBox = $svg.attr('viewBox').split(' ').map(function(e){return parseInt(e);});
-      var viewBoxWidth = viewBox[2];
-      var viewBoxHeight = viewBox[3];
+      $el = $(el);
+      $svg = $(svg);
+      var viewBox = svg.viewBox.baseVal;
+      var viewBoxWidth = viewBox.width;
+      var viewBoxHeight = viewBox.height;
       var scale = $svg.width() / viewBoxWidth;
       var $dots = $('<div>', {class:'dots'});
 
@@ -82,12 +110,8 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
 
         while(i < l){
           var point = path.getPointAtLength( i );
-          point.x *= scale;
-          //point.y -= viewBoxHeight / 2;
-          point.y *= scale;
-          point.y -= 7;
 
-          var $dot = createDot(point);
+          var $dot = createDot(point, scale);
           $dots.append($dot);
 
           var connected = [];
@@ -121,9 +145,11 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
 
             var path = findShortestPath(dots[pathFrom],dots[pathTo]);
             path.forEach(function(dot){
-              dot.dot.css('background', 'green');
+              dot.dot.addClass('svgmap-visited');
               dot.visited = true;
+              result.push(dot.i);
             });
+            if(options.pathCallback) options.pathCallback(result);
             pathFrom = pathTo;
             pathTo = null;
 
@@ -189,8 +215,8 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         ny = ny / endpoints.length;
 
         var $dot = info.dot;
-        $dot.css('top', ny+ 'px');
-        $dot.css('left', nx + 'px');
+        $dot.css('top', ny*scale+ 'px');
+        $dot.css('left', nx*scale + 'px');
         $dot.addClass('svgmap-junction');
       });
 
@@ -200,23 +226,29 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
     if(options.svg){
       var parser = new DOMParser();
       var svg;
-      try {
-        svg = parser.parseFromString(options.svg, "image/svg+xml");
-        if(svg.childNodes.length == 0) return;
-        svg = data.childNodes[1];
-      } catch(e){
-        return;
-      }
+
+      var data = $.parseXML(options.svg);
+      if(data.childNodes.length == 0) return;
+      svg = data.childNodes[1];
 
       $(svg).css('width','100%');
       $(svg).attr('width',null);
       $(svg).attr('height',null);
+      console.log(svg);
       $('.svgmap').append(svg);
       var $dots = drawPathDots(svg, options.pathLayer || 'layer1', options.element);
+
+      //Set start dot
+      console.log(options.poi);
+      if(options.poi && options.poi.start){
+        pathFrom = options.poi.start;
+        dots[pathFrom].dot.addClass('svgmap-visited');
+      }
+
+
+      $(window).on('resize', onWindowResize);
     }
 
-    this.destroy = function(){
-      $(options.element).html('');
-    }
-  });
+
+  }
 });
