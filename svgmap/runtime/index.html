@@ -29,6 +29,13 @@
       .svgmap-junction {
         background: red;
       }
+      .svgmap-junction::after {
+        content:'•';
+        font-size:30px;
+        position:relative;
+        left:2px;
+        line-height:15px;
+      }
     </style>
   </head>
   <body>
@@ -228,14 +235,16 @@
       $(function(){
 
         $.get('test.svg', function(data){
+          data = $.parseXML(data);
           var svg = data.childNodes[1];
+          console.log(svg);
           $(svg).css('width','100%');
           $(svg).attr('width',null);
           $(svg).attr('height',null);
           $('.svgmap').append(svg);
           var $dots = drawPathDots(svg, 'layer1', '.svgmap');
 
-        }, 'xml');
+        }, 'text');
       });
     </script>
   </body>

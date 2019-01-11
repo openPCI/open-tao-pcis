@@ -239,11 +239,22 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       var $dots = drawPathDots(svg, options.pathLayer || 'layer1', options.element);
 
       //Set start dot
-      console.log(options.poi);
-      if(options.poi && options.poi.start){
-        pathFrom = options.poi.start;
-        dots[pathFrom].dot.addClass('svgmap-visited');
+      if(options.poi){
+        if(options.poi.start){
+          pathFrom = options.poi.start;
+          dots[pathFrom].dot.addClass('svgmap-visited');
+        }
+
+        options.poi.keys().forEach(function(k){
+          if(k == 'start') return;
+          var id = parseInt(opions.poi[k]);
+          dots[id].poi = k;
+          dots[id].dot.addClass('svgmap-poi');
+        });
+        // Style POIs
       }
+
+
 
 
       $(window).on('resize', onWindowResize);

@@ -20,8 +20,18 @@
   left: -7px;
 }
 
-.svgmap-visited {
-  background: green;
+.svgmap-visited {}
+
+.svgmap-visited::after {
+  content:'•';
+  font-size:30px;
+  position:relative;
+  left:2px;
+  line-height:15px;
+}
+
+.svgmap-poi {
+  background: #eee;
 }
 
 .svgmap {
