@@ -161,6 +161,8 @@
         voxel.userData.color = color;
         voxel.position.copy(point);
         voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+        voxel.castShadow = true;
+        voxel.receiveShadow = true;
         scene.add( voxel );
         if(!preview){
           objects.push( voxel );
@@ -213,6 +215,7 @@
         }
         palette.innerHTML = '';
         palette.id = 'palette';
+        palette.style.display ="none";
         cubeMaterials = [];
         colors.forEach(function(color, i){
            cubeMaterials.push(new THREE.MeshLambertMaterial( { color: parseInt(color.slice(1),16) } ));
@@ -281,14 +284,31 @@
 
         // lights
 
-        var ambientLight = new THREE.AmbientLight( 0x606060 );
+        var ambientLight = new THREE.AmbientLight( 0xffffff, 0.8 );
         scene.add( ambientLight );
 
-        var directionalLight = new THREE.DirectionalLight( 0xffffff );
-        directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
+        var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.1 );
+        directionalLight.position.set( 0.3, 0.75, 0.3 ).normalize();
+        directionalLight.target.position.set(0,0,0);
+        directionalLight.position.multiplyScalar(2000)
+        directionalLight.castShadow = true;
+        var shadow = directionalLight.shadow;
+        shadow.mapSize.x = 1024;
+        shadow.mapSize.y = 1024;
+        shadow.camera.near = 0.5;
+        shadow.camera.far = 3000;
+        shadow.camera.scale.set(150,150,1);
+        directionalLight.shadow.bias = 0.0000000001;
+
+
         scene.add( directionalLight );
+        scene.add( directionalLight.target );
 
         renderer = new THREE.WebGLRenderer( { antialias: true } );
+
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( renderer.domElement );
@@ -525,6 +545,8 @@
           console.log(c)
           var voxel = new THREE.Mesh( cubeGeo, new THREE.MeshLambertMaterial( { color: c } ) );
           voxel.position.fromArray(def.p);
+          voxel.castShadow = true;
+          voxel.receiveShadow = true;
           objects.push(voxel);
           voxels.push(voxel);
           scene.add(voxel);
