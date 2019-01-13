@@ -27,11 +27,12 @@
   font-size:30px;
   position:relative;
   left:2px;
+  top: -2px;
   line-height:15px;
 }
 
 .svgmap-poi {
-  background: #eee;
+  background: red !important;
 }
 
 .svgmap {
@@ -39,5 +40,5 @@
   position: relative;
 }
 .svgmap-junction {
-  background: red;
+  background: #eee;
 }

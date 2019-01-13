@@ -10,6 +10,8 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
     var dots = [];
     var result = [];
 
+    var startDot;
+
     this.destroy = function(){
       $(options.element).html('');
       $(window).off('resize', onWindowResize);
@@ -35,8 +37,8 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       });
     }
 
-    function findShortestPath(from, to){
-      var paths = findPaths(from, to);
+    function findShortestPath(from, to, backtrack){
+      var paths = findPaths(from, to, null, backtrack);
       paths.sort(function(a,b){
         return a.length-b.length;
       });
@@ -44,7 +46,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       return paths[0];
     }
 
-    function findPaths(from, to, path){
+    function findPaths(from, to, path, backtrack){
       path = path ? path.slice() : [];
       var paths = [];
 
@@ -54,8 +56,9 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         paths.push(path);
       } else {
         from.connected.forEach(function(node){
-          if(path.indexOf(node) > -1 || node.visited && from.visited) return;
-          Array.prototype.push.apply(paths, findPaths(node, to, path));
+          if(!backtrack && (path.indexOf(node) > -1 || node.visited && from.visited)) return;
+          if(backtrack && (path.indexOf(node) > -1 || !node.visited && !from.visited)) return;
+          Array.prototype.push.apply(paths, findPaths(node, to, path, backtrack));
         });
       }
 
@@ -143,14 +146,19 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
 
             if(pathTo == null || pathFrom == null) return;
 
-            var path = findShortestPath(dots[pathFrom],dots[pathTo]);
-            path.forEach(function(dot){
-              dot.dot.addClass('svgmap-visited');
-              dot.visited = true;
-              result.push(dot.i);
+            var path = findShortestPath(dots[pathFrom],dots[pathTo], data.visited);
+            if(data.visited){
+              for(var i = 0; i<path.length-1; i++) result.pop();
+            } else if(path) {
+              path.shift();
+              Array.prototype.push.apply(result, path.map(function(o){ return o.i; }));
+            }
+            dots.forEach(function(dot,i){
+              dot.visited = result.indexOf(dot.i) > -1;
+              dot.dot[dot.visited ? 'addClass':'removeClass']('svgmap-visited', data.visited);
             });
             if(options.pathCallback) options.pathCallback(result);
-            pathFrom = pathTo;
+            pathFrom = result[result.length-1];
             pathTo = null;
 
           });
@@ -234,7 +242,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       $(svg).css('width','100%');
       $(svg).attr('width',null);
       $(svg).attr('height',null);
-      console.log(svg);
+
       $('.svgmap').append(svg);
       var $dots = drawPathDots(svg, options.pathLayer || 'layer1', options.element);
 
@@ -242,12 +250,14 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       if(options.poi){
         if(options.poi.start){
           pathFrom = options.poi.start;
+          result.push(pathFrom);
+          startDot = pathFrom;
           dots[pathFrom].dot.addClass('svgmap-visited');
         }
 
-        options.poi.keys().forEach(function(k){
+        Object.keys(options.poi).forEach(function(k){
           if(k == 'start') return;
-          var id = parseInt(opions.poi[k]);
+          var id = parseInt(options.poi[k]);
           dots[id].poi = k;
           dots[id].dot.addClass('svgmap-poi');
         });

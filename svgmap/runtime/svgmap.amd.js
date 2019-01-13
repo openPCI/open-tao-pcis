@@ -22,12 +22,10 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
           __updateSvgMapPoi(point);
         } : false,
         pathCallback: function(result){
-          console.log(result);
             resultObject.base.string = JSON.stringify(result);
         }
       });
 
-      console.log(svgmap, SvgMap);
     }
 
     var svgmap = {
