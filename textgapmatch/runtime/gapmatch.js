@@ -113,10 +113,11 @@ return function GapMatch(elem, options){
   }
 
   function onDrag(){
+    var offset = $elem.offset();
     if($draggingObject){
       $draggingObject.css({
-        top: mousePos.y+10 + 'px',
-        left: mousePos.x+10 + 'px',
+        top: mousePos.y+10 - offset.top + 'px',
+        left: mousePos.x+10 - offset.left + 'px',
         position: 'absolute'
       });
       if(clientPos.y < window.innerHeight * 0.20 && $('body,html').scrollTop() > 10){
