@@ -170,7 +170,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         c++; dc++;
 
         if(d.getDate() != ld.getDate()){
-          $th = $('<th>', {text: ld.getDate()});
+          $th = $('<th>', {text: (options.weekNumHack ? 'Uge ' : '') + ld.getDate()});
           $th.attr('colspan', c);
           $dateTr.append($th);
 

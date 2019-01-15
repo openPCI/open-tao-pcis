@@ -41,6 +41,7 @@ define([
         //render the form using the form template
         Sform.html(formTpl({
             serial : response.serial,
+            weekNumHack: interaction.prop('weekNumHack'),
             startDate: interaction.prop('startDate'),
             period: interaction.prop('period'),
             weekDays: interaction.prop('weekDays'),
@@ -72,6 +73,10 @@ define([
             weekDays : function(interaction, value){
                 interaction.prop('weekDays', value);
                 interaction.triggerPci('cfgChange', ['weekDays',value]);
+            },
+            weekDays : function(interaction, value){
+                interaction.prop('weekNumHack', value);
+                interaction.triggerPci('cfgChange', ['weekNumHack',value]);
             },
             useHours : function(interaction, value){
                 interaction.prop('useHours', value);

@@ -12,6 +12,7 @@
     <span class="tooltip-content">{{__ "Tooltip_startDate"}}</span>
     <input type="text" name="startDate" value="{{startDate}}" placeholder="mm-dd-yyyy" />
 
+    <div><input type="checkbox" name="weekNumHack" {{#if weekNumHack}}checked{{/if}} /><label for="weekNum">Vis ugenumre (Hack)</label></div>
     <div><input type="checkbox" name="weekDays" {{#if weekDays}}checked{{/if}} /><label for="weekDays"> Vis ugedage</label></div>
     <div><input type="checkbox" name="useHours" {{#if useHours}}checked{{/if}} /><label for="useHours">Vis timer</label></div>
     <div><input type="checkbox" name="useHalfHours" {{#if useHalfHours}}checked{{/if}} /><label for="useHalfHours">vis halve timer</label></div>
