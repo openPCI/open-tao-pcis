@@ -24,12 +24,62 @@ return function GapMatch(elem, options){
     var dropzones = options.dropzones || [];
     var start;
     var indx = 0;
+    var $helper;
+
+    function createDragHelper(){
+      $helper = $('<div>', {
+        class: 'gapmatch-editor-dropzone',
+        css: {
+          left: x + '%',
+          top: y + '%',
+          width: w + '%',
+          height: h + '%'
+        }
+      });
+      $zones.append($helper);
+    }
+
+    function updateDragHelper(event){
+      var end = {x: event.offsetX,y:event.offsetY};
+      var tmpStart = {x: start.x, y:start.y};
+      if(tmpStart.x > end.x){
+        var x = tmpStart.x;
+        tmpStart.x = end.x;
+        end.x = x;
+      }
+      if(tmpStart.y > end.y){
+        var y = tmpStart.y;
+        tmpStart.y = end.y;
+        end.y = y;
+      }
+
+      var x = tmpStart.x / $elem.width() * 100;
+      var y = tmpStart.y / $elem.height() * 100;
+      var w = (end.x - tmpStart.x) / $elem.width() * 100;
+      var h = (end.y - tmpStart.y) / $elem.height() * 100;
+      $helper.css({
+        left: x + '%',
+        top: y + '%',
+        width: w + '%',
+        height: h + '%'
+      });
+    }
+
+    function removeDragHelper(){
+      $helper.remove();
+    }
+
+    $elem.on('mousemove', function(event){
+      updateDragHelper(event)
+    });
 
     $elem.on('mousedown', function(event){
       start = {x: event.offsetX, y: event.offsetY};
+      createDragHelper();
     });
 
     $elem.on('mouseup', function(event){
+      removeDragHelper();
       indx++;
       var end = {x: event.offsetX,y:event.offsetY};
       if(start){
