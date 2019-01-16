@@ -24,14 +24,37 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         };
     }
 
+    function Timer(callback, delay) {
+        var timerId, start, remaining = delay;
+        var paused = false;
+        this.pause = function() {
+            if(paused) return;
+            paused = true;
+            window.clearTimeout(timerId);
+            remaining -= new Date() - start;
+        };
+
+        this.resume = function() {
+            if(remaining >= 0){
+              start = new Date();
+              window.clearTimeout(timerId);
+              timerId = window.setTimeout(callback, remaining);
+              paused = false;
+            }
+        };
+
+        this.resume();
+    }
+
     function startBrainstorm(dom, config, resultObject){
       console.log(config)
       var playerName = config.nickname || 'Test-tager';
       var messages = config.messages.split('\n');
       var timeLimit = parseInt(config.timeLimit) || 60;
       var $dom = $(dom);
-      var timeouts = [];
+      var timers = [];
       var timeStart;
+      var continueTimeout;
 
       $dom.find('.chat').empty();
       $dom.find('.prompt').val('');
@@ -46,14 +69,16 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         msg = msg.split(';');
         if(msg.length == 4){
           var t = parseInt(msg[0])*1000;
-          setTimeout( function(){
+
+
+          timers.push(new Timer(function() {
             writeChatLine(t, msg[1], msg[3], false, msg[2]);
-          }, now ? 0 : t);
+          }, now ? 0 : t));
         }
       }
 
       function writeChatLine(elapsed, name, msg, player, color){
-        resultObject.base.string += "\n" + [timestamp(t), name, msg].join(';');
+        resultObject.base.string += "\n" + [timestamp(elapsed), name, msg].join(';');
 
         var $time = $('<span>').text(timestamp(elapsed));
         var $name = $('<span>',{class:'name'}).text(name);
@@ -98,6 +123,15 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         $dom.find('input').focus();
         $dom.find('input').on('keydown', function(evt){
           evt.stopPropagation();
+          clearTimeout(continueTimeout);
+          timers.forEach(function(t){
+            t.pause();
+          });
+          continueTimeout = setTimeout(function(){
+            timers.forEach(function(t){
+              t.resume();
+            });
+          }, 3000);
         });
         var timeLimitTimeout = setTimeout(endBrainstorm,timeLimit*1000);
       }
@@ -162,7 +196,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             this.on('cfgChange', function(key, value){
               console.log('cfgChange');
                 _this.config[key] = value;
-              startBrainstorm(dom, _this.config);
+              startBrainstorm(dom, _this.config, this.responseContainer);
             });
             startBrainstorm(dom, config, this.responseContainer);
         },
