@@ -10,7 +10,7 @@
     <label for="messages">Start dato</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_startDate"}}</span>
-    <input type="text" name="startDate" value="{{startDate}}" placeholder="mm-dd-yyyy" />
+    <input type="text" name="startDate" value="{{startDate}}" placeholder="mm/dd/yyyy" />
 
     <div><input type="checkbox" name="weekNumHack" {{#if weekNumHack}}checked{{/if}} /><label for="weekNum">Vis ugenumre (Hack)</label></div>
     <div><input type="checkbox" name="weekDays" {{#if weekDays}}checked{{/if}} /><label for="weekDays"> Vis ugedage</label></div>
