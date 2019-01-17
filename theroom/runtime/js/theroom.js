@@ -30,6 +30,8 @@ var cameraObject;
 // The scene camera
 var camera;
 
+var rotate = 0;
+
 // Mouse coordinates -1 - 1
 var mouse = new THREE.Vector2();
 
@@ -232,7 +234,7 @@ function loadScene(file){
   loadGLtf(file, function(gltf){
     scenePath = file;
 
-    movePlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(500, 500, 2, 2),
+    movePlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(5000, 5000, 2, 2),
        new THREE.MeshBasicMaterial( {
            color: 0x248f24, alphaTest: 0, visible: false
     }));
@@ -459,9 +461,6 @@ function loadMoveable(asset, count, callback){
 
 }
 
-var rotate = 0;
-
-
 function startAnimation(obj){
   if(obj.info && obj.info.animations.length){
     if(!obj.mixer) obj.mixer = new THREE.AnimationMixer( obj );
@@ -505,7 +504,9 @@ function removeOutline(prop){
 }
 
 function onTouchMove(e){
+
   e.preventDefault();
+  e.stopPropagation();
   if(emulatedMouseDown){
     var touch = e.changedTouches[0];
     var event = new Event('mousemove');
@@ -527,10 +528,10 @@ function onTouchMove(e){
     }
     lastPinchDist = dist;
   }
+  return false;
 }
 
 function onTouchStart(e){
-  console.log(e);
   e.preventDefault();
   if(e.touches.length == 1){
     emulatedMouseDown = true;
@@ -543,7 +544,6 @@ function onTouchStart(e){
     event.clientX = touch.clientX;
     event.clientY = touch.clientY;
     event.button = 0;
-
     window.dispatchEvent(event);
   } else {
     if(emulatedMouseDown){
@@ -556,10 +556,10 @@ function onTouchStart(e){
       emulatedMouseDown = false;
     }
   }
+
 }
 
 function onTouchEnd(e){
-
   e.preventDefault();
   if(e.touches.length == 0 && emulatedMouseDown){
     var touch = e.changedTouches[0];
@@ -594,13 +594,25 @@ function onPaste(e){
   } catch(ex){}
 }
 
+var lastMouseDown = 0;
 function onMouseDown(event){
+  if(Date.now() - lastMouseDown < 800){
+    movingObject.rotation.y += Math.PI / 2;
+    movingObject.outline.rotation.y = movingObject.rotation.y;
+    postResult();
+    lastMouseDown = 0;
+    return;
+  } else {
+    lastMouseDown = Date.now();
+  }
 
   if(movingObject) removeOutline(movingObject);
   mouseDown = true;
   movingObject = null;
-
+  hudRaycaster.setFromCamera( mouse, hud.camera );
+  hudRaycaster.far = 1000;
   for(var i = 0; i < hud.droppables.length; i++){
+
     var intersects = hudRaycaster.intersectObjects( hud.droppables[i].prop.children );
     if(intersects.length){
 
@@ -616,7 +628,7 @@ function onMouseDown(event){
       }
     }
   }
-  raycaster.setFromCamera( mouse, camera );
+
   for(var i = 0; i < moveables.length; i++){
     var intersects = raycaster.intersectObjects( moveables[i].children );
     if(intersects.length){
@@ -638,7 +650,6 @@ function onMouseUp(event){
   mouseDown = false;
   movingObjectOffset = null;
   rotate = 0;
-
   postResult();
 }
 
@@ -655,7 +666,6 @@ function onWheel(event){
 }
 
 function onMouseMove(event){
-
   lastMouse.copy(mouse);
   // calculate mouse position in normalized device coordinates
   // (-1 to +1) for both components
@@ -664,6 +674,12 @@ function onMouseMove(event){
 
   mouseDelta.copy(mouse);
   mouseDelta.sub(lastMouse);
+  raycaster.setFromCamera( mouse, camera );
+  var intersects = raycaster.intersectObjects( [movePlane] );
+  if(intersects.length){
+    movePlanePosition = intersects[0].point.clone();
+    movePlanePosition.y = 0;
+  }
 }
 
 function onKeyDown(event){
@@ -681,11 +697,11 @@ function onKeyDown(event){
 
 function setupInputListeners(){
 
-  window.addEventListener('touchmove', onTouchMove);
+  window.addEventListener('touchmove', onTouchMove, false);
 
-  window.addEventListener('touchstart', onTouchStart);
+  window.addEventListener('touchstart', onTouchStart, false);
 
-  window.addEventListener('touchend', onTouchEnd);
+  window.addEventListener('touchend', onTouchEnd, false);
 
   window.addEventListener('message', onPostMessage, false);
 
@@ -729,10 +745,6 @@ function setupInputListeners(){
   window.addEventListener( 'mousemove', onMouseMove, false );
 
   window.addEventListener( 'keydown', onKeyDown, false);
-  renderer.domElement.addEventListener('contextmenu', function(e){
-    e.preventDefault();
-    return false;
-  });
 }
 
 function behavior(obj, listener, params){
@@ -742,6 +754,7 @@ function behavior(obj, listener, params){
     }
   }
 }
+
 var clock = new THREE.Clock();
 
 var animate = function () {
@@ -755,16 +768,9 @@ var animate = function () {
 
   lookObject.rotation.y += rotate * 0.02;
   // update the picking ray with the camera and mouse position
-	raycaster.setFromCamera( mouse, camera );
-  hudRaycaster.setFromCamera( mouse, hud.camera );
-  hudRaycaster.far = 100;
-  hudRaycaster.near = -100
 
-	var intersects = raycaster.intersectObjects( [movePlane] );
-  if(intersects.length){
-    movePlanePosition = intersects[0].point.clone();
-    movePlanePosition.y = 0;
-  }
+
+  var intersects = raycaster.intersectObjects( [movePlane] );
   if(intersects.length && mouseDown){
 
     if(movingObject){
