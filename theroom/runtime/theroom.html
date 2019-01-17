@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 	<head>
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
 		<meta charset=utf-8>
 		<title>The Room</title>
 		<style>
 			body {
         margin: 0;
         overflow:hidden;
+        touch-action: none;
         -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
      -khtml-user-select: none; /* Konqueror HTML */
@@ -74,7 +76,7 @@
       }
 		</style>
 	</head>
-	<body>
+	<body oncontextmenu="return false;">
 		<div id="help">
 			 <img src="css/img/leftclick.png" alt="Venstretræk" /> Flyt rundt på ting med venstre træk. <span>⇦</span> <span>⇨</span> Roter med piletasterne. <img src="css/img/scroll.png" alt="Scroll" /> Zoom med mussehjul / scroll.
 		</div>

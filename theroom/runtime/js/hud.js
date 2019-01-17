@@ -13,6 +13,7 @@ var GameHud = function(){
   hudRenderer.domElement.className = 'hud';
   document.body.appendChild( hudRenderer.domElement );
 
+
   var hudScene = new THREE.Scene()
   var droppableProps = [];
   var droppableByName = {}
