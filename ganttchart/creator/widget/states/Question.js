@@ -74,7 +74,7 @@ define([
                 interaction.prop('weekDays', value);
                 interaction.triggerPci('cfgChange', ['weekDays',value]);
             },
-            weekDays : function(interaction, value){
+            weekNumHack : function(interaction, value){
                 interaction.prop('weekNumHack', value);
                 interaction.triggerPci('cfgChange', ['weekNumHack',value]);
             },
