@@ -596,14 +596,16 @@ function onPaste(e){
 
 var lastMouseDown = 0;
 function onMouseDown(event){
-  if(Date.now() - lastMouseDown < 800){
-    movingObject.rotation.y += Math.PI / 2;
-    movingObject.outline.rotation.y = movingObject.rotation.y;
-    postResult();
-    lastMouseDown = 0;
-    return;
-  } else {
-    lastMouseDown = Date.now();
+  if(movingObject){
+    if(Date.now() - lastMouseDown < 800){
+      movingObject.rotation.y += Math.PI / 2;
+      movingObject.outline.rotation.y = movingObject.rotation.y;
+      postResult();
+      lastMouseDown = 0;
+      return;
+    } else {
+      lastMouseDown = Date.now();
+    }
   }
 
   if(movingObject) removeOutline(movingObject);
@@ -695,7 +697,14 @@ function onKeyDown(event){
   postResult();
 }
 
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize( window.innerWidth, window.innerHeight );
+}
+
 function setupInputListeners(){
+  window.addEventListener( 'resize', onWindowResize, false );
 
   window.addEventListener('touchmove', onTouchMove, false);
 
@@ -722,10 +731,29 @@ function setupInputListeners(){
     mouseDown = false;
     event.stopPropagation();
   }
+
   function rotateStop(){
     rotate = 0;
     mouseDown = false;
     event.stopPropagation();
+  }
+
+  function requestFullscreen(){
+    var elem = document.body
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { /* Firefox */
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+      elem.msRequestFullscreen();
+    }
+  }
+  var fullscreen = false;
+  function fullscreenBtn(){
+    if(fullscreen) document.exitFullscreen();
+    else requestFullscreen();
   }
 
   var btnLeft = document.getElementById('rotateLeft')
@@ -739,6 +767,19 @@ function setupInputListeners(){
   btnRight.addEventListener('touchstart', rotateRight, false);
   btnRight.addEventListener('touchend', rotateStop);
 
+  var btnFullscreen = document.getElementById('fullscreen');
+  btnFullscreen.addEventListener('mouseup', fullscreenBtn, false);
+  btnFullscreen.addEventListener('touchend', fullscreenBtn);
+
+  function onFullScreenChange(event){
+    fullscreen = (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined);
+    $('#fullscreen').toggleClass('enabled', fullscreen);
+  }
+
+  document.addEventListener('webkitfullscreenchange', onFullScreenChange, false);
+  document.addEventListener('mozfullscreenchange', onFullScreenChange, false);
+  document.addEventListener('fullscreenchange', onFullScreenChange, false);
+  document.addEventListener('MSFullscreenChange', onFullScreenChange, false);
 
   window.addEventListener( 'wheel', onWheel);
 
