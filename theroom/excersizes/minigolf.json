@@ -2,7 +2,20 @@
   "scene" : "minigolf/scene.gltf",
   "assets":[
     {
-      "model" : "minigolf/end_piece.gltf"
+      "model" : "minigolf/soft_end.gltf",
+      "count" : 2
+    },
+    {
+      "model" : "minigolf/soft_start.gltf",
+      "count" : 2
+    },
+    {
+      "model" : "minigolf/end_piece.gltf",
+      "count" : 2
+    },
+    {
+      "model" : "minigolf/start.gltf",
+      "count" : 2
     },
     {
       "model" : "minigolf/hard_bend.gltf"
@@ -11,10 +24,8 @@
       "model" : "minigolf/hole.gltf"
     },
     {
-      "model" : "minigolf/slope.gltf"
-    },
-    {
-      "model" : "minigolf/start.gltf"
+      "model" : "minigolf/slope.gltf",
+      "count" : 2
     },
     {
       "model" : "minigolf/straight.gltf"
@@ -27,6 +38,15 @@
     },
     {
       "model" : "minigolf/mill.gltf"
+    },
+    {
+      "model" : "minigolf/loopdeloop.gltf"
+    },
+    {
+      "model" : "minigolf/obstacle.gltf"
+    },
+    {
+      "model" : "minigolf/raised.gltf"
     }
   ]
 }

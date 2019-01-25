@@ -615,9 +615,9 @@ function onMouseDown(event){
   hudRaycaster.far = 1000;
   for(var i = 0; i < hud.droppables.length; i++){
 
-    var intersects = hudRaycaster.intersectObjects( hud.droppables[i].prop.children );
+    var intersects = hudRaycaster.intersectObjects( [hud.droppables[i].prop], true );
     if(intersects.length){
-
+      console.log(hud.droppables[i].prop.children);
       var hudInfo = hud.droppables[i];
       if(hud.placeDroppable(hudInfo)){
         var prop = hud.droppables[i].gltf.scene.clone();
@@ -632,7 +632,7 @@ function onMouseDown(event){
   }
 
   for(var i = 0; i < moveables.length; i++){
-    var intersects = raycaster.intersectObjects( moveables[i].children );
+    var intersects = raycaster.intersectObjects( [moveables[i]], true );
     if(intersects.length){
       movingObject = moveables[i];
       addOutline(movingObject);
@@ -701,6 +701,9 @@ function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize( window.innerWidth, window.innerHeight );
+  hud.setCameraSize(window.innerWidth, window.innerHeight);
+
+  hud.renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
 function setupInputListeners(){
@@ -860,5 +863,5 @@ var animate = function () {
 document.addEventListener("DOMContentLoaded", function(){
   setupInputListeners();
   sendMessage('ready', 1)
-  if(window === window.parent) loadExcersize('butik.json');
+  if(window === window.parent) loadExcersize('minigolf.json');
 });
