@@ -17,13 +17,16 @@ return function GapMatch(elem, options){
     class: 'gapmatch-backdrop'
   });
 
+  $backdrop.on('dragstart', function(event) { event.preventDefault(); });
+
   $zones.append($backdrop);
   $elem.append($zones);
+  var indx = 0;
 
   if(options.editor){
     var dropzones = options.dropzones || [];
     var start;
-    var indx = 0;
+
     var $helper;
 
     function createDragHelper(){
@@ -70,6 +73,7 @@ return function GapMatch(elem, options){
       $helper.remove();
     }
 
+    // Update rectangle helper
     $zones.on('mousemove', function(event){
       var offset = $zones.offset();
       event.offsetX = event.clientX - offset.left;
@@ -77,6 +81,7 @@ return function GapMatch(elem, options){
       updateDragHelper(event)
     });
 
+    // Show rectangle helper
     $elem.on('mousedown', function(event){
       var offset = $zones.offset();
       event.offsetX = event.clientX - offset.left;
@@ -86,11 +91,31 @@ return function GapMatch(elem, options){
       createDragHelper();
     });
 
+    // Remove dropzones on doubleclick
+    $elem.on('dblclick', '.gapmatch-editor-dropzone', function(e){
+      var dropzone = $(this).data('dropzone');
+      var rem = -1;
+      
+      $(this).remove();
+
+      // Find correct dropzone index in array
+      dropzones.forEach(function(d,i){
+        if(d[4] == dropzone){ rem = i; }
+      })
+
+      dropzones.splice( rem, 1 );
+
+      if(options.editorCallback){
+        options.editorCallback(dropzones);
+      }
+    });
+
+    // Create dropzone on mouseup and evoke callback
     $elem.on('mouseup', function(event){
       var offset = $zones.offset();
       event.offsetX = event.clientX - offset.left;
       event.offsetY = event.clientY - offset.top;
-      
+
       removeDragHelper();
       indx++;
       var end = {x: event.offsetX,y:event.offsetY};
@@ -109,10 +134,11 @@ return function GapMatch(elem, options){
         var y = start.y / $elem.height() * 100;
         var w = (end.x - start.x) / $elem.width() * 100;
         var h = (end.y - start.y) / $elem.height() * 100;
-
+        if(w < 2 || h < 2) return;
         dropzones.push([x,y,w,h, "dropzone_"+indx]);
         $zones.append($('<div>', {
           class: 'gapmatch-editor-dropzone',
+          data: { dropzone: "dropzone_"+indx },
           css: {
             left: x + '%',
             top: y + '%',
@@ -130,9 +156,10 @@ return function GapMatch(elem, options){
   }
 
   var $strings = [];
-  options.strings.forEach(function(string){
+  options.strings.forEach(function(string,i){
       $strings.push($('<div>', {
         class: 'gapmatch-string',
+        attr: { 'data-stringid': i },
         text: string
       }));
   });
@@ -146,6 +173,7 @@ return function GapMatch(elem, options){
 
   var $dropzones = []
   options.dropzones.forEach(function(drop, i){
+    indx++;
     $dropzones.push($('<div>', {
       data: {dropzone: drop[4] || 'dropzone_' + i},
       class: options.editor ? 'gapmatch-editor-dropzone' : 'gapmatch-dropzone',
@@ -196,7 +224,12 @@ return function GapMatch(elem, options){
   if(!options.editor){
     $elem.on('mousedown touchstart', '.gapmatch-string', function(event){
       $draggingObject = $(this);
-      $draggingObject.remove();
+      console.log($draggingObject.parent().hasClass('gapmatch-dropzone'));
+      if(options.infiniteTexts && !$draggingObject.parent().hasClass('gapmatch-dropzone')){
+        $draggingObject = $draggingObject.clone();
+      } else {
+        $draggingObject.remove();
+      }
       $elem.append($draggingObject);
       var ev = event.originalEvent.touches ? event.originalEvent.touches[0] : event;
       mousePos.x = ev.pageX - offset.left;
@@ -245,6 +278,16 @@ return function GapMatch(elem, options){
         top: '0px',
         left: '0px'
       });
+
+      if(options.maxDropped && $(this).children().length >= options.maxDropped){
+        $draggingObject = null;
+        return;
+      }
+      if($(this).find('[data-stringid="' + $draggingObject.data('stringid') + '"]').length > 0){
+        $draggingObject = null;
+        return;
+      }
+
       $(this).append($draggingObject);
       $draggingObject = null;
 
@@ -261,7 +304,9 @@ return function GapMatch(elem, options){
           top: '0px',
           left: '0px'
         });
-        $strings.append($draggingObject);
+        if(!options.infiniteTexts){
+          $strings.append($draggingObject);
+        }
         $draggingObject = null;
       }
     });
@@ -269,7 +314,8 @@ return function GapMatch(elem, options){
   this.getResult = getResult;
 
   this.destroy = function(){
-    $elem.off('mousedown mouseup tochend touchstart');
+    $elem.off('mousedown mouseup tochend touchstart dblclick');
+    $backdrop.off('dragstart');
     $elem[0].removeEventListener('touchend', onTouchEnd);
     $elem.html('');
   }

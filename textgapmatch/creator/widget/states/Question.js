@@ -43,7 +43,9 @@ define([
             strings: interaction.prop('strings'),
             backdrop: interaction.prop('backdrop'),
             dropzones: interaction.prop('dropzones'),
-            identifier : interaction.attr('responseIdentifier')
+            identifier : interaction.attr('responseIdentifier'),
+            maxDropped: interaction.prop('maxDropped'),
+            infiniteTexts: interaction.prop('infiniteTexts')
         }));
 
         function _arrayBufferToBase64( buffer ) {
@@ -89,9 +91,17 @@ define([
                 interaction.prop('dropzones', value);
                 interaction.triggerPci('cfgChange', ['dropzones',value]);
             },
+            maxDropped : function(interaction, value){
+                interaction.prop('maxDropped', value);
+                interaction.triggerPci('cfgChange', ['maxDropped',value]);
+            },
             identifier : function(i, value){
                 response.id(value);
                 interaction.attr('responseIdentifier', value);
+            },
+            infiniteTexts: function(interaction, value){
+              interaction.prop('infiniteTexts', value);
+              interaction.triggerPci('cfgChange', ['infiniteTexts',value]);
             }
         });
 
