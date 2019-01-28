@@ -483,6 +483,8 @@ function addOutline(prop){
     if(o instanceof THREE.Mesh && o.material.visible){
       if(o.name.indexOf('snap') > -1) return;
       o.geometry.side = THREE.BackSide;
+      o.castShadow = false;
+      o.receiveShadow = false;
       o.material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.BackSide, opacity: 0.6, transparent: true } );
     }
   });
