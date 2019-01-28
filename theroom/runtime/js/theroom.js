@@ -619,7 +619,6 @@ function onMouseDown(event){
 
     var intersects = hudRaycaster.intersectObjects( [hud.droppables[i].prop], true );
     if(intersects.length){
-      console.log(hud.droppables[i].prop.children);
       var hudInfo = hud.droppables[i];
       if(hud.placeDroppable(hudInfo)){
         var prop = hud.droppables[i].gltf.scene.clone();
