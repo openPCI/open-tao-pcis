@@ -70,19 +70,100 @@
         class: 'gapmatch-backdrop'
       });
 
+      $backdrop.on('dragstart', function(event) { event.preventDefault(); });
+
       $zones.append($backdrop);
       $elem.append($zones);
+      var indx = 0;
 
       if(options.editor){
-        var dropzones = [];
+        var dropzones = options.dropzones || [];
         var start;
-        var indx = 0;
+
+        var $helper;
+
+        function createDragHelper(){
+          $helper = $('<div>', {
+            class: 'gapmatch-editor-dropzone',
+            css: {
+              left: 0 + '%',
+              top: 0 + '%',
+              width: 0 + '%',
+              height: 0 + '%'
+            }
+          });
+          $zones.append($helper);
+        }
+
+        function updateDragHelper(event){
+          if(!start) return;
+          var end = {x: event.offsetX,y:event.offsetY};
+          var tmpStart = {x: start.x, y:start.y};
+          if(tmpStart.x > end.x){
+            var x = tmpStart.x;
+            tmpStart.x = end.x;
+            end.x = x;
+          }
+          if(tmpStart.y > end.y){
+            var y = tmpStart.y;
+            tmpStart.y = end.y;
+            end.y = y;
+          }
+
+          var x = tmpStart.x / $elem.width() * 100;
+          var y = tmpStart.y / $elem.height() * 100;
+          var w = (end.x - tmpStart.x) / $elem.width() * 100;
+          var h = (end.y - tmpStart.y) / $elem.height() * 100;
+          $helper.css({
+            left: x + '%',
+            top: y + '%',
+            width: w + '%',
+            height: h + '%'
+          });
+        }
+
+        function removeDragHelper(){
+          $helper.remove();
+        }
+
+        $zones.on('mousemove', function(event){
+          var offset = $zones.offset();
+          event.offsetX = event.clientX - offset.left;
+          event.offsetY = event.clientY - offset.top;
+          updateDragHelper(event)
+        });
 
         $elem.on('mousedown', function(event){
+          var offset = $zones.offset();
+          event.offsetX = event.clientX - offset.left;
+          event.offsetY = event.clientY - offset.top;
+
           start = {x: event.offsetX, y: event.offsetY};
+          createDragHelper();
+        });
+
+        $elem.on('dblclick', '.gapmatch-editor-dropzone', function(e){
+          var dropzone = $(this).data('dropzone');
+          var rem = -1;
+          $(this).remove();
+          console.log(dropzone);
+          dropzones.forEach(function(d,i){
+            if(d[4] == dropzone){ rem = i; }
+          })
+
+          dropzones.splice( rem, 1 );
+
+          if(options.editorCallback){
+            options.editorCallback(dropzones);
+          }
         });
 
         $elem.on('mouseup', function(event){
+          var offset = $zones.offset();
+          event.offsetX = event.clientX - offset.left;
+          event.offsetY = event.clientY - offset.top;
+
+          removeDragHelper();
           indx++;
           var end = {x: event.offsetX,y:event.offsetY};
           if(start){
@@ -100,10 +181,11 @@
             var y = start.y / $elem.height() * 100;
             var w = (end.x - start.x) / $elem.width() * 100;
             var h = (end.y - start.y) / $elem.height() * 100;
-
+            if(w < 2 || h < 2) return;
             dropzones.push([x,y,w,h, "dropzone_"+indx]);
             $zones.append($('<div>', {
               class: 'gapmatch-editor-dropzone',
+              data: { dropzone: "dropzone_"+indx },
               css: {
                 left: x + '%',
                 top: y + '%',
@@ -113,19 +195,18 @@
             }));
             start = null;
           }
+
           if(options.editorCallback){
             options.editorCallback(dropzones);
           }
         });
-
-
-        return;
       }
 
       var $strings = [];
-      options.strings.forEach(function(string){
+      options.strings.forEach(function(string,i){
           $strings.push($('<div>', {
             class: 'gapmatch-string',
+            attr: { 'data-stringid': i },
             text: string
           }));
       });
@@ -139,9 +220,10 @@
 
       var $dropzones = []
       options.dropzones.forEach(function(drop, i){
+        indx++;
         $dropzones.push($('<div>', {
           data: {dropzone: drop[4] || 'dropzone_' + i},
-          class: 'gapmatch-dropzone',
+          class: options.editor ? 'gapmatch-editor-dropzone' : 'gapmatch-dropzone',
           css: {
             left: drop[0]+'%',
             top: drop[1]+'%',
@@ -153,95 +235,7 @@
 
       $zones.append($dropzones);
 
-      function onDrag(){
-        if($draggingObject){
-          $draggingObject.css({
-            top: mousePos.y+10 + 'px',
-            left: mousePos.x+10 + 'px',
-            position: 'absolute'
-          });
-          if(clientPos.y < window.innerHeight * 0.20 && $('body,html').scrollTop() > 10){
-            $('body,html').scrollTop($('body,html').scrollTop() - 10);
-            mousePos.y -= 10;
-          }
-          if(clientPos.y > window.innerHeight * 0.80 && mousePos.y < offset.top + $backdrop.height()){
-            $('body,html').scrollTop($('body,html').scrollTop() + 10);
-            mousePos.y += 10;
-          }
-        }
-      }
-
-      $elem.on('mousedown touchstart', '.gapmatch-string', function(event){
-        console.log(event);
-        $draggingObject = $(this);
-        $draggingObject.remove();
-        $elem.append($draggingObject);
-        var ev = event.originalEvent.touches ? event.originalEvent.touches[0] : event;
-        mousePos.x = ev.pageX - offset.left;
-        mousePos.y = ev.pageY - offset.top;
-
-        clientPos.x = ev.clientX;
-        clientPos.y = ev.clientY;
-
-        dragInterval = setInterval(onDrag, 1000/30);
-
-      });
-
-      $elem.on('mousemove touchmove', function(event){
-        var ev = event.originalEvent.touches ? event.originalEvent.touches[0] : event;
-
-        mousePos.x = ev.pageX - offset.left;
-        mousePos.y = ev.pageY - offset.top;
-        clientPos.x = ev.clientX;
-        clientPos.y = ev.clientY;
-        if($draggingObject){
-          event.preventDefault();
-        }
-      });
-
-      $elem[0].addEventListener('touchend', function(e){
-        var t = e.changedTouches[0];
-        console.log(e);
-        var elems = document.elementsFromPoint(t.clientX, t.clientY);
-        var triggered = false;
-        elems.forEach(function(elem){
-            if($(elem).hasClass('gapmatch-dropzone')){
-              $(elem).trigger('touchend');
-              triggered = true;
-            }
-
-        });
-        if(!triggered) $elem.trigger('mouseup');
-      });
-
-      $elem.on('mouseup touchend', '.gapmatch-dropzone', function(event){
-        console.log('end');
-        if(!$draggingObject) return;
-        clearInterval(dragInterval);
-        $draggingObject.remove();
-        $draggingObject.css({
-          position:'relative',
-          top: '0px',
-          left: '0px'
-        });
-        $(this).append($draggingObject);
-        $draggingObject = null;
-      });
-
-      $elem.on('mouseup', function(){
-        if($draggingObject){
-          $draggingObject.remove();
-          $draggingObject.css({
-            position:'relative',
-            top: '0px',
-            left: '0px'
-          });
-          $strings.append($draggingObject);
-          $draggingObject = null;
-        }
-      });
-
-      this.getResult = function(){
+      function getResult(){
         var result = {};
         $elem.find('.gapmatch-dropzone').each(function(){
           var $dropzone = $(this);
@@ -254,11 +248,129 @@
         });
         return result;
       }
-    };
+
+      function onDrag(){
+        if($draggingObject){
+          $draggingObject.css({
+            top: mousePos.y+10 + 'px',
+            left: mousePos.x+10 + 'px',
+            position: 'absolute'
+          });
+          if(clientPos.y < window.innerHeight * 0.20 && $('body,html').scrollTop() > 10){
+            $('body,html').scrollTop($('body,html').scrollTop() - 10);
+            mousePos.y -= 10;
+          }
+          if(clientPos.y > window.innerHeight * 0.80 && mousePos.y < $(document).height() - $(window).height()){
+            $('body,html').scrollTop($('body,html').scrollTop() + 10);
+            mousePos.y += 10;
+          }
+        }
+      }
+
+
+      if(!options.editor){
+        $elem.on('mousedown touchstart', '.gapmatch-string', function(event){
+          $draggingObject = $(this);
+          console.log($draggingObject.parent().hasClass('gapmatch-dropzone'));
+          if(options.infiniteTexts && !$draggingObject.parent().hasClass('gapmatch-dropzone')){
+            $draggingObject = $draggingObject.clone();
+          } else {
+            $draggingObject.remove();
+          }
+          $elem.append($draggingObject);
+          var ev = event.originalEvent.touches ? event.originalEvent.touches[0] : event;
+          mousePos.x = ev.pageX - offset.left;
+          mousePos.y = ev.pageY - offset.top;
+
+          clientPos.x = ev.clientX;
+          clientPos.y = ev.clientY;
+
+          dragInterval = setInterval(onDrag, 1000/30);
+
+        });
+
+        $elem.on('mousemove touchmove', function(event){
+          var ev = event.originalEvent.touches ? event.originalEvent.touches[0] : event;
+
+          mousePos.x = ev.pageX - offset.left;
+          mousePos.y = ev.pageY - offset.top;
+          clientPos.x = ev.clientX;
+          clientPos.y = ev.clientY;
+          if($draggingObject){
+            event.preventDefault();
+          }
+        });
+
+        function onTouchEnd(e){
+          var t = e.changedTouches[0];
+          var elems = document.elementsFromPoint(t.clientX, t.clientY);
+          var triggered = false;
+          elems.forEach(function(elem){
+              if($(elem).hasClass('gapmatch-dropzone')){
+                $(elem).trigger('touchend');
+                triggered = true;
+              }
+          });
+          if(!triggered) $elem.trigger('mouseup');
+        }
+
+        $elem[0].addEventListener('touchend', onTouchEnd);
+
+        $elem.on('mouseup touchend', '.gapmatch-dropzone', function(event){
+          if(!$draggingObject) return;
+          clearInterval(dragInterval);
+          $draggingObject.remove();
+          $draggingObject.css({
+            position:'relative',
+            top: '0px',
+            left: '0px'
+          });
+
+          if(options.maxDropped && $(this).children().length >= options.maxDropped){
+            $draggingObject = null;
+            return;
+          }
+          if($(this).find('[data-stringid="' + $draggingObject.data('stringid') + '"]').length > 0){
+            $draggingObject = null;
+            return;
+          }
+
+          $(this).append($draggingObject);
+          $draggingObject = null;
+
+          if(options.onChange){
+            options.onChange(getResult());
+          }
+        });
+
+        $elem.on('mouseup', function(){
+          if($draggingObject){
+            $draggingObject.remove();
+            $draggingObject.css({
+              position:'relative',
+              top: '0px',
+              left: '0px'
+            });
+            if(!options.infiniteTexts){
+              $strings.append($draggingObject);
+            }
+            $draggingObject = null;
+          }
+        });
+      }
+      this.getResult = getResult;
+
+      this.destroy = function(){
+        $elem.off('mousedown mouseup tochend touchstart dblclick');
+        $backdrop.off('dragstart');
+        $elem[0].removeEventListener('touchend', onTouchEnd);
+        $elem.html('');
+      }
+    }
 
       var gapMatch = new GapMatch('#gapmatch', {
         image: 'map-of-world.jpg',
-        editor: true,
+        editor: false,
         editorCallback: function(a){
           console.log(a)
         },
@@ -279,6 +391,7 @@
             "dropzone_2"
           ]
         ],
+        infiniteTexts: true,
         strings: ['Olie','Snaps','Kartofler','Majs','Rødbeder']
       });
     </script>

@@ -46,7 +46,9 @@ define([
             return {
                 dropzones: "[]",
                 strings: "",
-                backdrop: ""
+                backdrop: "",
+                infiniteTexts: false,
+                maxDropped: 0
             };
         },
         /**

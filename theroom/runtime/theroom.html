@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 	<head>
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
 		<meta charset=utf-8>
 		<title>The Room</title>
 		<style>
 			body {
         margin: 0;
         overflow:hidden;
+        touch-action: none;
         -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
      -khtml-user-select: none; /* Konqueror HTML */
@@ -49,7 +51,7 @@
         text-align:center;
         width:100%;
       }
-      .controls button {
+      button {
         border-radius: 16px;
         height:32px;
         width: 32px;
@@ -58,7 +60,7 @@
         padding: 2px;
         outline: 0;
       }
-      .controls button img {
+      button img {
         margin-top:2px;
         width: 20px;
 
@@ -72,16 +74,23 @@
         user-drag: none;
         -webkit-touch-callout: none;
       }
+      #fullscreen {
+        position:absolute;
+        z-index:110;
+        bottom:8px;
+        right: 8px;
+      }
 		</style>
 	</head>
-	<body>
+	<body oncontextmenu="return false;">
 		<div id="help">
-			 <img src="css/img/leftclick.png" alt="Venstretræk" /> Flyt rundt på ting med venstre træk. <span>⇦</span> <span>⇨</span> Roter med piletasterne. <img src="css/img/scroll.png" alt="Scroll" /> Zoom med mussehjul / scroll.
+			 Træk en genstand for at flytte. Dobbelt klik på en genstand for at rotere.
 		</div>
     <div class="controls">
       <button id="rotateLeft" class="btn rotate-left"><img src="assets/rotate_right.png" /></button>
       <button id="rotateRight" class="btn rotate-left"><img src="assets/rotate_left.png" /></button>
     </div>
+    <button id="fullscreen" class="btn fullscreen"><img src="assets/fullscreen.png" /></button>
     <script type="text/javascript">
         if(/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
             document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');

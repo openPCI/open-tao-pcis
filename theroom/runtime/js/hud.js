@@ -13,6 +13,7 @@ var GameHud = function(){
   hudRenderer.domElement.className = 'hud';
   document.body.appendChild( hudRenderer.domElement );
 
+
   var hudScene = new THREE.Scene()
   var droppableProps = [];
   var droppableByName = {}
@@ -22,6 +23,15 @@ var GameHud = function(){
   addLighting(hudScene,1)
 
   hudScene.add( hudCamera )
+
+  function setCameraSize(w,h){
+    var width = w / hudScale;
+    var height = h / hudScale;
+    hudCamera.right = width;
+    hudCamera.bottom = -height;
+    hudCamera.updateProjectionMatrix();
+  }
+  this.setCameraSize = setCameraSize;
 
   function hudAddDroppable(gltf, count, name){
 
@@ -94,7 +104,7 @@ var GameHud = function(){
   this.render = function(){
     hudRenderer.render( hudScene, hudCamera );
   }
-
+  this.renderer = hudRenderer;
   this.getDroppableByName = getDroppableByName;
   this.addDroppable = hudAddDroppable;
   this.placeDroppable = placeDroppable;

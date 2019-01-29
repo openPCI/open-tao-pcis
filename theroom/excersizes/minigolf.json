@@ -1,32 +1,52 @@
 {
-  "scene" : "minigolf/scene.gltf",
+  "scene" : "minigolf/scene.glb",
   "assets":[
     {
-      "model" : "minigolf/end_piece.gltf"
+      "model" : "minigolf/soft_end.glb",
+      "count" : 2
     },
     {
-      "model" : "minigolf/hard_bend.gltf"
+      "model" : "minigolf/soft_start.glb",
+      "count" : 2
     },
     {
-      "model" : "minigolf/hole.gltf"
+      "model" : "minigolf/end_piece.glb",
+      "count" : 2
     },
     {
-      "model" : "minigolf/slope.gltf"
+      "model" : "minigolf/start.glb",
+      "count" : 2
     },
     {
-      "model" : "minigolf/start.gltf"
+      "model" : "minigolf/hole.glb"
     },
     {
-      "model" : "minigolf/straight.gltf"
+      "model" : "minigolf/slope.glb",
+      "count" : 2
     },
     {
-      "model" : "minigolf/end_piece.gltf"
+      "model" : "minigolf/straight.glb"
     },
     {
-      "model" : "minigolf/end_piece.gltf"
+      "model" : "minigolf/end_piece.glb"
     },
     {
-      "model" : "minigolf/mill.gltf"
+      "model" : "minigolf/mill.glb"
+    },
+    {
+      "model" : "minigolf/loopdeloop.glb"
+    },
+    {
+      "model" : "minigolf/obstacle.glb"
+    },
+    {
+      "model" : "minigolf/raised.glb"
+    },
+    {
+      "model" : "minigolf/toblerone.glb"
+    },
+    {
+      "model" : "minigolf/raised.glb"
     }
   ]
 }

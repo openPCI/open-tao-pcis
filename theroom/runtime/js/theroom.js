@@ -30,6 +30,8 @@ var cameraObject;
 // The scene camera
 var camera;
 
+var rotate = 0;
+
 // Mouse coordinates -1 - 1
 var mouse = new THREE.Vector2();
 
@@ -51,6 +53,10 @@ var movingObjectOffset;
 
 // Initialize game HUD
 var hud = new GameHud();
+
+var lastPinchDist = 0;
+var pinchZoom = 0;
+var emulatedMouseDown = false;
 
 var objectBehaviors = [WallSnapObject, PointSnapObject];
 
@@ -118,7 +124,6 @@ function loadGLtf(path, callback){
   	// called while loading is progressing
   	function ( xhr ) {
 
-  		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 
   	},
   	// called when loading has errors
@@ -229,7 +234,7 @@ function loadScene(file){
   loadGLtf(file, function(gltf){
     scenePath = file;
 
-    movePlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(500, 500, 2, 2),
+    movePlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(5000, 5000, 2, 2),
        new THREE.MeshBasicMaterial( {
            color: 0x248f24, alphaTest: 0, visible: false
     }));
@@ -246,13 +251,13 @@ function loadScene(file){
     gltf.scene.collisionStatic = true;
     scene.add(gltf.scene);
     var bbobj = scene.getObjectByName('boundingbox');
-    console.log(bbobj);
+
     if(bbobj){
       boundingbox = new THREE.Box3().setFromObject(bbobj);
       bbobj.parent.remove(bbobj);
     }
     room = gltf.scene;
-    console.log(room.userData);
+
     addLighting(scene, room.userData.light_intensity || 1);
     addCameraHelper();
     animate();
@@ -456,164 +461,335 @@ function loadMoveable(asset, count, callback){
 
 }
 
-var rotate = 0;
+function startAnimation(obj){
+  if(obj.info && obj.info.animations.length){
+    if(!obj.mixer) obj.mixer = new THREE.AnimationMixer( obj );
+    var clip = obj.info.animations[0];
 
-function setupInputListeners(){
-  window.addEventListener('message', function(event){
-    if(event.data && event.data.type){
-      switch(event.data.type){
-        case 'loadExcersize':
-          loadExcersize(event.data.value);
-        break;
-      }
+    var action = obj.mixer.clipAction(clip);
+    action.loop = THREE.LoopRepeat;
+    action.play();
+  }
+}
+
+function addOutline(prop){
+  if(prop.outline){
+    prop.outline.visible = true;
+    return;
+  }
+  var outline = prop.clone();
+  outline.info = prop.info;
+  outline.traverse(function(o){
+    if(o instanceof THREE.Mesh && o.material.visible){
+      if(o.name.indexOf('snap') > -1) return;
+      o.geometry.side = THREE.BackSide;
+      o.castShadow = false;
+      o.receiveShadow = false;
+      o.material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.BackSide, opacity: 0.6, transparent: true } );
     }
-  }, false);
-
-  window.addEventListener('paste', function(e){
-    console.log('test');
-    var data = (e.clipboardData || window.clipboardData).getData('text');
-    try {
-      var serialized = JSON.parse(data);
-      if(serialized.scene && serialized.objects){
-        deserializeMoveables(serialized);
-      }
-    } catch(ex){}
+  });
+  outline.position.clone(prop.position);
+  outline.rotation.clone(prop.rotation);
+  outline.traverse(function(o){
+   o.scale.multiplyScalar(1.01);
   });
 
-  document.getElementById('rotateLeft').addEventListener('mousedown', function(event){
-    rotate = -1;
-    mouseDown = false;
-    event.stopPropagation();
-  }, false);
-  document.getElementById('rotateRight').addEventListener('mousedown', function(event){
-    rotate = 1;
-    mouseDown = false;
-    event.stopPropagation();
-  }, false);
+  scene.add(outline);
+  prop.outline = outline;
+  startAnimation(outline);
+}
 
-  function startAnimation(obj){
-    if(obj.info && obj.info.animations.length){
-      if(!obj.mixer) obj.mixer = new THREE.AnimationMixer( obj );
-      var clip = obj.info.animations[0];
-      console.log(clip);
-      var action = obj.mixer.clipAction(clip);
-      action.loop = THREE.LoopRepeat;
-      action.play();
+function removeOutline(prop){
+  if(prop.outline){
+    prop.outline.visible = false;
+  }
+}
+
+function onTouchMove(e){
+
+  e.preventDefault();
+  e.stopPropagation();
+  if(emulatedMouseDown){
+    var touch = e.changedTouches[0];
+    var event = new Event('mousemove');
+    event.clientX = touch.clientX;
+    event.clientY = touch.clientY;
+    event.button = 0;
+    window.dispatchEvent(event);
+    return;
+  }
+  if(e.touches.length == 2){
+    var a = e.touches[0].clientX - e.touches[1].clientX;
+    var b = e.touches[0].clientY - e.touches[1].clientY;
+    var dist = Math.sqrt(a*a+b*b);
+    if(lastPinchDist > 0){
+      pinchZoom = lastPinchDist - dist;
+      cameraObject.position.z += pinchZoom / 10;
+      if(cameraObject.position.z < 0) cameraObject.position.z = 0;
+      if(cameraObject.position.z > 20) cameraObject.position.z = 20;
+    }
+    lastPinchDist = dist;
+  }
+  return false;
+}
+
+function onTouchStart(e){
+  e.preventDefault();
+  if(e.touches.length == 1){
+    emulatedMouseDown = true;
+    var touch = e.touches[0];
+
+    onTouchMove(e);
+    onTouchMove(e);
+
+    event = new Event('mousedown');
+    event.clientX = touch.clientX;
+    event.clientY = touch.clientY;
+    event.button = 0;
+    window.dispatchEvent(event);
+  } else {
+    if(emulatedMouseDown){
+      var touch = e.touches[0];
+      var event = new Event('mouseup');
+      event.clientX = touch.clientX;
+      event.clientY = touch.clientY;
+      event.button = 0;
+      window.dispatchEvent(event);
+      emulatedMouseDown = false;
     }
   }
 
-  function addOutline(prop){
-    if(prop.outline){
-      prop.outline.visible = true;
+}
+
+function onTouchEnd(e){
+  e.preventDefault();
+  if(e.touches.length == 0 && emulatedMouseDown){
+    var touch = e.changedTouches[0];
+    var event = new Event('mouseup');
+    event.clientX = touch.clientX;
+    event.clientY = touch.clientY;
+    event.button = 0;
+    window.dispatchEvent(event);
+  }
+  emulatedMouseDown = false;
+  lastPinchDist = -1;
+}
+
+function onPostMessage(event){
+  if(event.data && event.data.type){
+    switch(event.data.type){
+      case 'loadExcersize':
+        loadExcersize(event.data.value);
+      break;
+    }
+  }
+}
+
+function onPaste(e){
+
+  var data = (e.clipboardData || window.clipboardData).getData('text');
+  try {
+    var serialized = JSON.parse(data);
+    if(serialized.scene && serialized.objects){
+      deserializeMoveables(serialized);
+    }
+  } catch(ex){}
+}
+
+var lastMouseDown = 0;
+function onMouseDown(event){
+  if(movingObject){
+    if(Date.now() - lastMouseDown < 800){
+      movingObject.rotation.y += Math.PI / 2;
+      movingObject.outline.rotation.y = movingObject.rotation.y;
+      postResult();
+      lastMouseDown = 0;
       return;
-    }
-    var outline = prop.clone();
-    outline.info = prop.info;
-    outline.traverse(function(o){
-      if(o instanceof THREE.Mesh && o.material.visible){
-        if(o.name.indexOf('snap') > -1) return;
-        o.geometry.side = THREE.BackSide;
-        o.material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.BackSide, opacity: 0.6, transparent: true } );
-      }
-    });
-  	outline.position.clone(prop.position);
-    outline.rotation.clone(prop.rotation);
-    outline.traverse(function(o){
-     o.scale.multiplyScalar(1.01);
-    });
-
-    scene.add(outline);
-    prop.outline = outline;
-    startAnimation(outline);
-  }
-  function removeOutline(prop){
-    if(prop.outline){
-      prop.outline.visible = false;
+    } else {
+      lastMouseDown = Date.now();
     }
   }
 
-  window.addEventListener( 'mousedown', function(event){
-    if(movingObject) removeOutline(movingObject);
-    mouseDown = true;
-    movingObject = null;
+  if(movingObject) removeOutline(movingObject);
+  mouseDown = true;
+  movingObject = null;
+  hudRaycaster.setFromCamera( mouse, hud.camera );
+  hudRaycaster.far = 1000;
+  for(var i = 0; i < hud.droppables.length; i++){
 
-    for(var i = 0; i < hud.droppables.length; i++){
-      var intersects = hudRaycaster.intersectObjects( hud.droppables[i].prop.children );
-      if(intersects.length){
-        console.log(intersects)
-        var hudInfo = hud.droppables[i];
-        if(hud.placeDroppable(hudInfo)){
-          var prop = hud.droppables[i].gltf.scene.clone();
-          prop.info = hudInfo;
-          addMoveable(prop);
-          startAnimation(prop);
-          addOutline(prop);
-          movingObject = prop;
-          return;
-        }
-      }
-    }
-
-    for(var i = 0; i < moveables.length; i++){
-      var intersects = raycaster.intersectObjects( moveables[i].children );
-      if(intersects.length){
-        movingObject = moveables[i];
-        addOutline(movingObject);
-        behavior(movingObject, 'onDragStart', [movingObject]);
+    var intersects = hudRaycaster.intersectObjects( [hud.droppables[i].prop], true );
+    if(intersects.length){
+      var hudInfo = hud.droppables[i];
+      if(hud.placeDroppable(hudInfo)){
+        var prop = hud.droppables[i].gltf.scene.clone();
+        prop.info = hudInfo;
+        addMoveable(prop);
+        startAnimation(prop);
+        addOutline(prop);
+        movingObject = prop;
         return;
       }
     }
-  }, false);
+  }
 
-
-  window.addEventListener( 'mouseup', function(event){
-    if(movingObject && boundingbox){
-      if(!boundingbox.containsPoint(movingObject.position)){
-        removeMoveable(movingObject);
-      }
+  for(var i = 0; i < moveables.length; i++){
+    var intersects = raycaster.intersectObjects( [moveables[i]], true );
+    if(intersects.length){
+      movingObject = moveables[i];
+      addOutline(movingObject);
+      behavior(movingObject, 'onDragStart', [movingObject]);
+      return;
     }
+  }
+}
+
+
+function onMouseUp(event){
+  if(movingObject && boundingbox){
+    if(!boundingbox.containsPoint(movingObject.position)){
+      removeMoveable(movingObject);
+    }
+  }
+  mouseDown = false;
+  movingObjectOffset = null;
+  rotate = 0;
+  postResult();
+}
+
+function onWheel(event){
+  var d =  event.deltaY > 0 ? 100 : -100;
+  cameraObject.position.z += d/100;
+  rotateObject.rotation.x -= d/10000;
+  if(rotateObject.rotation.x < 5) rotateObject.rotation.x = 5;
+  if(rotateObject.rotation.x > 5.7) rotateObject.rotation.x = 5.7;
+
+  if(cameraObject.position.z < 0) cameraObject.position.z = 0;
+  if(cameraObject.position.z > 20) cameraObject.position.z = 20;
+  event.preventDefault();
+}
+
+function onMouseMove(event){
+  lastMouse.copy(mouse);
+  // calculate mouse position in normalized device coordinates
+  // (-1 to +1) for both components
+  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+  mouseDelta.copy(mouse);
+  mouseDelta.sub(lastMouse);
+  raycaster.setFromCamera( mouse, camera );
+  var intersects = raycaster.intersectObjects( [movePlane] );
+  if(intersects.length){
+    movePlanePosition = intersects[0].point.clone();
+    movePlanePosition.y = 0;
+  }
+}
+
+function onKeyDown(event){
+
+  if(!movingObject) return;
+  if(/Right$/.test(event.key)){
+    movingObject.rotation.y -= Math.PI / 2;
+  }
+  if(/Left$/.test(event.key)){
+    movingObject.rotation.y += Math.PI / 2;
+  }
+  movingObject.outline.rotation.y = movingObject.rotation.y;
+  postResult();
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  hud.setCameraSize(window.innerWidth, window.innerHeight);
+
+  hud.renderer.setSize( window.innerWidth, window.innerHeight );
+}
+
+function setupInputListeners(){
+  window.addEventListener( 'resize', onWindowResize, false );
+
+  window.addEventListener('touchmove', onTouchMove, false);
+
+  window.addEventListener('touchstart', onTouchStart, false);
+
+  window.addEventListener('touchend', onTouchEnd, false);
+
+  window.addEventListener('message', onPostMessage, false);
+
+  window.addEventListener('paste', onPaste);
+
+  window.addEventListener( 'mousedown', onMouseDown, false);
+
+  window.addEventListener( 'mouseup', onMouseUp, false);
+
+  function rotateLeft(){
+    rotate = -1;
     mouseDown = false;
-    movingObjectOffset = null;
+    event.stopPropagation();
+  }
+
+  function rotateRight(){
+    rotate = 1;
+    mouseDown = false;
+    event.stopPropagation();
+  }
+
+  function rotateStop(){
     rotate = 0;
+    mouseDown = false;
+    event.stopPropagation();
+  }
 
-    postResult();
-  }, false);
-
-  window.addEventListener( 'wheel', function(event){
-    var d =  event.deltaY > 0 ? 100 : -100;
-    cameraObject.position.z += d/100;
-    rotateObject.rotation.x -= d/10000;
-    if(rotateObject.rotation.x < 5) rotateObject.rotation.x = 5;
-    if(rotateObject.rotation.x > 5.7) rotateObject.rotation.x = 5.7;
-
-    if(cameraObject.position.z < 0) cameraObject.position.z = 0;
-    if(cameraObject.position.z > 20) cameraObject.position.z = 20;
-    event.preventDefault();
-  });
-
-  window.addEventListener( 'mousemove', function ( event ) {
-    lastMouse.copy(mouse);
-  	// calculate mouse position in normalized device coordinates
-  	// (-1 to +1) for both components
-  	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-    mouseDelta.copy(mouse);
-    mouseDelta.sub(lastMouse);
-  }, false );
-
-  window.addEventListener( 'keydown', function( event) {
-    console.log('key', event);
-    if(!movingObject) return;
-    if(/Right$/.test(event.key)){
-      movingObject.rotation.y -= Math.PI / 2;
+  function requestFullscreen(){
+    var elem = document.body
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { /* Firefox */
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+      elem.msRequestFullscreen();
     }
-    if(/Left$/.test(event.key)){
-      movingObject.rotation.y += Math.PI / 2;
-    }
-    movingObject.outline.rotation.y = movingObject.rotation.y;
-    postResult();
-  }, false)
+  }
+  var fullscreen = false;
+  function fullscreenBtn(){
+    if(fullscreen) document.exitFullscreen();
+    else requestFullscreen();
+  }
+
+  var btnLeft = document.getElementById('rotateLeft')
+  btnLeft.addEventListener('mousedown', rotateLeft, false);
+  btnLeft.addEventListener('touchstart', rotateLeft, false);
+  btnLeft.addEventListener('touchend', rotateStop);
+
+
+  var btnRight = document.getElementById('rotateRight')
+  btnRight.addEventListener('mousedown', rotateRight, false);
+  btnRight.addEventListener('touchstart', rotateRight, false);
+  btnRight.addEventListener('touchend', rotateStop);
+
+  var btnFullscreen = document.getElementById('fullscreen');
+  btnFullscreen.addEventListener('mouseup', fullscreenBtn, false);
+  btnFullscreen.addEventListener('touchend', fullscreenBtn);
+
+  function onFullScreenChange(event){
+    fullscreen = (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined);
+    $('#fullscreen').toggleClass('enabled', fullscreen);
+  }
+
+  document.addEventListener('webkitfullscreenchange', onFullScreenChange, false);
+  document.addEventListener('mozfullscreenchange', onFullScreenChange, false);
+  document.addEventListener('fullscreenchange', onFullScreenChange, false);
+  document.addEventListener('MSFullscreenChange', onFullScreenChange, false);
+
+  window.addEventListener( 'wheel', onWheel);
+
+  window.addEventListener( 'mousemove', onMouseMove, false );
+
+  window.addEventListener( 'keydown', onKeyDown, false);
 }
 
 function behavior(obj, listener, params){
@@ -623,7 +799,9 @@ function behavior(obj, listener, params){
     }
   }
 }
+
 var clock = new THREE.Clock();
+
 var animate = function () {
   var deltaTime = clock.getDelta();
   //play animations
@@ -635,16 +813,9 @@ var animate = function () {
 
   lookObject.rotation.y += rotate * 0.02;
   // update the picking ray with the camera and mouse position
-	raycaster.setFromCamera( mouse, camera );
-  hudRaycaster.setFromCamera( mouse, hud.camera );
-  hudRaycaster.far = 100;
-  hudRaycaster.near = -100
 
-	var intersects = raycaster.intersectObjects( [movePlane] );
-  if(intersects.length){
-    movePlanePosition = intersects[0].point.clone();
-    movePlanePosition.y = 0;
-  }
+
+  var intersects = raycaster.intersectObjects( [movePlane] );
   if(intersects.length && mouseDown){
 
     if(movingObject){
@@ -693,5 +864,5 @@ var animate = function () {
 document.addEventListener("DOMContentLoaded", function(){
   setupInputListeners();
   sendMessage('ready', 1)
-  if(window === window.parent) loadExcersize('butik.json');
+  if(window === window.parent) loadExcersize('minigolf.json');
 });
