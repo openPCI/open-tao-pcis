@@ -35,7 +35,6 @@ var WallSnapObject = function(){
       if(result.length){
         snapperPos.sub(result[0].point);
         object.position.sub(snapperPos);
-        object.outline.position.copy(object.position)
         return true;
       }
     }

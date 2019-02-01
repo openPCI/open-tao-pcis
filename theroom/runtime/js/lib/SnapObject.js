@@ -50,7 +50,6 @@ var PointSnapObject = function(){
         snapperPos.sub(otherPos);
         snapperPos.multiplyScalar(0.9);
         object.position.sub(snapperPos);
-        object.outline.position.copy(object.position);
         snapped = true;
         //movingObjectOffset = null;
       }

@@ -764,9 +764,6 @@ var animate = function () {
         var oldPos = movingObject.position.clone();
         movingObject.position.copy(v);
 
-        if(movingObject.outline){
-          movingObject.outline.position.copy(movingObject.position);
-        }
 
         movingObject.updateMatrix();
         movingObject.updateMatrixWorld(true);
@@ -776,10 +773,6 @@ var animate = function () {
 
       if(dontMove){
         movingObject.position.copy(oldPos);
-
-        if(movingObject.outline){
-          movingObject.outline.position.copy(movingObject.position);
-        }
 
         movingObject.updateMatrix();
         movingObject.updateMatrixWorld(true);
@@ -795,6 +788,10 @@ var animate = function () {
     }
 
 
+  }
+
+  if(movingObject){
+     movingObject.outline.position.copy(movingObject.position);
   }
 
   hud.render();
