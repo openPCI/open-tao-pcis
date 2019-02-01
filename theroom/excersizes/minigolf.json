@@ -3,27 +3,22 @@
   "scene" : "minigolf/scene.glb",
   "assets":[
     {
-      "model" : "minigolf/soft_end.glb",
-      "count" : 2
+      "model" : "minigolf/soft_end.glb"
     },
     {
-      "model" : "minigolf/soft_start.glb",
-      "count" : 2
+      "model" : "minigolf/soft_start.glb"
     },
     {
-      "model" : "minigolf/end_piece.glb",
-      "count" : 2
+      "model" : "minigolf/end_piece.glb"
     },
     {
-      "model" : "minigolf/start.glb",
-      "count" : 2
+      "model" : "minigolf/start.glb"
     },
     {
       "model" : "minigolf/hole.glb"
     },
     {
-      "model" : "minigolf/slope.glb",
-      "count" : 2
+      "model" : "minigolf/slope.glb"
     },
     {
       "model" : "minigolf/straight.glb"
@@ -48,6 +43,12 @@
     },
     {
       "model" : "minigolf/raised.glb"
+    },
+    {
+      "model" : "minigolf/hard_bend.glb"
+    },
+    {
+      "model" : "minigolf/soft_bend.glb"
     }
   ]
 }
