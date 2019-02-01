@@ -1,0 +1,14 @@
+{
+  "scene" : "teater/theater.glb",
+  "assets":[
+      {
+        "model" : "teater/seatrow_yellow.glb",
+        "count" : 14
+      },
+
+      {
+        "model" : "teater/seatrow_blue.glb",
+        "count" : 4
+      }
+    ]
+}
