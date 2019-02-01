@@ -299,71 +299,6 @@ function resetMaterial(obj){
   });
 }
 
-
-
-/**
- * collisionTest - Test collision between two objects by raytracing from the vertex "normals".
- *
- * @param  {type} test   Object A
- * @param  {type} target Object B
- * @return {type}        list of collision points
- */
-function collisionTest(test, target){
-  var testObjects = [];
-  var targetObjects = [];
-  test.traverse(function(o){
-    if(o instanceof THREE.Mesh){
-      testObjects.push(o);
-    }
-  });
-
-  target.traverse(function(o){
-    if(o instanceof THREE.Mesh){
-      targetObjects.push(o);
-    }
-  });
-  return testObjects.map(function(o){
-    return getCollisions(o, targetObjects);
-  });
-}
-
-
-/**
- * getCollisions - Test collision between  a THREE.Mesh and a list of THREE.Mesh
- *
- * @param  {type} object        description
- * @param  {type} targetObjects description
- * @return {type}               description
- */
-function getCollisions(object, targetObjects){
-    var results = [];
-    var geometry = object.tmpGeom || (object.geometry instanceof THREE.BufferGeometry ? new THREE.Geometry().fromBufferGeometry( object.geometry ) : object.geometry);
-    object.tmpGeom = geometry;
-    if(geometry.vertices.length < 25)
-    for (var vertexIndex = 0; vertexIndex < geometry.vertices.length; vertexIndex++)
-    {
-
-        var localVertex = geometry.vertices[vertexIndex].clone();
-        globalVertex = localVertex;
-        var obj = object;
-        while(obj){
-          globalVertex = globalVertex.applyMatrix4(obj.matrix);
-          obj=obj.parent;
-        }
-
-        var directionVector = globalVertex.sub( object.getWorldPosition( new THREE.Vector3()) );
-        var ray = new THREE.Raycaster( object.getWorldPosition( new THREE.Vector3()), directionVector.clone().normalize());
-        var collisionResults = ray.intersectObjects( targetObjects );
-        collisionResults.forEach(function(res){
-          if ( res.distance < directionVector.length() )
-          {
-            results.push(res);
-          }
-        });
-    }
-    return results;
-}
-
 /**
  * addCameraHelper - Adds the camera helper objects to the scene.
  *
@@ -634,7 +569,7 @@ function onMouseDown(event){
 
   for(var i = 0; i < moveables.length; i++){
     var intersects = raycaster.intersectObjects( [moveables[i]], true );
-    if(intersects.length){
+    if(intersects.length && !moveables[i].static){
       movingObject = moveables[i];
       addOutline(movingObject);
       behavior(movingObject, 'onDragStart', [movingObject]);
@@ -819,28 +754,35 @@ var animate = function () {
   if(intersects.length && mouseDown){
 
     if(movingObject){
+      var oldPos = movingObject.position.clone();
 
+      if(!movingObjectOffset) movingObjectOffset = intersects[0].point.clone().sub(movingObject.position);
+      var v = intersects[0].point.clone().sub(movingObjectOffset);
+      v.y = 0;
 
-      var dontMove = behavior(movingObject, 'onDrag', [movingObject, movingObject.position, oldPos]);
-      if(!dontMove && !movingObject.static){
-        if(!movingObjectOffset) movingObjectOffset = intersects[0].point.clone().sub(movingObject.position);
-        var v = movingObject.position.clone().sub(intersects[0].point.clone().sub(movingObjectOffset));
-        var dist = v.length();
-        v.normalize();
-        v.multiplyScalar(dist*0.1);
-        v.y = 0;
-
+      if(!movingObject.static){
         var oldPos = movingObject.position.clone();
-        movingObject.position.sub(v);
-
-
-        movingObject.updateMatrix();
-        movingObject.updateMatrixWorld(true);
-
+        movingObject.position.copy(v);
 
         if(movingObject.outline){
           movingObject.outline.position.copy(movingObject.position);
         }
+
+        movingObject.updateMatrix();
+        movingObject.updateMatrixWorld(true);
+      }
+
+      var dontMove = behavior(movingObject, 'onDrag', [movingObject, movingObject.position, oldPos]);
+
+      if(dontMove){
+        movingObject.position.copy(oldPos);
+
+        if(movingObject.outline){
+          movingObject.outline.position.copy(movingObject.position);
+        }
+
+        movingObject.updateMatrix();
+        movingObject.updateMatrixWorld(true);
       }
 
     } else {
@@ -863,6 +805,6 @@ var animate = function () {
 
 document.addEventListener("DOMContentLoaded", function(){
   setupInputListeners();
-  sendMessage('ready', 1)
+  sendMessage('ready', 1);
   if(window === window.parent) loadExcersize('minigolf.json');
 });

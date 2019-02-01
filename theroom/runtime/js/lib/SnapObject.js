@@ -35,8 +35,6 @@ var PointSnapObject = function(){
     var rotation = new THREE.Quaternion();
     snappers.forEach(function(snapper){
       snapper.getWorldQuaternion(rotation);
-
-
       var v = new THREE.Vector3(0,1,0);
       v.applyQuaternion(rotation);
       var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
@@ -45,7 +43,6 @@ var PointSnapObject = function(){
 
       if(result.length){
         var otherPos = result[0].object.getWorldPosition( new THREE.Vector3() )
-        console.log(result[0]);
 
         snapper.snapped = result[0].object;
         result[0].object.snapped = snapper;
@@ -53,12 +50,12 @@ var PointSnapObject = function(){
         snapperPos.sub(otherPos);
         snapperPos.multiplyScalar(0.9);
         object.position.sub(snapperPos);
+        object.outline.position.copy(object.position);
         snapped = true;
-        movingObjectOffset = null;
+        //movingObjectOffset = null;
       }
     });
 
-    return snapped;
   }
 
   return {
@@ -73,7 +70,7 @@ var PointSnapObject = function(){
           }
         }
       });
-      console.log(useBehavior);
+
       group.pointSnap = true;
       return useBehavior;
     },
@@ -89,10 +86,6 @@ var PointSnapObject = function(){
       return true;
     },
     onDragStart: function(movingObject){
-      setTimeout(function(){
-        ignoreSnapping = false;
-      }, 1000);
-      ignoreSnapping = true;
 
     },
     onDragEnd: function(){
