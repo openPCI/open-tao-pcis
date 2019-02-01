@@ -111,7 +111,7 @@
       var mouseDelta = new THREE.Vector2();
       var lastMouse = new THREE.Vector2();
 
-      var camera, cameraObject, scene, renderer;
+      var camera, cameraObject, scene, renderer, defaultSave;
       var plane, cube, lineDrawPlane;
       var mouse, raycaster
 
@@ -197,6 +197,7 @@
         scene.remove(lineDrawPlane);
         objects.splice( objects.indexOf( lineDrawPlane ), 1 );
       }
+      
       function cancelLine(){
         lineDrawVoxels.forEach(function(voxel){
           scene.remove(voxel);
@@ -402,7 +403,7 @@
               setPalette(colors);
             break;
             case 'setScene':
-              setScene(event.data.value);
+              setScene(event.data.value, true);
             break;
           }
         }
@@ -530,19 +531,22 @@
         })
       }
 
-      function setScene(save){
+      function setScene(save, setDefault){
         voxels.forEach(function(o){
           scene.remove(o);
         });
         voxels = [];
         objects = [plane];
 
+        if(setDefault){
+          defaultSave = save;
+        }
+
         save.forEach(function(def){
           var c = def.c;
           if(typeof c !== "number"){
             c = new THREE.Color(c.r,c.g,c.b);
           }
-          console.log(c)
           var voxel = new THREE.Mesh( cubeGeo, new THREE.MeshLambertMaterial( { color: c } ) );
           voxel.position.fromArray(def.p);
           voxel.castShadow = true;
@@ -660,7 +664,7 @@
         $('#controls > .tool').on('click', function(){
           if(this.id == 'toolClear'){
             var sure = confirm("Er du sikker på at du vil rydde alt?")
-            if(sure) setScene([]);
+            if(sure) setScene(defaultSave);
             return;
           }
 
