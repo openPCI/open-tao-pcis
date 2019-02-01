@@ -11,6 +11,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
     function startGame(dom, config, responseContainer){
       if(!$iframe){
         $iframe = $('<iframe>');
+        $iframe.attr('allow', 'fullscreen');
         $iframe.css('width','100%');
         $(dom).append($iframe);
         $iframe.css('height', $iframe.width() * 0.56 + 'px');
@@ -19,7 +20,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
         $(dom).on('mouseover', function(){
           $iframe[0].focus();
-        }, false);
+        });
 
       }
 
@@ -52,9 +53,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);
-
-            //
-            console.log('initialize', qtiCustomInteractionContext);
 
             var cfgTimeout = 0;
 

@@ -137,7 +137,6 @@
       var noHit = false;
 
       function line(x0, y0, x1, y1) {
-        console.log(arguments);
         x0 = Math.round(x0);
         y0 = Math.round(y0);
         x1 = Math.round(x1);
@@ -197,7 +196,7 @@
         scene.remove(lineDrawPlane);
         objects.splice( objects.indexOf( lineDrawPlane ), 1 );
       }
-      
+
       function cancelLine(){
         lineDrawVoxels.forEach(function(voxel){
           scene.remove(voxel);
@@ -227,7 +226,6 @@
         });
 
         color = 0;
-
         rollOverMaterial.color = cubeMaterials[0].color
       }
 
@@ -442,6 +440,7 @@
       }
 
       function onDocumentMouseUp( event ){
+        postResult();
         mouseClick = Date.now() - mouseDown < 250;
         mouseDown = false;
 
@@ -489,15 +488,19 @@
               createVoxel(intersect.point.add( intersect.face.normal ));
             }
 
-            window.parent.postMessage({
-              type: 'updateResult',
-              value: getScene(),
-            },"*");
-
           }
 
         }
 
+      }
+
+      function postResult(){
+        setTimeout(function(){
+          window.parent.postMessage({
+            type: 'updateResult',
+            value: getScene(),
+          },"*");
+        },10);
       }
 
       function onDocumentMouseDown( event ) {
