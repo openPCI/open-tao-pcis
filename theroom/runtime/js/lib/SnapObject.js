@@ -33,6 +33,9 @@ var PointSnapObject = function(){
 
 
     var rotation = new THREE.Quaternion();
+    var finalSnapper = null;
+    var finalOther = null;
+    var finalDist = 9999;
     snappers.forEach(function(snapper){
       snapper.getWorldQuaternion(rotation);
       var v = new THREE.Vector3(0,1,0);
@@ -40,21 +43,22 @@ var PointSnapObject = function(){
       var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
       var raycaster = new THREE.Raycaster( snapperPos, v, 0, 1);
       var result = raycaster.intersectObjects(otherSnappers);
-
       if(result.length){
-        var otherPos = result[0].object.getWorldPosition( new THREE.Vector3() )
-
-        snapper.snapped = result[0].object;
-        result[0].object.snapped = snapper;
-
-        snapperPos.sub(otherPos);
-        snapperPos.multiplyScalar(0.9);
-        object.position.sub(snapperPos);
-        snapped = true;
-        //movingObjectOffset = null;
+        if(result[0].distance < finalDist){
+          finalSnapper = snapper;
+          finalOther = result[0].object;
+          finalDist = result[0].distance;
+        }
       }
     });
-
+    if(finalSnapper){
+      var otherPos = finalOther.getWorldPosition( new THREE.Vector3() )
+      var snapperPos = finalSnapper.getWorldPosition( new THREE.Vector3() );
+      finalSnapper.snapped = finalOther;
+      finalOther.snapped = finalSnapper;
+      snapperPos.sub(otherPos);
+      object.position.sub(snapperPos);
+    }
   }
 
   return {

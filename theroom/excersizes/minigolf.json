@@ -11,6 +11,10 @@
       "count" : 2
     },
     {
+      "model" : "minigolf/soft_bend.glb",
+      "count" : 2
+    },
+    {
       "model" : "minigolf/end_piece.glb",
       "count" : 2
     },
