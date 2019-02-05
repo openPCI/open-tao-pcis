@@ -26,6 +26,7 @@
       height: 15px;
       border-radius: 7px;
       border: 1px solid black;
+      z-index: 100;
     }
     .dots {
       position:absolute;
@@ -54,6 +55,7 @@
     }
     .svgmap-junction {
       background: #eee;
+      z-index: 101;
     }
 
     </style>
@@ -68,10 +70,10 @@
       var svgmap;
       $(function(){
 
-        $.get('drawing3.svg', function(data){
+        $.get('camping.svg', function(data){
           svgmap = new SvgMap({
             element: document.getElementById('svgmap'),
-            dotResolution: 10,
+            dotResolution: 5,
             pathLayer: 'layer1',
             svg: data,
             poi: {},

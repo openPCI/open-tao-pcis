@@ -13,6 +13,7 @@
   height: 15px;
   border-radius: 7px;
   border: 1px solid black;
+  z-index: 100;
 }
 .dots {
   position:absolute;
@@ -41,4 +42,5 @@
 }
 .svgmap-junction {
   background: #eee;
+  z-index: 101;
 }

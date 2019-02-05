@@ -103,7 +103,7 @@ return function SvgMap(options){
     var lastDot;
     var firstDot;
 
-    $svg.find('#' + layerId).children().each(function(i, path){
+    $svg.find('#' + layerId).find('path').each(function(i, path){
       var i = 0;
       var l = path.getTotalLength();
 
