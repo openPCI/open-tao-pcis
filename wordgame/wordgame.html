@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Word Game</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="DragDropTouch.js"></script>
+    <style media="screen">
+        .playarea {
+          background: darkblue;
+        }
+        .wordgame-row {
+          margin: 10px;
+          text-align: center;
+        }
+        .wordgame-cell {
+          display: inline-block;
+          background: skyblue;
+          height:32px;
+          box-shadow: 1px 1px 10px black;
+          box-sizing: border-box;
+          border-radius: 7px;
+          font-size: 16px;
+          text-align: center;
+          overflow:hidden;
+        }
+        .wordgame-cell:hover {
+          background: lightskyblue;
+        }
+        .wordgame-texts {
+          background-color: lightgrey;
+          margin: 10px;
+          font-size: 16px;
+          text-align: center;
+          padding: 10px;
+        }
+
+        .wordgame-text {
+          border: 1px solid black;
+          display: inline-block;
+          margin: 3px 5px;
+          background: #EEE;
+          padding: 2px 5px ;
+        }
+        .wordgame-text:hover {
+          background: white;
+        }
+    </style>
+  </head>
+  <body>
+
+    <div class="playarea" id="playarea">
+
+    </div>
+
+
+    <script src="word.js"></script>
+    <script>
+    var wordWidget = new WordGame({
+      element: document.querySelector(".playarea"),
+      cells: [3, 5, 7, 5, 3],
+      texts: ["test1", "test2", "test3"]
+    });
+    </script>
+  </body>
+</html>
