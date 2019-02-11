@@ -21,7 +21,7 @@ function WordGame (options){
       cell.addEventListener('drop', function(evt) {
         evt.preventDefault();
         if(this.childNodes.length > 0) return;
-        var id = evt.dataTransfer.getData("text/wordrank");
+        var id = evt.dataTransfer.getData('text/wordrank');
         this.appendChild(document.getElementById(id));
         console.log(evt, this);
       });
@@ -36,7 +36,7 @@ function WordGame (options){
   var words = document.createElement('div');
   words.className = 'wordgame-texts';
   words.addEventListener('drop', function(evt){
-    var id = evt.dataTransfer.getData("text/wordrank");
+    var id = evt.dataTransfer.getData('text/wordrank');
     words.appendChild(document.getElementById(id));
   });
   words.addEventListener('dragover', function(evt){
@@ -59,8 +59,42 @@ function WordGame (options){
   });
 
   elem.appendChild(words);
-}
-function destroyWidget(WordGame){
-  var elem = document.getElementById("playarea");
-  elem.remove();
+// Destroys stuff.
+  this.destroy = function(){
+    elem.innerHTML = '';
+  }
+
+// Use query select to set a result.
+  this.setResult = function(result){
+    var texts = {};
+    elem.querySelectorAll('.wordgame-text').forEach(function(textDiv){
+      texts[textDiv.innerText] = textDiv;
+    });
+    var rows = elem.querySelectorAll('.wordgame-row');
+// Checks the results.
+    result.forEach(function(row, rowNum){
+      row.forEach(function(cell, cellNum){
+        var text = texts[cell];
+        if(text){
+          var cell = rows[rowNum].childNodes[cellNum];
+          cell.appendChild(text);
+        }
+      });
+    });
+  }
+
+// Calls the result.
+  this.getResult = function(){
+    var result = [];
+    var rows = elem.querySelectorAll('.wordgame-row');
+    rows.forEach(function(row){
+      var rowResult = [];
+      var cells = row.querySelectorAll('.wordgame-cell');
+      cells.forEach(function(cell){
+        rowResult.push(cell.innerText);
+      });
+      result.push(rowResult);
+    });
+    return result;
+  }
 }
