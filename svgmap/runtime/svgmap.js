@@ -29,11 +29,11 @@ return function SvgMap(options){
     var viewBoxWidth = viewBox.width;
     var viewBoxHeight = viewBox.height;
     var scale = $svg.width() / viewBoxWidth;
-    $(svg).css('height', viewBoxHeight*scale + 'px');
+    $(svg).css('height', Math.round(viewBoxHeight*scale) + 'px');
     dots.forEach(function(dot){
       dot.dot.css({
-        top: dot.point.y*scale,
-        left: dot.point.x*scale
+        top: Math.round(dot.point.y*scale),
+        left: Math.round(dot.point.x*scale)
       });
     });
   }
@@ -83,8 +83,8 @@ return function SvgMap(options){
 
   function createDot(point,scale){
     var $dot = $('<div>', {class: 'dot'});
-    $dot.css('top',point.y*scale + 'px');
-    $dot.css('left',point.x*scale + 'px');
+    $dot.css('top', Math.round(point.y*scale) + 'px');
+    $dot.css('left', Math.round(point.x*scale) + 'px');
     return $dot;
   }
 
