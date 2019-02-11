@@ -4,9 +4,11 @@ function WordGame (options){
 
   var elem = options.element;
 
+// Creates the divs and HTML elements for the game.
   var table = document.createElement('div');
   table.className = 'wordgame-table';
 
+// Goes on to make rows and event listeners for drag and drop.
   options.cells.forEach(function(cells, i){
     var row = document.createElement('div');
     row.className = 'wordgame-row';
@@ -32,7 +34,7 @@ function WordGame (options){
   });
 
   elem.appendChild(table);
-
+// Divs for the texts, drag and drop functionality. 
   var words = document.createElement('div');
   words.className = 'wordgame-texts';
   words.addEventListener('drop', function(evt){
