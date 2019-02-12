@@ -213,7 +213,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       var ret = [];
 
       if(options.months) ret.push($monthTr);
-      ret.push($dateTr);
+      if(dateStart.getDate() != ld.getDate() || dateStart.getMonth() != ld.getMonth()) ret.push($dateTr);
       if(options.weekDays) ret.push($weekdayTr);
       if(options.useHours) ret.push($timeTr);
 
