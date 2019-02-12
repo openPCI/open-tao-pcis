@@ -10,58 +10,10 @@
       integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
       crossorigin="anonymous"></script>
     <script src="svgmap.js"></script>
-    <style>
-
-    .qti-customInteraction .svgmap{
-        width:100%;
-        padding:0px;
-        margin:0px;
-        margin-bottom:20px;
-    }
-
-    .dot {
-      position:absolute;
-      background: white;;
-      width: 15px;
-      height: 15px;
-      border-radius: 7px;
-      border: 1px solid black;
-      z-index: 100;
-    }
-    .dots {
-      position:absolute;
-      top:-7px;
-      left: -7px;
-    }
-
-    .svgmap-visited {}
-
-    .svgmap-visited::after {
-      content:'•';
-      font-size:30px;
-      position:relative;
-      left:2px;
-      top: -2px;
-      line-height:15px;
-    }
-
-    .svgmap-poi {
-      background: red !important;
-    }
-
-    .svgmap {
-      width:100%;
-      position: relative;
-    }
-    .svgmap-junction {
-      background: #eee;
-      z-index: 101;
-    }
-
-    </style>
+    <link rel="stylesheet" type="text/css" href="css/base.css">
   </head>
   <body>
-    <div style="width:50%">
+    <div>
       <div class="svgmap" id="svgmap">
 
       </div>

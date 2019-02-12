@@ -1,43 +1,45 @@
-
 .qti-customInteraction .svgmap{
-    width:100%;
-    padding:0px;
-    margin:0px;
-    margin-bottom:20px;
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
+  margin-bottom: 20px;
 }
 
 .dot {
-  position:absolute;
-  background: white;;
-  width: 15px;
-  height: 15px;
-  border-radius: 7px;
-  border: 1px solid black;
+  position: absolute;
+  background: white;
+  opacity: 0.4;
+  border-radius: 1vw;
   z-index: 100;
+  box-shadow: 0 0 0 0.1vw black;
+  width: 0.4vw;
+  height: 0.4vw;
+  border: 0.3vw solid white;
+}
+
+.dot:hover {
+  background: lightgrey;
+  border-color: lightgrey;
 }
 .dots {
   position:absolute;
-  top:-7px;
-  left: -7px;
+  top: -0.7vw;
+  left: -0.7vw;
+  font-size: 1vw;
 }
 
-.svgmap-visited {}
-
-.svgmap-visited::after {
-  content:'•';
-  font-size:30px;
-  position:relative;
-  left:2px;
-  top: -2px;
-  line-height:15px;
+.dot.svgmap-visited {
+  background: black;
+  opacity: 0.6;
 }
+
 
 .svgmap-poi {
   background: red !important;
 }
 
 .svgmap {
-  width:100%;
+  width: 100%;
   position: relative;
 }
 .svgmap-junction {

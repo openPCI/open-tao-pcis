@@ -1,0 +1,39 @@
+.wordgame {
+  background: darkblue;
+  padding: 10px;
+  font-size: 16px;
+}
+.wordgame-row {
+  margin: 10px;
+  text-align: center;
+}
+.wordgame-cell {
+  display: inline-block;
+  background: skyblue;
+  height:32px;
+  box-shadow: 1px 1px 10px black;
+  box-sizing: border-box;
+  border-radius: 7px;
+  font-size: 16px;
+  text-align: center;
+  overflow:hidden;
+}
+.wordgame-cell:hover {
+  background: lightskyblue;
+}
+.wordgame-texts {
+  background-color: lightgrey;
+  margin: 10px;
+  text-align: center;
+  padding: 10px;
+}
+.wordgame-text {
+  border: 1px solid black;
+  display: inline-block;
+  margin: 3px 5px;
+  background: #EEE;
+  padding: 2px 5px;
+}
+.wordgame-text:hover {
+  background: white;
+}
