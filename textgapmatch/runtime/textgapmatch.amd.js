@@ -68,7 +68,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} response
          */
         setResponse : function setResponse(response){
-            var Scontainer = $(this.dom),value;
+            console.log('setResponse');
         },
         /**
          * Get the response in the json format described in
@@ -110,7 +110,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-
+          console.log('setSerializedState');
         },
         /**
          * Get the current state of the interaction as a string.
@@ -120,7 +120,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-
+            console.log('getSerializedState');
             return {};
         }
     };
