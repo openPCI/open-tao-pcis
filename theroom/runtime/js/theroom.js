@@ -592,7 +592,8 @@ function onMouseUp(event){
 }
 
 function onWheel(event){
-  var d =  event.deltaY > 0 ? 100 : -100;
+  var multiplier = event.deltaMode == event.DOM_DELTA_LINE ? 40 : event.deltaMode == event.DOM_DELTA_PAGE ? 0.1:1;
+  var d =  event.deltaY * multiplier;
   cameraObject.position.z += d/100;
   rotateObject.rotation.x -= d/10000;
   if(rotateObject.rotation.x < 5) rotateObject.rotation.x = 5;
@@ -823,7 +824,7 @@ function isTouch(){
 function setHelpText(){
   var helpText = document.getElementById("help");
   if (isTouch()){
-    helpText.innerHTML = "Træk en genstand for at flytte. Dobbelt klik eller tryk to gange for at rotere. Scroll eller træk med to fingre for at zoome.";
+    helpText.innerHTML = "Træk en genstand for at flytte. Dobbelt klik eller tryk to gange for at rotere. Scroll eller brug to fingre for at zoome.";
   } else {
     helpText.innerHTML = "Træk en genstand for at flytte. Dobbelt klik for at rotere. Scroll for at zoome.";
   }

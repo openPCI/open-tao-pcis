@@ -1,24 +1,24 @@
 {
-  "scene" : "teater/theater.glb",
+  "scene" : "teater/theater.gltf",
   "assets":[
       {
-        "model" : "teater/seatrow_yellow.glb",
+        "model" : "teater/seatrow_yellow.gltf",
         "count" : 14
       },
 
       {
-        "model" : "teater/seatrow_blue.glb",
+        "model" : "teater/seatrow_blue.gltf",
         "count" : 4
       },
       {
-        "model" : "teater/rug.glb",
-        "count" : 10
+        "model" : "teater/rug.gltf",
+        "count" : 15
       }
     ],
 
     "objects": [
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           -3.8620338346989285,
           0,
@@ -32,7 +32,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           -3.668193714697085,
           0,
@@ -46,7 +46,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           -6.811022760583733,
           0,
@@ -60,7 +60,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           -10.09076472702352,
           0,
@@ -74,7 +74,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           -6.780777409950841,
           0,
@@ -88,7 +88,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           -10.193233815649089,
           0,
@@ -102,7 +102,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           -0.7700781241456154,
           0,
@@ -116,7 +116,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           -0.6816562418141023,
           0,
@@ -130,7 +130,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           5.048665599156159,
           0,
@@ -144,7 +144,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           4.989141643996126,
           0,
@@ -158,7 +158,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           4.597657483329379,
           0,
@@ -172,7 +172,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           5.237736731388768,
           0,
@@ -186,7 +186,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           5.549810425273384,
           0,
@@ -200,7 +200,7 @@
         ]
       },
       {
-        "id": "teater/seatrow_yellow.glb",
+        "id": "teater/seatrow_yellow.gltf",
         "pos": [
           5.213005453154188,
           0,
