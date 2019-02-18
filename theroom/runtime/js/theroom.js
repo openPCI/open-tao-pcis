@@ -602,8 +602,8 @@ function onMouseUp(event){
 }
 
 function onWheel(event){
-
-  var d =  event.deltaY > 0 ? 100 : -100;
+  var multiplier = event.deltaMode == event.DOM_DELTA_LINE ? 40 : event.deltaMode == event.DOM_DELTA_PAGE ? 0.1:1;
+  var d =  event.deltaY * multiplier;
   cameraObject.position.z += d/100;
   rotateObject.rotation.x -= d/10000;
   if(rotateObject.rotation.x < 5) rotateObject.rotation.x = 5;
@@ -811,8 +811,39 @@ var animate = function () {
 	renderer.render( scene, camera );
 };
 
+function isTouch(){
+  var result = false;
+  if (window.PointerEvent && ('maxTouchPoints' in navigator)) {
+    // if Pointer Events are supported, just check maxTouchPoints
+    if (navigator.maxTouchPoints > 0) {
+      result = true;
+    }
+  } else {
+    // no Pointer Events...
+    if (window.matchMedia && window.matchMedia("(any-pointer:coarse)").matches) {
+      // check for any-pointer:coarse which mostly means touchscreen
+      result = true;
+    } else if (window.TouchEvent || ('ontouchstart' in window)) {
+      // last resort - check for exposed touch events API / event handler
+      result = true;
+    }
+  }
+  return result;
+};
+
+function setHelpText(){
+  var helpText = document.getElementById("help");
+  if (isTouch()){
+    helpText.innerHTML = "Træk en genstand for at flytte. Dobbelt klik eller tryk to gange for at rotere. Scroll eller brug to fingre for at zoome.";
+  } else {
+    helpText.innerHTML = "Træk en genstand for at flytte. Dobbelt klik for at rotere. Scroll for at zoome.";
+  }
+};
+
 document.addEventListener("DOMContentLoaded", function(){
   setupInputListeners();
+  isTouch();
+  setHelpText();
   sendMessage('ready', 1);
   if(window === window.parent) loadExcersize('teater.json');
 });
