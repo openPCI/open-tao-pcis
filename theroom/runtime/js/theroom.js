@@ -367,7 +367,11 @@ function removeMoveable(group){
 function modifyModel(scene){
   scene.traverse(function(o){
     if(o instanceof THREE.Mesh){
-      if(o.name && /glass/.test(o.name)) return;
+      if(o.name && /glass/.test(o.name)){
+        o.material.opacity = 0.5;
+        o.material.transparent = true;
+        return;
+       }
       o.receiveShadow = true;
       o.castShadow = true;
 
@@ -845,5 +849,5 @@ document.addEventListener("DOMContentLoaded", function(){
   isTouch();
   setHelpText();
   sendMessage('ready', 1);
-  if(window === window.parent) loadExcersize('teater.json');
+  if(window === window.parent) loadExcersize('butik.json');
 });
