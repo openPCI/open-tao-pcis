@@ -3,7 +3,7 @@ var GameHud = function(){
   hudRenderer.setSize( window.innerWidth, window.innerHeight );
   hudRenderer.setClearColor( 0x000055, 0 );
 
-  var hudScale = 25;
+  var hudScale = Math.min(25,21 * (window.innerWidth/1371));
   var width = window.innerWidth / hudScale;
   var height = window.innerHeight / hudScale;
   this.width = width;
@@ -25,6 +25,7 @@ var GameHud = function(){
   hudScene.add( hudCamera )
 
   function setCameraSize(w,h){
+    hudScale = Math.min(25,21 * (window.innerWidth/1371));
     var width = w / hudScale;
     var height = h / hudScale;
     hudCamera.right = width;
