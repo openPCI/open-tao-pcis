@@ -48,7 +48,8 @@ define([
                 strings: "",
                 backdrop: "",
                 infiniteTexts: false,
-                maxDropped: 0
+                maxDropped: 0,
+                droppedStyle: ''
             };
         },
         /**

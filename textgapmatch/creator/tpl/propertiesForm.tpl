@@ -10,6 +10,8 @@
     <div><input type="checkbox" name="infiniteTexts" {{#if infiniteTexts}}checked{{/if}} /><label for="infiniteTexts">Uendelig tekster</label></div>
     <label>Pladser i dropzone</label>
     <input name="maxDropped" type="text" value="{{maxDropped}}" />
+    <label>Ekstra CSS styling</label>
+    <input name="droppedStyle" type="text" value="{{droppedStyle}}" />
     <label>Zoner</label>
     <textarea name="dropzones" class="dropzones">{{dropzones}}</textarea>
 

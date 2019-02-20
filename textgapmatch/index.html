@@ -30,8 +30,14 @@
       .gapmatch-dropzone {
         position: absolute;
       }
+      .gapmatch-dropzone .gapmatch-string {
 
+      }
+      .gapmatch-editor-dropzone {
+        pointer-events:none;
+      }
       .gapmatch-editor-dropzone, .gapmatch-dropzone {
+
         border: 1px solid blue;
         background-color: rgba(0,0,255,0.1);
         position:absolute;
@@ -80,7 +86,9 @@
             "dropzone_2"
           ]
         ],
-        infiniteTexts: true,
+        infiniteTexts: false,
+        maxDropped: 5,
+        droppedStyle: 'display:block; height:30px; line-height:30px; margin-bottom: 30px;',
         strings: ['Olie','Snaps','Kartofler','Majs','Rødbeder']
       });
     </script>
