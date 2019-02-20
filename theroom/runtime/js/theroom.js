@@ -849,5 +849,5 @@ document.addEventListener("DOMContentLoaded", function(){
   isTouch();
   setHelpText();
   sendMessage('ready', 1);
-  if(window === window.parent) loadExcersize('teater.json');
+  if(window === window.parent) loadExcersize('minigolf.json');
 });
