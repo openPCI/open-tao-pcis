@@ -45,6 +45,7 @@ define([
             dropzones: interaction.prop('dropzones'),
             identifier : interaction.attr('responseIdentifier'),
             maxDropped: interaction.prop('maxDropped'),
+            droppedStyle: interaction.prop('droppedStyle'),
             infiniteTexts: interaction.prop('infiniteTexts')
         }));
 
@@ -94,6 +95,10 @@ define([
             maxDropped : function(interaction, value){
                 interaction.prop('maxDropped', value);
                 interaction.triggerPci('cfgChange', ['maxDropped',value]);
+            },
+            droppedStyle : function(interaction, value){
+                interaction.prop('droppedStyle', value);
+                interaction.triggerPci('cfgChange', ['droppedStyle',value]);
             },
             identifier : function(i, value){
                 response.id(value);

@@ -26,6 +26,7 @@
 }
 
 .gapmatch-editor-dropzone {
+  pointer-events:none;
   border: 1px solid blue;
   position:absolute;
   background-color: rgba(0,0,255,0.1);

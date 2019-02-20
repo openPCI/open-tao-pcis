@@ -51,11 +51,16 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       var playerName = config.nickname || 'Test-tager';
       var messages = config.messages.split('\n');
       var timeLimit = parseInt(config.timeLimit) || 60;
+      var timeLeft;
       var $dom = $(dom);
+      var $progressBar = $(dom).find('.brainstorm-progress');
       var timers = [];
       var timeStart;
       var continueTimeout;
-
+      var countdownInterval;
+      if($dom.find('.brainstorm-progress').length == 0){
+        $dom.find('.chat').after($('<div class="brainstorm-progress-wrapper"><div class="brainstorm-progress"></div></div>'));
+      }
       $dom.find('.chat').empty();
       $dom.find('.prompt').val('');
 
@@ -133,7 +138,17 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             });
           }, 3000);
         });
-        var timeLimitTimeout = setTimeout(endBrainstorm,timeLimit*1000);
+        timeLeft = timeLimit;
+        countdownInterval = setInterval(countdown, 100);
+      }
+
+      function countdown(){
+        timeLeft -= 0.1;
+        $progressBar.css('width', (timeLeft / timeLimit) * 100 + '%');
+        if(timeLeft <= 0){
+          clearInterval(countdownInterval);
+          endBrainstorm();
+        }
       }
 
       function showMsg(msg, onClick){

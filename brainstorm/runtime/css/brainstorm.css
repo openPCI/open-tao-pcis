@@ -17,6 +17,17 @@
     overflow-x:hidden;
 }
 
+.brainstorm-progress {
+  height: 8px;
+  background: #0f0;
+  width: 0%;
+}
+
+.brainstorm-progress-wrapper {
+  margin: 10px 0px;
+  border: 1px solid #ccc;
+}
+
 .chat.brainstorm-ended {
   opacity: 0.5;
 }

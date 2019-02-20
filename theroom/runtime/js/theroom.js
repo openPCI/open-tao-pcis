@@ -530,6 +530,9 @@ function onPostMessage(event){
       case 'loadExcersize':
         loadExcersize(event.data.value);
       break;
+      case 'setScoringFunction':
+        scoringFunction = eval('('+ event.data.value +')');
+      break;
     }
   }
 }

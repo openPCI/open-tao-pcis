@@ -58,10 +58,10 @@ function GapMatchFactory($){
           end.y = y;
         }
 
-        var x = tmpStart.x / $elem.width() * 100;
-        var y = tmpStart.y / $elem.height() * 100;
-        var w = (end.x - tmpStart.x) / $elem.width() * 100;
-        var h = (end.y - tmpStart.y) / $elem.height() * 100;
+        var x = tmpStart.x / $zones.width() * 100;
+        var y = tmpStart.y / $zones.height() * 100;
+        var w = (end.x - tmpStart.x) / $zones.width() * 100;
+        var h = (end.y - tmpStart.y) / $zones.height() * 100;
         $helper.css({
           left: x + '%',
           top: y + '%',
@@ -75,22 +75,17 @@ function GapMatchFactory($){
       }
 
       // Update rectangle helper
-      $zones.on('mousemove', function(event){
-        var offset = $zones.offset();
-        event.offsetX = event.clientX - offset.left;
-        event.offsetY = event.clientY - offset.top;
-        updateDragHelper(event)
-      });
+      $zones[0].addEventListener('mousemove', function(event){
+        updateDragHelper(event);
+      }, true);
 
       // Show rectangle helper
-      $elem.on('mousedown', function(event){
+      $zones[0].addEventListener('mousedown', function(event){
         var offset = $zones.offset();
-        event.offsetX = event.clientX - offset.left;
-        event.offsetY = event.clientY - offset.top;
 
         start = {x: event.offsetX, y: event.offsetY};
         createDragHelper();
-      });
+      }, true);
 
       // Remove dropzones on doubleclick
       $elem.on('dblclick', '.gapmatch-editor-dropzone', function(e){
@@ -111,10 +106,8 @@ function GapMatchFactory($){
       });
 
       // Create dropzone on mouseup and evoke callback
-      $elem.on('mouseup', function(event){
+      $zones[0].addEventListener('mouseup', function(event){
         var offset = $zones.offset();
-        event.offsetX = event.clientX - offset.left;
-        event.offsetY = event.clientY - offset.top;
 
         removeDragHelper();
         indx++;
@@ -130,10 +123,10 @@ function GapMatchFactory($){
             start.y = end.y;
             end.y = y;
           }
-          var x = start.x / $elem.width() * 100;
-          var y = start.y / $elem.height() * 100;
-          var w = (end.x - start.x) / $elem.width() * 100;
-          var h = (end.y - start.y) / $elem.height() * 100;
+          var x = start.x / $zones.width() * 100;
+          var y = start.y / $zones.height() * 100;
+          var w = (end.x - start.x) / $zones.width() * 100;
+          var h = (end.y - start.y) / $zones.height() * 100;
           if(w < 2 || h < 2) return;
           dropzones.push([x,y,w,h, "dropzone_"+indx]);
           $zones.append($('<div>', {
@@ -152,7 +145,7 @@ function GapMatchFactory($){
         if(options.editorCallback){
           options.editorCallback(dropzones);
         }
-      });
+      }, true);
     }
 
     var $strings = [];
@@ -221,6 +214,13 @@ function GapMatchFactory($){
         else $strings.append($draggingObject);
       });
 
+      function swapNodes(a, b) {
+          var aparent = a.parentNode;
+          var asibling = a.nextSibling === b ? a : a.nextSibling;
+          b.parentNode.insertBefore(a, b);
+          aparent.insertBefore(b, asibling);
+      }
+
       function getDropSpot($dropzone, event){
         var $before = null;
         $($dropzone.children().get().reverse()).each(function(){
@@ -245,10 +245,14 @@ function GapMatchFactory($){
         var $insert = $draggingObject;
         var $this = $(this);
         var $dropzone = $this.hasClass('gapmatch-dropzone') ? $this : $this.parent();
-
         if($draggingObject.parent()[0] !== $dropzone[0]){
           if((options.maxDropped && $dropzone.children().length >= options.maxDropped)
             || ($dropzone.find('[data-stringid="' + $draggingObject.data('stringid') + '"]').length > 0)){
+            return;
+          }
+
+          if($draggingObject.parent().hasClass('gapmatch-dropzone') && $this[0] !== $dropzone[0]){
+            swapNodes($this[0],$draggingObject[0]);
             return;
           }
 
@@ -258,6 +262,8 @@ function GapMatchFactory($){
             $draggingObject.remove();
           }
         }
+
+        $insert.attr('style', options.droppedStyle || '');
 
         var $beforeElem = getDropSpot($dropzone, event);
         if($beforeElem) $beforeElem.before($insert);
@@ -280,7 +286,6 @@ function GapMatchFactory($){
     this.destroy = function(){
       $elem.off('mousedown mouseup tochend touchstart dblclick dragstart drop dragover');
       $backdrop.off('dragstart');
-      $elem[0].removeEventListener('touchend', onTouchEnd);
       $elem.html('');
       alive = false;
     }
