@@ -367,7 +367,9 @@ function removeMoveable(group){
 function modifyModel(scene){
   scene.traverse(function(o){
     if(o instanceof THREE.Mesh){
-      if(o.name && /glass/.test(o.name)) return;
+      if(o.name && /glass/.test(o.name)){
+        return;
+      }
       o.receiveShadow = true;
       o.castShadow = true;
 
@@ -525,6 +527,9 @@ function onPostMessage(event){
     switch(event.data.type){
       case 'loadExcersize':
         loadExcersize(event.data.value);
+      break;
+      case 'setScoringFunction':
+        scoringFunction = eval('('+ event.data.value +')');
       break;
     }
   }
@@ -845,5 +850,5 @@ document.addEventListener("DOMContentLoaded", function(){
   isTouch();
   setHelpText();
   sendMessage('ready', 1);
-  if(window === window.parent) loadExcersize('teater.json');
+  if(window === window.parent) loadExcersize('minigolf.json');
 });
