@@ -19,7 +19,15 @@ return function SvgMap(options){
   }
 
   function getResult(){
-    return result;
+    var poiResult = [];
+    Object.keys(options.poi).forEach(function(k){
+      if(k == 'start') return;
+      var id = parseInt(options.poi[k]);
+      if(result.indexOf(id) > -1){
+        poiResult.push(k);
+      }
+    });
+    return [result, poiResult];
   }
 
   this.getResult = getResult;
