@@ -10,11 +10,13 @@ function WordGame (options){
 
 // Goes on to make rows and event listeners for drag and drop.
   options.cells.forEach(function(cells, i){
-    var row = document.createElement('div');
+    var rowTable = document.createElement('table');
+    var row = document.createElement('tr');
+    rowTable.appendChild(row);
     row.className = 'wordgame-row';
     var cell;
     for(var i = 0; i<cells; i++){
-      cell = document.createElement('div');
+      cell = document.createElement('td');
       cell.className = 'wordgame-cell';
       cell.style.width = 100 / cells + '%';
       cell.addEventListener('dragover', function(evt) {
@@ -30,11 +32,11 @@ function WordGame (options){
       row.appendChild(cell);
     }
 
-    table.appendChild(row);
+    table.appendChild(rowTable);
   });
 
   elem.appendChild(table);
-// Divs for the texts, drag and drop functionality. 
+// Divs for the texts, drag and drop functionality.
   var words = document.createElement('div');
   words.className = 'wordgame-texts';
   words.addEventListener('drop', function(evt){
