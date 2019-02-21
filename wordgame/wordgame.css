@@ -12,11 +12,11 @@
 }
 .wordgame-cell {
   background: skyblue;
-  height:32px;
+  height:45px;
   box-shadow: 1px 1px 10px black;
   box-sizing: border-box;
   border-radius: 7px;
-  font-size: 10px;
+  font-size: 14px;
   text-align: center;
   overflow:hidden;
 }
