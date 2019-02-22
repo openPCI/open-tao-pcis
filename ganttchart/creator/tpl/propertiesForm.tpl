@@ -16,6 +16,7 @@
     <div><input type="checkbox" name="weekDays" {{#if weekDays}}checked{{/if}} /><label for="weekDays"> Vis ugedage</label></div>
     <div><input type="checkbox" name="useHours" {{#if useHours}}checked{{/if}} /><label for="useHours">Vis timer</label></div>
     <div><input type="checkbox" name="useHalfHours" {{#if useHalfHours}}checked{{/if}} /><label for="useHalfHours">vis halve timer</label></div>
+    <div><input type="checkbox" name="showTimeRange" {{#if showTimeRange}}checked{{/if}} /><label for="showTimeRange">Vis start og slut tid</label></div>
     <div><input type="checkbox" name="months" {{#if months}}checked{{/if}} /><label for="months"> Vis måneder</label></div>
     <div><input type="checkbox" name="disableWeekends" {{#if disableWeekends}}checked{{/if}} /><label for="disableWeekends">Brug ikke weekend</label></div>
 

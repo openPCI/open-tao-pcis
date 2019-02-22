@@ -160,7 +160,8 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
 
         if(options.useHours){
           console.log(tdc, options.period)
-          $th = $('<th>', {text: time(d)});
+          var nd = new Date(d.getTime() + dateIncrement);
+          $th = $('<th>', {text: time(d)+( options.showTimeRange ? '-'+time(nd) : '')});
           $timeTr.append($th);
           if(options.disableWeekends && [6,0].indexOf(d.getDay()) > -1){
             $th.text('-');

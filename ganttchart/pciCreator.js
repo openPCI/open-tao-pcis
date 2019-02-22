@@ -51,6 +51,7 @@ define([
               startDate: '',
               useHours: false,
               useHalfHours: false,
+              showTimeRange: false
               dayStart: 8,
               weekNumHack: false,
               dayEnd: 16,

@@ -86,6 +86,10 @@ define([
                 interaction.prop('useHalfHours', value);
                 interaction.triggerPci('cfgChange', ['useHalfHours',value]);
             },
+            showTimeRange : function(interaction, value){
+                interaction.prop('showTimeRange', value);
+                interaction.triggerPci('cfgChange', ['showTimeRange',value]);
+            },
             dayStart : function(interaction, value){
                 interaction.prop('dayStart', value);
                 interaction.triggerPci('cfgChange', ['dayStart',value]);
