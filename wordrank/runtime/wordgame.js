@@ -11,11 +11,13 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
 
   // Goes on to make rows and event listeners for drag and drop.
     options.cells.forEach(function(cells, i){
-      var row = document.createElement('div');
+      var rowTable = document.createElement('table');
+      var row = document.createElement('tr');
+      rowTable.appendChild(row);
       row.className = 'wordgame-row';
       var cell;
       for(var i = 0; i<cells; i++){
-        cell = document.createElement('div');
+        cell = document.createElement('td');
         cell.className = 'wordgame-cell';
         cell.style.width = 100 / cells + '%';
         cell.addEventListener('dragover', function(evt) {
@@ -31,9 +33,8 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         row.appendChild(cell);
       }
 
-      table.appendChild(row);
+      table.appendChild(rowTable);
     });
-
     elem.appendChild(table);
 
     var words = document.createElement('div');
