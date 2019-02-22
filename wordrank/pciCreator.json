@@ -1,0 +1,38 @@
+{
+    "typeIdentifier": "wordrank",
+    "label": "WordRank",
+    "short": "WordRank",
+    "description": "WordRank",
+    "version": "0.0.2",
+    "author": "EJTH",
+    "email": "ejth@edu.au.dk",
+    "tags": [
+        ""
+    ],
+    "response": {
+        "baseType": "string",
+        "cardinality": "single"
+    },
+    "runtime" : {
+        "hook" : "./runtime/wordrank.amd.js",
+        "libraries" : [
+            "IMSGlobal/jquery_2_1_1",
+            "./runtime/wordgame.js"
+        ],
+        "stylesheets" : [
+            "./runtime/css/base.css",
+            "./runtime/css/wordrank.css"
+        ], "mediaFiles" : ["./runtime/assets/download.png","./runtime/css/img/download.png"]
+    },
+            "creator" : {
+                "icon": "./runtime/css/img/download.png",
+                "hook": "./pciCreator.js",
+                "libraries" : [
+                    "./creator/tpl/markup.tpl",
+                    "./creator/tpl/propertiesForm.tpl",
+                    "./creator/widget/Widget.js",
+                    "./creator/widget/states/Question.js",
+                    "./creator/widget/states/states.js"
+                ]
+            }
+        }
