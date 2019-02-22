@@ -7,16 +7,14 @@
   margin: 10px;
   text-align: center;
 }
-.wordgame-table table {
-  width: 100%;
-}
 .wordgame-cell {
+  display: grid;
   background: skyblue;
-  height:45px;
+  height:32px;
   box-shadow: 1px 1px 10px black;
   box-sizing: border-box;
   border-radius: 7px;
-  font-size: 14px;
+  font-size: 16px;
   text-align: center;
   overflow:hidden;
 }
