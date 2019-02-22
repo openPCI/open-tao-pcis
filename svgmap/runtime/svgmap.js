@@ -55,19 +55,21 @@ return function SvgMap(options){
     return paths[0];
   }
 
-  function findPaths(from, to, path, backtrack){
+  function findPaths(from, to, path, backtrack, visited){
+    visited = visited ? visited.slice() : [];
     path = path ? path.slice() : [];
     var paths = [];
 
     path.push(from);
-
     if(from == to){
       paths.push(path);
     } else {
       from.connected.forEach(function(node){
+        if(visited.indexOf(node) > -1) return;
+        visited.push(node);
         if(!backtrack && (path.indexOf(node) > -1 || node.visited && from.visited)) return;
         if(backtrack && (path.indexOf(node) > -1 || !node.visited && !from.visited)) return;
-        Array.prototype.push.apply(paths, findPaths(node, to, path, backtrack));
+        Array.prototype.push.apply(paths, findPaths(node, to, path, backtrack, visited));
       });
     }
 
@@ -164,7 +166,7 @@ return function SvgMap(options){
             dot.visited = result.indexOf(dot.i) > -1;
             dot.dot[dot.visited ? 'addClass':'removeClass']('svgmap-visited', data.visited);
           });
-          if(options.pathCallback) options.pathCallback(result);
+          if(options.pathCallback) options.pathCallback(getResult());
           pathFrom = result[result.length-1];
           pathTo = null;
 

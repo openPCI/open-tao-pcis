@@ -22,13 +22,13 @@
       var svgmap;
       $(function(){
 
-        $.get('camping.svg', function(data){
+        $.get('forlystelsesparkoptog.svg', function(data){
           svgmap = new SvgMap({
             element: document.getElementById('svgmap'),
             dotResolution: 5,
             pathLayer: 'layer1',
             svg: data,
-            poi: {},
+            poi: {start:1},
             editorCallback: window.editor_mode ? function(point){
               console.log('callback', point)
             } : false,
