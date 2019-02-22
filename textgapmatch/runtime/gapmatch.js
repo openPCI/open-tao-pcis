@@ -210,8 +210,9 @@ function GapMatchFactory($){
         event.preventDefault();
       });
       $elem.on('drop', function(event){
-        if(options.infiniteTexts) $draggingObject.remove();
-        else $strings.append($draggingObject);
+        $draggingObject.attr('style', '');
+        if(options.infiniteTexts && $draggingObject.parent().hasClass('gapmatch-dropzone')) $draggingObject.remove();
+        else if(!options.infiniteTexts) $strings.append($draggingObject);
       });
 
       function swapNodes(a, b) {
@@ -228,7 +229,6 @@ function GapMatchFactory($){
           var offset = $el.offset();
           var width = $el.width();
           var height = $el.height();
-
           if(event.pageX < offset.left + width/2 && event.pageY < offset.top + height) $before = $el;
         });
         return $before;
@@ -239,6 +239,7 @@ function GapMatchFactory($){
       });
 
       $elem.on('drop', '.gapmatch-dropzone, .gapmatch-dropzone > *', function(event){
+        console.log(event);
         event.stopPropagation();
         $draggingObject.removeClass('gapmatch-dragging');
         if(!$draggingObject) return;
@@ -265,7 +266,7 @@ function GapMatchFactory($){
 
         $insert.attr('style', options.droppedStyle || '');
 
-        var $beforeElem = getDropSpot($dropzone, event);
+        var $beforeElem = getDropSpot($dropzone, event.originalEvent);
         if($beforeElem) $beforeElem.before($insert);
         else $dropzone.append($insert);
 
