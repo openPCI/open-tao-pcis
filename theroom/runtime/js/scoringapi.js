@@ -5,6 +5,6 @@ function Scoring(){
     moveables.forEach(function(obj){
       if(regex.test(obj.userData.modelPath)) result.push(obj);
     });
+    return result;
   };
-  
 }
