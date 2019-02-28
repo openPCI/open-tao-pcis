@@ -730,7 +730,6 @@ function setupInputListeners(){
 
   function onFullScreenChange(event){
     fullscreen = (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined);
-    $('#fullscreen').toggleClass('enabled', fullscreen);
   }
 
   document.addEventListener('webkitfullscreenchange', onFullScreenChange, false);
