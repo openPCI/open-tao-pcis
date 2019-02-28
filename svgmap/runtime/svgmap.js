@@ -65,7 +65,7 @@ return function SvgMap(options){
       paths.push(path);
     } else {
       from.connected.forEach(function(node){
-        if(visited.indexOf(node) > -1) return;
+        if(visited.indexOf(node) > -1 || visited.indexOf(to) > -1) return;
         visited.push(node);
         if(!backtrack && (path.indexOf(node) > -1 || node.visited && from.visited)) return;
         if(backtrack && (path.indexOf(node) > -1 || !node.visited && !from.visited)) return;
