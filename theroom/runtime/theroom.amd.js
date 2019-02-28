@@ -13,7 +13,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       if(!$iframe){
         $iframe = $('<iframe>');
         $iframe.css('width','100%');
-        $iframe.attr('allowfullscreen',true);
+        $iframe.attr('allow','fullscreen');
         $container.append($iframe);
         $iframe.css('height', $iframe.width() * 0.56 + 'px');
       }

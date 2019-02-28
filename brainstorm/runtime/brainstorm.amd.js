@@ -47,13 +47,11 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
     }
 
     function startBrainstorm(dom, config, resultObject){
-      console.log(config)
       var playerName = config.nickname || 'Test-tager';
       var messages = config.messages.split('\n');
       var timeLimit = parseInt(config.timeLimit) || 60;
       var timeLeft;
       var $dom = $(dom);
-      var $progressBar = $(dom).find('.brainstorm-progress');
       var timers = [];
       var timeStart;
       var continueTimeout;
@@ -61,6 +59,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       if($dom.find('.brainstorm-progress').length == 0){
         $dom.find('.chat').after($('<div class="brainstorm-progress-wrapper"><div class="brainstorm-progress"></div></div>'));
       }
+      var $progressBar = $(dom).find('.brainstorm-progress');
       $dom.find('.chat').empty();
       $dom.find('.prompt').val('');
 
@@ -92,7 +91,10 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
           $msg.addClass('is-player');
         }
         if(color) $name.css('color', color);
-        $dom.find('.chat').append($msg);
+
+        var $chat = $dom.find('.chat');
+        $chat.append($msg);
+        $chat.scrollTop($chat.prop('scrollHeight'));
       }
 
       function endBrainstorm(){
@@ -204,8 +206,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);
 
-            //
-            console.log('initialize', qtiCustomInteractionContext);
 
             //listening to dynamic configuration change
             this.on('cfgChange', function(key, value){
