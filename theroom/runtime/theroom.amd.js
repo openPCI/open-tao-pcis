@@ -7,17 +7,18 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
     'use strict';
 
     var $iframe;
-
+    var messageListener;
     function startTheRoom(dom, config){
       var $container = $(dom);
-      if(!$iframe){
+      if($container.find('iframe').length == 0){
         $iframe = $('<iframe>');
         $iframe.css('width','100%');
         $iframe.attr('allow','fullscreen');
         $container.append($iframe);
         $iframe.css('height', $iframe.width() * 0.56 + 'px');
+      } else {
+        $iframe = $container.find('iframe');
       }
-
       $iframe.attr('src', config.gameurl + '?' + Date.now());
     }
 
@@ -42,8 +43,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             this.dom = dom;
             this.config = config || {};
             this.responseContainer = {base : {string : ''}};
-
-            window.addEventListener('message', function(event){
+            messageListener = function(event){
               if(event.data && event.data.type){
                 if(event.data.type == "updateResult"){
                   _this.responseContainer.base.string = event.data.value;
@@ -51,20 +51,20 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
               }
 
               if(event.data && event.data.type == 'ready'){
-                if($iframe)
                 $iframe[0].contentWindow.postMessage({
                   type :'loadExcersize',
                   value : config.excersize
                 },'*');
               }
-            });
+            };
+            window.addEventListener('message', messageListener);
 
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);
 
 
             console.log('initialize', qtiCustomInteractionContext);
-
+            console.log(dom, config, this.responseContainer, this);
             var cfgTimeout = 0;
 
             //listening to dynamic configuration change
@@ -116,7 +116,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         destroy : function destroy(){
-
+            window.removeEventListener('message', messageListener);
             var Scontainer = $(this.dom);
             Scontainer.off().empty();
         },

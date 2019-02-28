@@ -4,7 +4,7 @@
   "assets":[
     {
       "model" : "minigolf/soft_start.glb",
-      "count" : 1
+      "count" : 100
     },
     {
       "model" : "minigolf/straight.glb",
@@ -28,7 +28,7 @@
     },
     {
       "model" : "minigolf/soft_end.glb",
-      "count" : 1
+      "count" : 100
     },
     {
       "model" : "minigolf/mill.glb",
