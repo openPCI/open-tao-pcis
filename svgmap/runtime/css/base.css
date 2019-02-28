@@ -8,29 +8,35 @@
 .dot {
   position: absolute;
   background: white;
-  opacity: 0.4;
-  border-radius: 1vw;
+  opacity: 0.1;
+  border-radius: 2vw;
   z-index: 100;
-  box-shadow: 0 0 0 0.1vw black;
-  width: 0.4vw;
-  height: 0.4vw;
-  border: 0.3vw solid white;
+  box-shadow: 0 0 0 0.1vw white;
+  width: 0.75vw;
+  height: 0.75vw;
+  border: 1vw solid rgba(255, 0, 0, 0.1);
 }
 
 .dot:hover {
-  background: lightgrey;
-  border-color: lightgrey;
+  position: absolute;
+  cursor:pointer;
+  background: grey;
+  border-color: grey;
+  opacity: 0.5;
 }
 .dots {
   position:absolute;
-  top: -0.7vw;
-  left: -0.7vw;
-  font-size: 1vw;
+  top: -0.5vw;
+  left: -0.5vw;
 }
 
 .dot.svgmap-visited {
-  background: black;
-  opacity: 0.6;
+  background: red;
+  height: 0.25vw;
+  width: 0.25vw;
+  border-radius: 2vw;
+  border: 0.25vw solid rgba(255, 0, 0, 0.1);
+  opacity: 0.5;
 }
 
 
