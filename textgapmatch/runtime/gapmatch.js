@@ -150,11 +150,13 @@ function GapMatchFactory($){
 
     var $strings = [];
     options.strings.forEach(function(string,i){
-        $strings.push($('<div>', {
-          class: 'gapmatch-string',
-          attr: { 'data-stringid': i, draggable: "true" },
-          text: string
-        }));
+      var $text = $('<div>', {
+        class: 'gapmatch-string',
+        attr: { 'data-stringid': i, draggable: "true" },
+      });
+      if(options.numbering) $text.append($('<span>', {class: 'gapmatch-number'}));
+      $text.append(string);
+      $strings.push($text);
     });
 
     var $strings = $('<div>', {
@@ -196,6 +198,15 @@ function GapMatchFactory($){
     }
 
     if(!options.editor){
+      function redoNumbering(){
+        console.log('numbering')
+        $elem.find('.gapmatch-dropzone').each(function(){
+          $(this).find('.gapmatch-number').each(function(i){
+            $(this).text(i+1 + '.');
+          });
+        });
+      }
+
       $elem.on('dragstart', '.gapmatch-string', function(event){
         $draggingObject = $(this);
         $draggingObject.addClass('gapmatch-dragging');
@@ -204,6 +215,7 @@ function GapMatchFactory($){
       $elem.on('dragend', '.gapmatch-string', function(event){
         $draggingObject = null;
         $(this).removeClass('gapmatch-dragging');
+        if(options.numbering) redoNumbering();
       });
 
       $elem.on('dragover', function(event){
@@ -273,7 +285,6 @@ function GapMatchFactory($){
         if(options.onChange){
           options.onChange(getResult());
         }
-
       });
     }
     this.getResult = getResult;

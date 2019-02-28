@@ -17,6 +17,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         infiniteTexts: config.infiniteTexts,
         maxDropped : parseInt(config.maxDropped),
         droppedStyle: config.droppedStyle,
+        numbering: config.numbering,
         onChange: function(result){
           resultObject.base.string = JSON.stringify(result);
         },

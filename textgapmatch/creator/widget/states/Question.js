@@ -46,7 +46,8 @@ define([
             identifier : interaction.attr('responseIdentifier'),
             maxDropped: interaction.prop('maxDropped'),
             droppedStyle: interaction.prop('droppedStyle'),
-            infiniteTexts: interaction.prop('infiniteTexts')
+            infiniteTexts: interaction.prop('infiniteTexts'),
+            numbering: interaction.prop('numbering');
         }));
 
         function _arrayBufferToBase64( buffer ) {
@@ -107,6 +108,10 @@ define([
             infiniteTexts: function(interaction, value){
               interaction.prop('infiniteTexts', value);
               interaction.triggerPci('cfgChange', ['infiniteTexts',value]);
+            },
+            numbering: function(interaction, value){
+              interaction.prop('numbering', value);
+              interaction.triggerPci('cfgChange', ['numbering',value]);
             }
         });
 

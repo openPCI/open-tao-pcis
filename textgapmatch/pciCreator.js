@@ -49,7 +49,8 @@ define([
                 backdrop: "",
                 infiniteTexts: false,
                 maxDropped: 0,
-                droppedStyle: ''
+                droppedStyle: '',
+                numbering: false
             };
         },
         /**

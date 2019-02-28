@@ -42,3 +42,6 @@
   color: #666;
   cursor:pointer;
 }
+.gapmatch-strings .gapmatch-number {
+  display:none;
+}
