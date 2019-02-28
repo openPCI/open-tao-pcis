@@ -32,19 +32,19 @@
     },
     {
       "model" : "minigolf/mill.glb",
-      "count" : 1
+      "count" : 100
     },
     {
       "model" : "minigolf/loopdeloop.glb",
-      "count" : 1
+      "count" : 100
     },
     {
       "model" : "minigolf/obstacle.glb",
-      "count" : 1
+      "count" : 100
     },
     {
       "model" : "minigolf/toblerone.glb",
-      "count" : 1
+      "count" : 100
     }
   ]
 }
