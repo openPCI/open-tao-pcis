@@ -7,16 +7,15 @@
 
 .dot {
   position: absolute;
-  background: white;
   opacity: 0.1;
   border-radius: 2vw;
   z-index: 100;
-  box-shadow: 0 0 0 0.1vw white;
   width: 0.75vw;
   height: 0.75vw;
-  border: 1vw solid rgba(255, 0, 0, 0.1);
+  border: 1vw solid rgba(0, 0, 0, 0);
   margin-top: -0.7vw;
   margin-left: -0.7vw;
+  z-index: 100;
 }
 
 .dot:hover {
@@ -33,14 +32,16 @@
 }
 
 .dot.svgmap-visited {
+  box-shadow: 0 0 0 0.1vw white;
   background: red;
   height: 0.25vw;
   width: 0.25vw;
   border-radius: 2vw;
-  border: 0.25vw solid rgba(255, 0, 0, 0.1);
+  border: 0.25vw solid rgba(0, 0, 0, 0);
   opacity: 0.5;
   margin-top: 0px;
-  margin-left: 0px
+  margin-left: 0px;
+  z-index: 102;
 }
 
 
@@ -53,6 +54,5 @@
   position: relative;
 }
 .svgmap-junction {
-  background: #eee;
   z-index: 101;
 }

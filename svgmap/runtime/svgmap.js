@@ -55,7 +55,38 @@ return function SvgMap(options){
     return paths[0];
   }
 
-  function findPaths(from, to, path, backtrack, visited){
+  function findPaths(from, to, path, backtrack){
+    var visited = [];
+    var paths = path ? [path] : [[from]];
+    var ite = 0;
+    while(visited.indexOf(to) == -1 && ite < 100){
+      ite++;
+      var newPaths = [];
+      for(var i=0; i < paths.length; i++){
+        var path = paths[i];
+        var last = path[path.length-1];
+        var prev = path.length > 1 ? path[path.length-2] : null;
+        for(var n = 0; n < last.connected.length; n++){
+          var c = last.connected[n];
+          if(c !== prev && visited.indexOf(c) == -1){
+            if(!backtrack && (path.indexOf(c) > -1 || c.visited && last.visited)) continue;
+            if(backtrack && (path.indexOf(c) > -1 || !c.visited && !last.visited)) continue;
+            visited.push(c);
+            var newPath = path.slice();
+            newPath.push(c);
+            newPaths.push(newPath);
+            if(c == to){
+              return [newPath]
+            }
+          }
+        }
+      }
+      paths = newPaths;
+    }
+    return [];
+  }
+
+  function findPaths2(from, to, path, backtrack, visited){
     visited = visited ? visited.slice() : [];
     path = path ? path.slice() : [];
     var paths = [];
@@ -72,7 +103,6 @@ return function SvgMap(options){
         Array.prototype.push.apply(paths, findPaths(node, to, path, backtrack, visited));
       });
     }
-
     return paths;
   }
 
