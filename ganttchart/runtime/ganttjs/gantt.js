@@ -150,7 +150,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       var ld = new Date(dateStart);
       var d = new Date(dateStart);
       var i = 0;
-
+      var moreDays = 0;
       while(tdc < options.period){
 
         if(d.getHours() > options.dayEnd){
@@ -159,7 +159,6 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         }
 
         if(options.useHours){
-          console.log(tdc, options.period)
           var nd = new Date(d.getTime() + dateIncrement);
           $th = $('<th>', {text: time(d)+( options.showTimeRange ? '-'+time(nd) : '')});
           $timeTr.append($th);
@@ -183,6 +182,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
 
           $th.attr('colspan', c);
           $weekdayTr.append($th);
+          moreDays++;
           c = 0;
           tdc++;
         }
@@ -214,7 +214,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       var ret = [];
 
       if(options.months) ret.push($monthTr);
-      if(dateStart.getDate() != ld.getDate() || dateStart.getMonth() != ld.getMonth()) ret.push($dateTr);
+      if(moreDays > 1) ret.push($dateTr);
       if(options.weekDays) ret.push($weekdayTr);
       if(options.useHours) ret.push($timeTr);
 
