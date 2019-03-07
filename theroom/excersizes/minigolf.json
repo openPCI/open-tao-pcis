@@ -45,6 +45,10 @@
     {
       "model" : "minigolf/toblerone.glb",
       "count" : 100
+    },
+    {
+      "model" : "minigolf/tilt.glb",
+      "count" : 100
     }
   ]
 }
