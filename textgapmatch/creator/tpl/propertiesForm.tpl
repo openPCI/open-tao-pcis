@@ -8,7 +8,7 @@
     <input name="backdrop" type="text" class="imageurl" value="{{backdrop}}" />
     <input type="file" name="background_uploader" class="bgupload" />
     <div><input type="checkbox" name="infiniteTexts" {{#if infiniteTexts}}checked{{/if}} /><label for="infiniteTexts">Uendelig tekster</label></div>
-    <div><input type="checkbox" name="numbering" {{#if numbering}}checked{{/if}} /><label for="infiniteTexts">Nummerering</label></div>
+    <div><input type="checkbox" name="numbering" {{#if numbering}}checked{{/if}} /><label for="numbering">Nummerering</label></div>
     <label>Pladser i dropzone</label>
     <input name="maxDropped" type="text" value="{{maxDropped}}" />
     <label>Ekstra CSS styling</label>

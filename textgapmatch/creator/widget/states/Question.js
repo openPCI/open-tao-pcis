@@ -47,7 +47,7 @@ define([
             maxDropped: interaction.prop('maxDropped'),
             droppedStyle: interaction.prop('droppedStyle'),
             infiniteTexts: interaction.prop('infiniteTexts'),
-            numbering: interaction.prop('numbering');
+            numbering: interaction.prop('numbering')
         }));
 
         function _arrayBufferToBase64( buffer ) {

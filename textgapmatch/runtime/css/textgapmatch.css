@@ -32,6 +32,9 @@
   background-color: rgba(0,0,255,0.1);
 
 }
+.gapmatch-dragging {
+  opacity: 0.5;
+}
 .gapmatch-string {
   border: 1px solid #666;
   background: #fff;
@@ -44,4 +47,8 @@
 }
 .gapmatch-strings .gapmatch-number {
   display:none;
+}
+
+.gapmatch-number {
+  margin-right: 10px;
 }

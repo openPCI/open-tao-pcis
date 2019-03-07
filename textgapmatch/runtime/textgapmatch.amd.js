@@ -3,7 +3,7 @@
 Build by Wiquid's PCI Generator for TAO platform Free to use
  */
 
-define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', 'textgapmatch/runtime/gapmatch'], function(qtiCustomInteractionContext, $, event, GapMatch){
+define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', 'textgapmatch/runtime/gapmatch','textgapmatch/runtime/DragDropTouch'], function(qtiCustomInteractionContext, $, event, GapMatch){
     'use strict';
 
     var gapmatch;
