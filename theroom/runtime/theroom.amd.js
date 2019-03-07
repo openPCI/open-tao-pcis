@@ -55,6 +55,12 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                   type :'loadExcersize',
                   value : config.excersize
                 },'*');
+                if(config.scoringFunction){
+                  $iframe[0].contentWindow.postMessage({
+                    type: 'setScoringFunction',
+                    value : config.scoringFunction
+                  },'*');
+                }
               }
             };
             window.addEventListener('message', messageListener);

@@ -8,6 +8,7 @@ var boundingbox;
 var raycaster = new THREE.Raycaster();
 var hudRaycaster = new THREE.Raycaster();
 var renderer = new THREE.WebGLRenderer();
+var scoringFunction = function(){};
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.setClearColor( 0xeeeeee );
 renderer.shadowMap.enabled = true;
@@ -70,7 +71,9 @@ function sendMessage(type, value){
 }
 
 function postResult(){
-  sendMessage('updateResult', JSON.stringify(serializeMoveables()));
+  var result = {scene:serializeMoveables(),score:scoringFunction(Scoring)};
+  console.log(result);
+  sendMessage('updateResult', JSON.stringify(result));
 }
 
 function serializeMoveables(){
@@ -91,7 +94,6 @@ function deserializeMoveables(data){
   hud.reset();
   data.objects.forEach(function(info){
     loadGLtf(info.id, function(gltf){
-      modifyModel(gltf.scene);
       scene.add(gltf.scene);
       gltf.scene.position.fromArray(info.pos);
       gltf.scene.rotation.fromArray(info.rot);
@@ -208,7 +210,9 @@ function loadExcersize(definitionUrl){
       }
       loadMoveable(asset.model, asset.count || 1, loadNext);
     }
-
+    if(json.scoringFunction){
+      setScoringFunction(json.scoringFunction);
+    }
     loadNext();
   }
 
@@ -244,10 +248,15 @@ function loadScene(file){
     gltf.scene.traverse(function(o){
       if(o instanceof THREE.Mesh){
         if(o.name && /glass/.test(o.name)) return;
+        if(o.name && /zone/.test(o.name)){
+          o.visible = false;
+          return;
+        }
         o.receiveShadow = true;
         o.castShadow = true;
       }
     });
+
     gltf.scene.collisionStatic = true;
     scene.add(gltf.scene);
     var bbobj = scene.getObjectByName('boundingbox');
@@ -531,10 +540,14 @@ function onPostMessage(event){
         loadExcersize(event.data.value);
       break;
       case 'setScoringFunction':
-        scoringFunction = eval('('+ event.data.value +')');
+        setScoringFunction(event.data.value);
       break;
     }
   }
+}
+
+function setScoringFunction(funcString){
+  scoringFunction = eval('('+ funcString +')');
 }
 
 function onPaste(e){
@@ -851,5 +864,5 @@ document.addEventListener("DOMContentLoaded", function(){
   isTouch();
   setHelpText();
   sendMessage('ready', 1);
-  if(window === window.parent) loadExcersize('butik.json');
+  if(window === window.parent) loadExcersize('restaurant.json');
 });
