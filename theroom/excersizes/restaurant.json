@@ -1,6 +1,6 @@
 {
   "scene" : "restaurant/room.gltf",
-  "scoringFunction": "function(scoring){\n  var score= 0;\n  score += Scoring.areaTest('playarea','playcorner') * 5;\n  if(Scoring.collisionTest('.','.')) score -= 30;\n  score += Scoring.wallSnapTest('fortwo')*5;\n  score += Scoring.ACloserThanB('table.gltf','fortwo','playcorner') * 10;\n  score += Scoring.areaTest('buffetzone', 'buffet')*8;\n  score -= Scoring.areaTest('doortablezone', 'table')*8;\n  return score;\n}",
+  "scoringFunction": "function(scoring){\n return [\n\tScoring.areaTest('playarea','playcorner') ? 1 : 0,\n    Scoring.collisionTest('.','.') ? 0 : 1,\n    Scoring.wallSnapTest('fortwo'),\n    Scoring.ACloserThanB('table.gltf', 'fortwo','playcorner'),\n    Scoring.areaTest('buffetzone', 'buffet'),\n    Scoring.areaTest('doortablezone', 'table')\n  ];\n  return score;\n}",
   "assets":[
     {
       "model" : "restaurant/table.gltf",

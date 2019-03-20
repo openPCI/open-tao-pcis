@@ -9,6 +9,7 @@ var raycaster = new THREE.Raycaster();
 var hudRaycaster = new THREE.Raycaster();
 var renderer = new THREE.WebGLRenderer();
 var scoringFunction = function(){};
+var excersizeUrl;
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.setClearColor( 0xeeeeee );
 renderer.shadowMap.enabled = true;
@@ -70,10 +71,11 @@ function sendMessage(type, value){
     },'*');
 }
 
-function postResult(){
-  var result = {scene:serializeMoveables(),score:scoringFunction(Scoring)};
-  console.log(result);
-  sendMessage('updateResult', JSON.stringify(result));
+function postResult(rescore){
+  var result = serializeMoveables();
+  result.score = scoringFunction(Scoring);
+
+  sendMessage(rescore?'rescore':'updateResult', JSON.stringify(result));
 }
 
 function serializeMoveables(){
@@ -86,19 +88,24 @@ function serializeMoveables(){
     }
     result.push(obj);
   });
-  return {scene: scenePath, objects: result};
+  return {excersize: excersizeUrl, scene: scenePath, objects: result};
 }
 
-function deserializeMoveables(data){
-  loadScene(data.scene);
-  hud.reset();
-  data.objects.forEach(function(info){
-    loadGLtf(info.id, function(gltf){
-      scene.add(gltf.scene);
-      gltf.scene.position.fromArray(info.pos);
-      gltf.scene.rotation.fromArray(info.rot);
-    })
-  });
+function deserializeMoveables(data, callback){
+  if(data.excersize) loadExcersize(data.excersize, data.objects, callback);
+  // else {
+  //   hud.reset();
+  //   function cb(){
+  //     data.objects.forEach(function(info){
+  //       loadGLtf(info.id, function(gltf){
+  //         addMoveable(gltf.scene, false);
+  //         gltf.scene.position.fromArray(info.pos);
+  //         gltf.scene.rotation.fromArray(info.rot);
+  //       });
+  //     });
+  //   }
+  //   loadScene(data.scene, cb);
+  // }
 }
 
 /**
@@ -185,10 +192,20 @@ function clearThree(obj){
 }
 
 
-function loadExcersize(definitionUrl){
+function loadExcersize(definitionUrl, objects, cb){
   var xmlhttp = new XMLHttpRequest();
+  excersizeUrl = definitionUrl;
 
-  function readDefinition(json){
+  hud.reset();
+
+  while(scene.children.length > 0){
+    scene.remove(scene.children[0]);
+  }
+
+  moveables = [];
+
+  function readDefinition(json, callback){
+    if(objects) json.objects = objects;
     loadScene(json.scene);
 
     var loadNext = function(){
@@ -206,10 +223,12 @@ function loadExcersize(definitionUrl){
             }
           });
         }
+        if(callback) callback();
         return;
       }
       loadMoveable(asset.model, asset.count || 1, loadNext);
     }
+
     if(json.scoringFunction){
       setScoringFunction(json.scoringFunction);
     }
@@ -218,7 +237,7 @@ function loadExcersize(definitionUrl){
 
   xmlhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
-          readDefinition(JSON.parse(this.responseText));
+          readDefinition(JSON.parse(this.responseText), cb);
       }
   };
 
@@ -232,7 +251,7 @@ function loadExcersize(definitionUrl){
  * @param  {type} file GLTF scene to load
  * @return {undefined}
  */
-function loadScene(file){
+function loadScene(file, cb){
   clearThree(scene);
 
   loadGLtf(file, function(gltf){
@@ -269,7 +288,8 @@ function loadScene(file){
 
     addLighting(scene, room.userData.light_intensity || 1);
     addCameraHelper();
-    animate();
+
+    if(cb) cb();
   });
 }
 
@@ -362,6 +382,7 @@ function addMoveable(group, static){
     group.position.z = movePlanePosition.z;
   }
 
+  return group;
 }
 
 function removeMoveable(group){
@@ -541,6 +562,14 @@ function onPostMessage(event){
       break;
       case 'setScoringFunction':
         setScoringFunction(event.data.value);
+      break;
+      case 'rescore':
+        var serialized = event.data.value;
+        if((serialized.scene || serialized.excersize) && serialized.objects){
+          deserializeMoveables(serialized, function(){
+            postResult(true);
+          });
+        }
       break;
     }
   }
@@ -768,6 +797,9 @@ function behavior(obj, listener, params){
 var clock = new THREE.Clock();
 
 var animate = function () {
+  requestAnimationFrame( animate );
+  if(!lookObject) return;
+
   var deltaTime = clock.getDelta();
   //play animations
   scene.children.forEach(function(o){
@@ -826,7 +858,6 @@ var animate = function () {
 
   hud.render();
 
-	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
 };
 
@@ -864,5 +895,6 @@ document.addEventListener("DOMContentLoaded", function(){
   isTouch();
   setHelpText();
   sendMessage('ready', 1);
-  if(window === window.parent) loadExcersize('restaurant.json');
+  if(window === window.parent) loadExcersize('museum.json', null, animate);
+  else animate();
 });

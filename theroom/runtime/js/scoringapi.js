@@ -193,13 +193,7 @@ var Scoring = new (function(){
       var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
       var raycaster = new THREE.Raycaster( snapperPos, v, 0, 1);
       var result = raycaster.intersectObjects(otherSnappers);
-      if(result.length){
-        if(result[0].distance < finalDist){
-          finalSnapper = snapper;
-          finalOther = result[0].object;
-          finalDist = result[0].distance;
-        }
-      } else {
+      if(!result.length){
         finalResult++;
       }
     });

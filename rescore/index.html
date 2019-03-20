@@ -1,0 +1,197 @@
+<!doctype HTML>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="ui-style.css" />
+    <script src="PapaParse-4.6.0/papaparse.js">
+    </script>
+    <style>
+     .optform input, .optform select {
+       width:300px;
+     }
+     #columns {
+       overflow-x: scroll;
+     }
+     #columns td {
+       white-space: nowrap;
+     }
+     #columns table {
+       border-collapse: collapse;
+     }
+     #columns td {
+       border: 1px solid gray;
+     }
+    </style>
+  </head>
+  <body>
+    <div class="collapsable">
+      <h2>CSV Data og kørsel</h2>
+      <div class="content optform">
+        <div>
+          <label>CSV Data</label>
+          <input type="file" id="fileUpload">
+        </div>
+        <div>
+          <label>Kørsel</label>
+          <select id="excersize">
+            <option value="recalculateRoomExcersize">Room (3D)</option>
+          </select>
+        </div>
+        <div>
+          <label>Kolonne</label>
+          <input type="text" id="column" value="112">
+        </div>
+        <div>
+          <label>Excersize fix (?)</label>
+          <input type="text" id="excersizeFix" value="">
+        </div>
+        <div>
+          <button id="runBtn" class="primary">Kør</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="collapsable">
+      <h2>Kolonner</h2>
+      <div class="content" id="columns">
+
+      </div>
+    </div>
+    <div class="collapsable">
+      <h2>Øvelse</h2>
+      <div class="content">
+        <iframe width="800" height="600" id="playarea" src="http://localhost/open-tao-pcis/theroom/runtime/theroom.html"></iframe>
+      </div>
+    </div>
+    <script>
+      var iframe = document.getElementById('playarea');
+      var messageListeners = [];
+      var data;
+      window.addEventListener('message', function(event){
+        while(messageListeners.length > 0){
+          var handler = messageListeners[messageListeners.length-1];
+          if(handler.type == event.data.type)
+          handler.cb(event);
+          messageListeners.pop();
+        }
+      });
+
+      document.getElementById('fileUpload').addEventListener('change', function(e){
+        var file = this.files[0];
+
+        var papa = Papa.parse(file, {
+          complete: function(results) {
+            data = results.data;
+            buildColumns(data[0]);
+          }
+        });
+
+      });
+
+      function buildColumns(row){
+        var table = document.createElement('table');
+        var tr1 = document.createElement('tr');
+        var tr2 = document.createElement('tr');
+        table.appendChild(tr1);
+        table.appendChild(tr2);
+        row.forEach(function(s, i){
+          var td1 = document.createElement('td');
+          td1.innerText = i;
+
+          var td2 = document.createElement('td');
+          td2.innerText = s;
+
+          tr1.appendChild(td1);
+          tr2.appendChild(td2);
+        });
+        var container = document.getElementById('columns');
+        container.innerHTML = '';
+        container.appendChild(table);
+      }
+
+
+
+      function sendMessage(type, value){
+        if(window.parent)
+          iframe.contentWindow.postMessage({
+            type: type,
+            value: value
+          },'*');
+      }
+
+      function onceMessage(type, cb){
+        messageListeners.push({type:type, cb:cb});
+      }
+
+      function recalculateRoomExcersize(row, column, callback){
+
+        onceMessage('rescore', function(event){
+          console.log(event)
+          row[column] = JSON.stringify(event.data.value);
+          setTimeout(callback, 10);
+        });
+        try {
+          sendMessage('rescore', JSON.parse(row[column]));
+        } catch(e){
+          console.log('JSON PARSE ERROR', row[column]);
+          callback();
+        }
+      }
+
+      function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+      }
+
+
+      function run(){
+        var column = document.getElementById('column').value;
+        var excersize = document.getElementById('excersizeFix').value;
+
+        function done(){
+          console.log('done', data);
+
+          download('results.csv', Papa.unparse(data, {
+            quotes: true, //or array of booleans
+            quoteChar: '"',
+            escapeChar: '"',
+            delimiter: ";",
+            header: true,
+            newline: "\r\n",
+            skipEmptyLines: false, //or 'greedy',
+          }));
+        }
+
+        var i = 0;
+        function next(){
+          i++;
+          console.log(i ,'...')
+          if(i == data.length) return done();
+          if(excersize){
+            try {
+              var d = JSON.parse(data[i][column]);
+              d.excersize = excersize;
+              data[i][column] = JSON.stringify(d);
+            } catch(e){
+              console.log('JSON PARSE ERROR', e, data[i][column]);
+              next();
+              return;
+            }
+          }
+          recalculateRoomExcersize(data[i], column, next);
+        }
+    		next();
+
+      }
+      document.getElementById('runBtn').addEventListener('click',run);
+    </script>
+  </body>
+</html>

@@ -1,4 +1,5 @@
 {
+  "scoringFunction": "function(scoring){\n  return {\n    blaa_stole: Scoring.find('blue').length,\n    taepper: Scoring.find('rug').length,\n    taepper_i_zone: Scoring.areaTest('carpet', 'rug'),\n    kollisioner: Scoring.collisionTest('seat','seat')\n  };\n}",
   "scene" : "teater/theater.gltf",
   "assets":[
       {

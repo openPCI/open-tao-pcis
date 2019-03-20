@@ -88,6 +88,7 @@ var GameHud = function(){
       hudScene.remove(prop.prop);
     });
     droppableProps = [];
+    this.droppables = droppableProps;
   }
 
   function removeDroppable(info){
