@@ -11,6 +11,9 @@
      }
      #columns {
        overflow-x: scroll;
+       overflow-y: scroll;
+       height: 300px;
+
      }
      #columns td {
        white-space: nowrap;
@@ -21,7 +24,25 @@
      #columns td {
        border: 1px solid gray;
      }
+
+     #csvRowNum {
+       width:50px;
+       text-align:center;
+     }
+     .taskoptions {
+       display:none;
+     }
+     textarea {
+       width:400px;
+       height: 200px;
+     }
     </style>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+    <script src="../svgmap/runtime/svgmap.js"></script>
+
   </head>
   <body>
     <div class="collapsable">
@@ -33,20 +54,31 @@
         </div>
         <div>
           <label>Kørsel</label>
-          <select id="excersize">
-            <option value="recalculateRoomExcersize">Room (3D)</option>
+          <select id="task">
+            <option value="taskRecalculateRoomExcersize">Room (3D)</option>
+            <option value="taskRecalculateSvgMap">SvgMap</option>
           </select>
         </div>
         <div>
           <label>Kolonne</label>
-          <input type="text" id="column" value="112">
+          <input type="text" id="column" value="110">
         </div>
-        <div>
-          <label>Excersize fix (?)</label>
-          <input type="text" id="excersizeFix" value="">
+        <div id="taskRecalculateRoomExcersize" class="taskoptions">
+          <div>
+            <label>Excersize fix (?)</label>
+            <input type="text" id="excersizeFix" value="restaurant.json">
+          </div>
         </div>
-        <div>
-          <button id="runBtn" class="primary">Kør</button>
+        <div id="taskRecalculateSvgMap" class="taskoptions">
+          <label>Scorings function (?)</label>
+          <textarea id="mapScoringFunc">
+              function(){
+
+              }
+          </textarea>
+        </div>
+        <div class="fuse">
+          <button id="runBtn">Kør</button><button id="saveBtn">Gem</button>
         </div>
       </div>
     </div>
@@ -60,19 +92,26 @@
     <div class="collapsable">
       <h2>Øvelse</h2>
       <div class="content">
-        <iframe width="800" height="600" id="playarea" src="http://localhost/open-tao-pcis/theroom/runtime/theroom.html"></iframe>
+        <div id="playarea"></div>
+        <div class="controls fuse">
+          <button id="prevBtn">«</button><input type="text" id="csvRowNum" value="0"/><button id="nextBtn">»</button>
+        </div>
       </div>
     </div>
     <script>
-      var iframe = document.getElementById('playarea');
-      var messageListeners = [];
+      var messageListeners = {};
       var data;
+      var currentRow = 0;
+
+
       window.addEventListener('message', function(event){
-        while(messageListeners.length > 0){
-          var handler = messageListeners[messageListeners.length-1];
-          if(handler.type == event.data.type)
-          handler.cb(event);
-          messageListeners.pop();
+        var type = event.data.type;
+        if(messageListeners[type])
+        while(messageListeners[type].length > 0){
+          var handler = messageListeners[type][messageListeners[type].length-1];
+          console.log(messageListeners);
+          handler(event);
+          messageListeners[type].pop();
         }
       });
 
@@ -82,37 +121,54 @@
         var papa = Papa.parse(file, {
           complete: function(results) {
             data = results.data;
-            buildColumns(data[0]);
+            buildDataTable(data);
           }
         });
 
       });
 
-      function buildColumns(row){
+      function showTaskOptions(){
+        document.querySelectorAll('.taskoptions').forEach(function(e){
+          e.style.display='none';
+        });
+        document.getElementById(document.getElementById('task').value).style.display = 'block';
+      }
+      showTaskOptions();
+      document.getElementById('task').addEventListener('change', showTaskOptions);
+
+      function buildDataTable(rows){
         var table = document.createElement('table');
-        var tr1 = document.createElement('tr');
-        var tr2 = document.createElement('tr');
-        table.appendChild(tr1);
-        table.appendChild(tr2);
-        row.forEach(function(s, i){
-          var td1 = document.createElement('td');
-          td1.innerText = i;
+        var tr = document.createElement('tr');
+        for(var i=0; i<rows[0].length;i++){
+          var td = document.createElement('td');
+          td.innerText = i;
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+        rows.forEach(function(row){
+          var tr1 = document.createElement('tr');
+          var tr2 = document.createElement('tr');
 
-          var td2 = document.createElement('td');
-          td2.innerText = s;
+          table.appendChild(tr2);
+          row.forEach(function(s, i){
+            var td1 = document.createElement('td');
+            td1.innerText = i;
 
-          tr1.appendChild(td1);
-          tr2.appendChild(td2);
+            var td2 = document.createElement('td');
+            td2.innerText = s;
+
+            tr1.appendChild(td1);
+            tr2.appendChild(td2);
+          });
         });
         var container = document.getElementById('columns');
         container.innerHTML = '';
         container.appendChild(table);
       }
 
-
-
       function sendMessage(type, value){
         if(window.parent)
+          var iframe = document.querySelector('#playarea iframe');
           iframe.contentWindow.postMessage({
             type: type,
             value: value
@@ -120,20 +176,20 @@
       }
 
       function onceMessage(type, cb){
-        messageListeners.push({type:type, cb:cb});
+        if(!messageListeners[type]) messageListeners[type] = [];
+        messageListeners[type].push(cb);
       }
 
       function recalculateRoomExcersize(row, column, callback){
-
         onceMessage('rescore', function(event){
-          console.log(event)
-          row[column] = JSON.stringify(event.data.value);
+          console.log('rescore');
+          row[column] = event.data.value;
           setTimeout(callback, 10);
         });
         try {
           sendMessage('rescore', JSON.parse(row[column]));
         } catch(e){
-          console.log('JSON PARSE ERROR', row[column]);
+          console.log('JSON PARSE ERROR', e);
           callback();
         }
       }
@@ -151,47 +207,80 @@
         document.body.removeChild(element);
       }
 
-
-      function run(){
+      function runTask(){
+        var task = document.getElementById('task').value;
         var column = document.getElementById('column').value;
-        var excersize = document.getElementById('excersizeFix').value;
-
+        var playarea = document.getElementById('playarea');
         function done(){
           console.log('done', data);
-
-          download('results.csv', Papa.unparse(data, {
-            quotes: true, //or array of booleans
-            quoteChar: '"',
-            escapeChar: '"',
-            delimiter: ";",
-            header: true,
-            newline: "\r\n",
-            skipEmptyLines: false, //or 'greedy',
-          }));
+          buildDataTable(data);
         }
-
-        var i = 0;
-        function next(){
-          i++;
-          console.log(i ,'...')
-          if(i == data.length) return done();
-          if(excersize){
-            try {
-              var d = JSON.parse(data[i][column]);
-              d.excersize = excersize;
-              data[i][column] = JSON.stringify(d);
-            } catch(e){
-              console.log('JSON PARSE ERROR', e, data[i][column]);
-              next();
-              return;
-            }
-          }
-          recalculateRoomExcersize(data[i], column, next);
-        }
-    		next();
-
+        window[task](data, column, playarea, done);
       }
-      document.getElementById('runBtn').addEventListener('click',run);
+
+
+      function taskRecalculateSvgMap(data, column, playarea, done){
+        playarea.innerHTML = '';
+        data.forEach(function(row){
+
+        });
+      }
+
+      function taskRecalculateRoomExcersize(data, column, playarea, done){
+        var excersize = document.getElementById('excersizeFix').value;
+        playarea.innerHTML = '<iframe width="800" height="600" src="http://localhost/open-tao-pcis/theroom/runtime/theroom.html"></iframe>';
+        var i = -1;
+        onceMessage('ready', function(){
+          console.log('ready');
+          function next(){
+            i++;
+            if(i >= data.length) return done();
+            console.log(data.length, i);
+            if(excersize){
+              try {
+                var d = JSON.parse(data[i][column]);
+                d.excersize = excersize;
+                data[i][column] = JSON.stringify(d);
+              } catch(e){
+                console.log(e);
+                next();
+                return;
+              }
+            }
+            recalculateRoomExcersize(data[i], column, next);
+          }
+      		next();
+        });
+      }
+
+      function loadCurrentRow(){
+        var task = document.getElementById('task').value;
+        var column = document.getElementById('column').value;
+        var playarea = document.getElementById('playarea');
+        window[task]([data[currentRow]], column, playarea, function(){});
+      }
+
+      document.getElementById('nextBtn').addEventListener('click', function(){
+        currentRow++;
+        loadCurrentRow();
+      });
+      document.getElementById('prevBtn').addEventListener('click', function(){
+        currentRow--;
+        loadCurrentRow();
+      })
+      document.getElementById('runBtn').addEventListener('click',runTask);
+
+      document.getElementById('saveBtn').addEventListener('click', function(){
+        download('results.csv', Papa.unparse(data, {
+          quotes: true, //or array of booleans
+          quoteChar: '"',
+          escapeChar: '"',
+          delimiter: ";",
+          header: true,
+          newline: "\r\n",
+          skipEmptyLines: false, //or 'greedy',
+        }));
+      });
     </script>
   </body>
 </html>

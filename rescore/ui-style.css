@@ -103,20 +103,20 @@ body {
 .fuse > * {
   border-top-left-radius: 0px !important;
   border-bottom-left-radius: 0px !important;
-  margin-left: 0px;
+  margin-left: 0px !important;
   border-top-right-radius: 0px !important;
   border-bottom-right-radius: 0px !important;
-  margin-right: 0px;
+  margin-right: 0px !important;
 }
 .fuse > *:last-child {
   border-top-right-radius: 8px !important;
   border-bottom-right-radius: 8px !important;
-  margin-left: 0px;
+  margin-left: 0px !important;
 }
 .fuse > *:first-child {
   border-top-left-radius: 8px !important;
   border-bottom-left-radius: 8px !important;
-  margin-right: 0px;
+  margin-right: 0px !important;
 }
 
 legend {
