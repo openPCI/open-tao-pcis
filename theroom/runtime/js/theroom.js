@@ -197,42 +197,43 @@ function loadExcersize(definitionUrl, objects, cb){
   excersizeUrl = definitionUrl;
 
   hud.reset();
-
-  while(scene.children.length > 0){
-    scene.remove(scene.children[0]);
-  }
-
+  clearThree(scene);
   moveables = [];
 
   function readDefinition(json, callback){
     if(objects) json.objects = objects;
-    loadScene(json.scene);
+    loadScene(json.scene, function(){
 
-    var loadNext = function(){
-      var asset = json.assets.shift();
-      if(!asset){
-        if(json.objects){
-          json.objects.forEach(function(object){
-            var info = hud.getDroppableByName(object.id);
-            if(hud.placeDroppable(info)){
-              var prop = info.gltf.scene.clone();
-              prop.info = info;
-              addMoveable(prop, object.static);
-              prop.position.fromArray(object.pos);
-              prop.rotation.fromArray(object.rot);
-            }
-          });
+      var loadNext = function(){
+        var asset = json.assets.shift();
+        if(!asset){
+          if(json.objects){
+            json.objects.forEach(function(object){
+              var info = hud.getDroppableByName(object.id);
+              if(hud.placeDroppable(info)){
+                var prop = info.gltf.scene.clone();
+                prop.info = info;
+                addMoveable(prop, object.static);
+                prop.position.fromArray(object.pos);
+                prop.rotation.fromArray(object.rot);
+                startAnimation(prop);
+                addOutline(prop);
+                removeOutline(prop);
+                movingObject = prop;
+              }
+            });
+          }
+          if(callback) callback();
+          return;
         }
-        if(callback) callback();
-        return;
+        loadMoveable(asset.model, asset.count || 1, loadNext);
       }
-      loadMoveable(asset.model, asset.count || 1, loadNext);
-    }
 
-    if(json.scoringFunction){
-      setScoringFunction(json.scoringFunction);
-    }
-    loadNext();
+      if(json.scoringFunction){
+        setScoringFunction(json.scoringFunction);
+      }
+      loadNext();
+    });
   }
 
   xmlhttp.onreadystatechange = function() {
@@ -252,8 +253,6 @@ function loadExcersize(definitionUrl, objects, cb){
  * @return {undefined}
  */
 function loadScene(file, cb){
-  clearThree(scene);
-
   loadGLtf(file, function(gltf){
     scenePath = file;
 
@@ -363,7 +362,6 @@ function addMoveable(group, static){
       o.material = o.material.clone();
     }
   });
-
   scene.add(group);
   moveables.push(group);
   if(!static){
@@ -422,7 +420,7 @@ function modifyModel(scene){
 function loadMoveable(asset, count, callback){
   loadGLtf(asset, function(gltf){
     // Force shadows on and handle special case with glass
-    modifyModel(gltf.scene)
+    modifyModel(gltf.scene);
 
     hud.addDroppable(gltf, count, asset);
     if(callback) callback();
@@ -895,6 +893,6 @@ document.addEventListener("DOMContentLoaded", function(){
   isTouch();
   setHelpText();
   sendMessage('ready', 1);
-  if(window === window.parent) loadExcersize('museum.json', null, animate);
+  if(window === window.parent) loadExcersize('minigolf.json', null, animate);
   else animate();
 });

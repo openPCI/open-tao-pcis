@@ -1,6 +1,7 @@
 
 {
   "scoringFunction" : "function(scoring){\n  return {\n    start: Scoring.find('start').length,\n\thuller: Scoring.find('end').length,\n\tspecial: Scoring.find('mill|obstacle|toblerone|loop').length,\n    hjoerner: Scoring.find('bend').length,\n    ramper: Scoring.find('ramp').length,\n    loese_ender: Scoring.noSnap('.'),\n    brikker: Scoring.find('.').length\n  };\n}",
+  "objects": [],
   "scene" : "minigolf/scene.glb",
   "assets":[
     {

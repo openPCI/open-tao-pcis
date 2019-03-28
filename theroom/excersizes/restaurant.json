@@ -1,6 +1,6 @@
 {
   "scene" : "restaurant/room.gltf",
-  "scoringFunction": "function(scoring){\n return [\n\tScoring.areaTest('playarea','playcorner') ? 1 : 0,\n    Scoring.collisionTest('.','.') ? 0 : 1,\n    Scoring.wallSnapTest('fortwo'),\n    Scoring.ACloserThanB('table.gltf', 'fortwo','playcorner'),\n    Scoring.areaTest('buffetzone', 'buffet'),\n    Scoring.areaTest('doortablezone', 'table')\n  ];\n  return score;\n}",
+  "scoringFunction": "function fu(scoring){\n return {\n\tlegetaeppe_hjoerne: Scoring.areaTest('playarea','playcorner') ? 1 : 0,\n    kollisioner: Scoring.collisionTest('.','.') ? 0 : 1,\n    borde_snap_vaeg: Scoring.wallSnapTest('fortwo'),\n    fam_borde_legehjoerne: Scoring.ACloserThanB('table.gltf', 'fortwo','playcorner'),\n    buffet_i_zone: Scoring.areaTest('buffetzone', 'buffet'),\n    toilet_blokeret: Scoring.areaTest('doortablezone', 'table')\n};\n  return score;\n}",
   "assets":[
     {
       "model" : "restaurant/table.gltf",
