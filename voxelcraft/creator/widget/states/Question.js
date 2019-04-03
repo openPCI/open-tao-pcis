@@ -43,6 +43,7 @@ define([
             serial : response.serial,
             colors: interaction.prop('colors'),
             scene: interaction.prop('scene'),
+            scoring: interaction.prop('scoring'),
             gameUrl: interaction.prop('gameUrl'),
             identifier : interaction.attr('responseIdentifier')
         }));
@@ -59,6 +60,10 @@ define([
             scene : function(interaction, value){
                 interaction.prop('scene', value);
                 interaction.triggerPci('cfgChange', ['scene',value]);
+            },
+            scoring : function(interaction, value){
+                interaction.prop('scoring', value);
+                interaction.triggerPci('cfgChange', ['scoring',value]);
             },
             gameUrl: function(interaction, value){
                 interaction.prop('gameUrl', value);

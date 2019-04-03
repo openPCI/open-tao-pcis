@@ -72,6 +72,11 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                     type :'setPalette',
                     value : config.colors.split('\n')
                   },'*');
+                  if(config.scoring)
+                  $iframe[0].contentWindow.postMessage({
+                    type: 'setScoringFunction',
+                    value: config.scoring
+                  });
                   try {
                     var scene = JSON.parse(config.scene)
                     $iframe[0].contentWindow.postMessage({

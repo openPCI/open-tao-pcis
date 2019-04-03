@@ -227,7 +227,55 @@ var Scoring = new (function(){
     return result;
   }
 
-  this.ACloserThanB = function(objTypeA,objTypeB,targetType){
+
+  function closestDistance(from, to){
+    var res = [];
+    var froms = findByType(from);
+    var tos = findByType(to);
+    froms.forEach(function(obj){
+      var dist = 99999999;
+      tos.forEach(function(other){
+        var d = obj.position.clone().sub(other.position).length();
+        if(d < dist){
+          dist = d;
+        }
+      });
+      res.push(dist);
+    });
+
+    return res;
+  }
+
+  this.closestDistance = closestDistance;
+
+
+  /**
+   * closerThanOthers - Returns 1 if `type` object is closer to `target` than `others` objects
+   *
+   * @param  {type} type   Object
+   * @param  {type} others Other objects
+   * @param  {type} target target object
+   * @return {type}        description
+   */
+  function closerThanOthers(type, others, target){
+    var obj = findByType(type)[0];
+    var otherObjs = findByType(others);
+    var targetObj = findByType(target)[0];
+
+    var dist = 9999999999;
+    otherObjs.forEach(function(o){
+      if(o == targetObj || o == obj) return;
+      var d = o.position.clone().sub(targetObj.position).length();
+      if(d < dist) dist = d;
+    });
+
+    var objDist = obj.position.clone().sub(targetObj.position).length();
+    return objDist <= dist ? 1 : 0;
+  }
+
+  this.closerThanOthers = closerThanOthers;
+
+  function ACloserThanB(objTypeA,objTypeB,targetType){
     var objsA = findByType(objTypeA);
     var objsB = findByType(objTypeB);
     var target = findByType(targetType)[0];
@@ -256,5 +304,5 @@ var Scoring = new (function(){
     if(distA < distB) return 1;
     else return 0;
   }
-
+  this.ACloserThanB = ACloserThanB;
 })();

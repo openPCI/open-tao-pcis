@@ -108,6 +108,8 @@
         control: 17
       }
 
+      var scoringFunction = function(){};
+
       var mouseDelta = new THREE.Vector2();
       var lastMouse = new THREE.Vector2();
 
@@ -403,6 +405,9 @@
             case 'setScene':
               setScene(event.data.value, true);
             break;
+            case 'setScoringFunction':
+              scoringFunction = eval('(' + event.data.value + ')');
+            break;
           }
         }
       }
@@ -498,7 +503,7 @@
         setTimeout(function(){
           window.parent.postMessage({
             type: 'updateResult',
-            value: getScene(),
+            value: {data: getScene(), score: scoringFunction()},
           },"*");
         },10);
       }
