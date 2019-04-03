@@ -8,7 +8,7 @@
   text-align: center;
 }
 .wordgame-table table {
-  width: 100%;
+  margin:auto;
 }
 .wordgame-cell {
   background: skyblue;
