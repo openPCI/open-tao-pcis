@@ -1,5 +1,4 @@
 .wordgame {
-  background: darkblue;
   padding: 10px;
   font-size: 16px;
 }
@@ -11,20 +10,16 @@
   margin:auto;
 }
 .wordgame-cell {
-  background: skyblue;
+  background: #5cc5e3;
   height:45px;
-  box-shadow: 1px 1px 10px black;
   box-sizing: border-box;
-  border-radius: 7px;
+  border: 1px solid #004c6e;
   font-size: 14px;
   text-align: center;
   overflow:hidden;
 }
-.wordgame-cell:hover {
-  background: lightskyblue;
-}
 .wordgame-texts {
-  background-color: lightgrey;
+  background: #EEE;
   margin: 10px;
   text-align: center;
   padding: 10px;
@@ -32,10 +27,10 @@
 .wordgame-text {
   border: 1px solid black;
   display: inline-block;
-  margin: 3px 5px;
-  background: #EEE;
+  margin: 10px 5px;
+  background: #FFF;
   padding: 2px 5px;
 }
 .wordgame-text:hover {
-  background: white;
+  background: #F5F5F5;
 }
