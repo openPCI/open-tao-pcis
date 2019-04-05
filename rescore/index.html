@@ -56,7 +56,8 @@
           <label>Kørsel</label>
           <select id="task">
             <option value="taskRecalculateRoomExcersize">Room (3D)</option>
-            <option value="taskRecalculateSvgMap">SvgMap</option>
+            <option value="taskRecalculateCustomFunction">Brugerdefineret funktion</option>
+            <option value="taskRecalculateVoxelcraft">Voxelcraft</option>
           </select>
         </div>
         <div>
@@ -69,7 +70,7 @@
             <input type="text" id="excersizeFix" value="restaurant.json">
           </div>
         </div>
-        <div id="taskRecalculateSvgMap" class="taskoptions">
+        <div id="taskRecalculateCustomFunction" class="taskoptions">
           <label>Scorings function (?)</label>
           <textarea id="mapScoringFunc">
               function(){
@@ -102,7 +103,7 @@
       var messageListeners = {};
       var data;
       var currentRow = 0;
-
+      var file;
 
       window.addEventListener('message', function(event){
         var type = event.data.type;
@@ -116,7 +117,7 @@
       });
 
       document.getElementById('fileUpload').addEventListener('change', function(e){
-        var file = this.files[0];
+        file = this.files[0];
 
         var papa = Papa.parse(file, {
           complete: function(results) {
@@ -219,11 +220,18 @@
       }
 
 
-      function taskRecalculateSvgMap(data, column, playarea, done){
+      function taskRecalculateCustomFunction(data, column, playarea, done){
         playarea.innerHTML = '';
-        data.forEach(function(row){
-
-        });
+        try {
+          var scoreFunction = eval('(' + document.getElementById('mapScoringFunc').value + ')');
+          data.forEach(function(row){
+            try {
+              var d = JSON.parse(row[column]);
+              row[column] = JSON.stringify({data: d, score:scoreFunction(d)});
+            } catch(e) { console.error(e); }
+          });
+        } catch (e){ console.error(e); }
+        done();
       }
 
       function taskRecalculateRoomExcersize(data, column, playarea, done){
@@ -253,6 +261,37 @@
         });
       }
 
+
+      function taskRecalculateVoxelcraft(data, column, playarea, done){
+        var excersize = document.getElementById('excersizeFix').value;
+        playarea.innerHTML = '<iframe width="800" height="600" src="http://localhost/open-tao-pcis/voxelcraft/game/index.html"></iframe>';
+        var i = -1;
+        onceMessage('ready', function(){
+          console.log('ready');
+          function next(){
+            i++;
+            if(i >= data.length) return done();
+            console.log(data.length, i);
+            recalculateVoxelcraft(data[i], column, next);
+          }
+      		next();
+        });
+      }
+
+      function recalculateVoxelcraft(row, column, callback){
+        onceMessage('rescore', function(event){
+          console.log('rescore');
+          row[column] = event.data.value;
+          setTimeout(callback, 10);
+        });
+        try {
+          sendMessage('rescore', JSON.parse(row[column]));
+        } catch(e){
+          console.log('JSON PARSE ERROR', e);
+          callback();
+        }
+      }
+
       function loadCurrentRow(){
         var task = document.getElementById('task').value;
         var column = document.getElementById('column').value;
@@ -271,7 +310,8 @@
       document.getElementById('runBtn').addEventListener('click',runTask);
 
       document.getElementById('saveBtn').addEventListener('click', function(){
-        download('results.csv', Papa.unparse(data, {
+        var fn  = file.name.replace(/(-rescored)?.csv/,'-rescored.csv')
+        download(fn, Papa.unparse(data, {
           quotes: true, //or array of booleans
           quoteChar: '"',
           escapeChar: '"',
