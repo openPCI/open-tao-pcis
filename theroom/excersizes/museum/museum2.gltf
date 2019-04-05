@@ -2394,7 +2394,7 @@
     "buffers" : [
         {
             "byteLength" : 213352,
-            "uri" : "museum.bin"
+            "uri" : "museum2.bin"
         }
     ],
     "extensionsUsed" : [
@@ -2422,12 +2422,6 @@
         {
             "name" : "Material.001",
             "pbrMetallicRoughness" : {
-                "baseColorFactor" : [
-                    1.0,
-                    0.9068583250045776,
-                    0.8794686794281006,
-                    1.0
-                ],
                 "baseColorTexture" : {
                     "index" : 0
                 },
@@ -3733,7 +3727,7 @@
         },
         {
             "mesh" : 17,
-            "name" : "Door.zone",
+            "name" : "door.zone",
             "scale" : [
                 2.06545352935791,
                 2.4498133659362793,

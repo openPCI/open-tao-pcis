@@ -1,4 +1,5 @@
 {
+  "scoringFunction" : "function score(){\n  var kasse = Scoring.find('kasse');   \n  return {\n    kasse_placering : kasse && [0].position < 0 ? 1 : 0,\n    slik_ved_kasse : Scoring.closerThanOthers('slik','reol','kasse'),\n    is_ved_kasse : Scoring.closerThanOthers('fryser','reol','kasse'),\n    reoler_mod_væg : Scoring.wallSnapTest('reol') \n  }\n}",
   "scene" : "souvenirbutik/room.gltf",
   "assets":[
     {

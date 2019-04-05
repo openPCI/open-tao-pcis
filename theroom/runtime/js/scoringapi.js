@@ -34,7 +34,7 @@ var Scoring = new (function(){
       }
     });
 
-    if(!areaObjs.length) throw "Area not found!"
+    if(!areaObjs.length) throw "Area " + area + " not found!"
     var objs = findByType(objType);
     areaObjs.forEach(function(areaObj){
       var areaBB = new THREE.Box3().setFromObject(areaObj);
@@ -92,7 +92,7 @@ var Scoring = new (function(){
     });
 
     object.traverse(function(o){
-      if(/^snap/.test(o.name)){
+      if(/snap/.test(o.name)){
         snappers.push(o);
       }
     });
@@ -105,12 +105,13 @@ var Scoring = new (function(){
       var v = new THREE.Vector3(0,1,0);
       v.applyQuaternion(rotation);
       var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
-      var raycaster = new THREE.Raycaster( snapperPos, v, 0, 0.4);
+      var raycaster = new THREE.Raycaster( snapperPos, v, 0, 1);
       var result = raycaster.intersectObjects(targetObjects);
       if(result.length){
-        return true;
+        return 1;
       }
     }
+    return 0;
   }
 
   function pointSnapObjectTest(object){
@@ -119,9 +120,11 @@ var Scoring = new (function(){
     var snapped = false;
 
     object.traverse(function(o){
-      if(/obj_snap/.test(o.name)){
+      if(/snap/.test(o.name)){
         snappers.push(o);
+        o.material.side = THREE.DoubleSide;
       }
+
     });
 
     scene.children.forEach(function(o){
@@ -129,6 +132,7 @@ var Scoring = new (function(){
         o.traverse(function(p){
           if(p.snapPoint){
             otherSnappers.push(p);
+            p.material.side = THREE.DoubleSide;
           }
         });
       }
@@ -155,26 +159,29 @@ var Scoring = new (function(){
       }
     });
     if(finalSnapper){
-      return true;
+      return 1;
     }
+    return 0;
   }
 
   function countUnSnapped(object){
     var snappers = [];
     var otherSnappers = [];
     var snapped = false;
-
+    object.updateMatrixWorld();
     object.traverse(function(o){
-      if(/obj_snap/.test(o.name)){
+      if(/snap/.test(o.name)){
         snappers.push(o);
       }
     });
 
     scene.children.forEach(function(o){
       if(o.pointSnap && o != object){
+        o.updateMatrixWorld();
         o.traverse(function(p){
           if(p.snapPoint){
             otherSnappers.push(p);
+            p.material.side = THREE.DoubleSide;
           }
         });
       }
@@ -187,15 +194,29 @@ var Scoring = new (function(){
     var finalDist = 9999;
     var finalResult = 0;
     snappers.forEach(function(snapper){
-      snapper.getWorldQuaternion(rotation);
-      var v = new THREE.Vector3(0,1,0);
-      v.applyQuaternion(rotation);
-      var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
-      var raycaster = new THREE.Raycaster( snapperPos, v, 0, 1);
-      var result = raycaster.intersectObjects(otherSnappers);
-      if(!result.length){
-        finalResult++;
-      }
+      var snapperPos = new THREE.Vector3();
+      snapperPos.setFromMatrixPosition( snapper.matrixWorld );
+      snapped = false;
+      otherSnappers.forEach(function(other){
+        var pos = new THREE.Vector3();
+        pos.setFromMatrixPosition(other.matrixWorld);
+        var dist = snapperPos.clone().sub(pos).length();
+
+        if(dist < 1){
+          snapped = true;
+        }
+      });
+
+      if(!snapped) finalResult++;
+      // snapper.getWorldQuaternion(rotation);
+      // var v = new THREE.Vector3(0,1,0);
+      // v.applyQuaternion(rotation);
+      // var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
+      // var raycaster = new THREE.Raycaster( snapperPos, v, 0, 1);
+      // var result = raycaster.intersectObjects(otherSnappers);
+      // if(!result.length){
+      //   finalResult++;
+      // }
     });
     return finalResult;
   }
@@ -235,6 +256,7 @@ var Scoring = new (function(){
     froms.forEach(function(obj){
       var dist = 99999999;
       tos.forEach(function(other){
+        if(obj == other) return;
         var d = obj.position.clone().sub(other.position).length();
         if(d < dist){
           dist = d;
@@ -262,13 +284,15 @@ var Scoring = new (function(){
     var otherObjs = findByType(others);
     var targetObj = findByType(target)[0];
 
+    if(!obj) return 0;
+    if(!targetObj) return 0;
+
     var dist = 9999999999;
     otherObjs.forEach(function(o){
       if(o == targetObj || o == obj) return;
       var d = o.position.clone().sub(targetObj.position).length();
       if(d < dist) dist = d;
     });
-
     var objDist = obj.position.clone().sub(targetObj.position).length();
     return objDist <= dist ? 1 : 0;
   }

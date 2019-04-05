@@ -19,6 +19,7 @@ var WallSnapObject = function(){
     object.traverse(function(o){
       if(/^snap/.test(o.name)){
         snappers.push(o);
+        o.snapPoint = true;
       }
     });
 
@@ -48,7 +49,7 @@ var WallSnapObject = function(){
         if(o instanceof THREE.Mesh){
           if(o.name && /^snap/.test(o.name)){
             useBehavior = true;
-            o.visible = false;
+            o.material.visible = false;
           }
         }
       });

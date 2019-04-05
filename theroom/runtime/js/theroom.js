@@ -223,7 +223,7 @@ function loadExcersize(definitionUrl, objects, cb){
               }
             });
           }
-          if(callback) callback();
+          if(callback) setTimeout(callback, 200);
           return;
         }
         loadMoveable(asset.model, asset.count || 1, loadNext);
@@ -265,6 +265,7 @@ function loadScene(file, cb){
 
     gltf.scene.traverse(function(o){
       if(o instanceof THREE.Mesh){
+        if(o.material) o.material.side = THREE.DoubleSide;
         if(o.name && /glass/.test(o.name)) return;
         if(o.name && /zone/.test(o.name)){
           o.visible = false;
