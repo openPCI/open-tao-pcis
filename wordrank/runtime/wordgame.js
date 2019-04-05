@@ -10,19 +10,32 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
     table.className = 'wordgame-table';
 
   // Goes on to make rows and event listeners for drag and drop.
+    var cellSpan = 0;
+    options.cells.forEach(function(c){
+      if(c > cellSpan) cellSpan = c;
+    });
+    var cellWidth = 100 / cellSpan;
     options.cells.forEach(function(cells, i){
       var rowTable = document.createElement('table');
       var row = document.createElement('tr');
       rowTable.appendChild(row);
+      rowTable.style.width = cellWidth*cells + '%';
+
       row.className = 'wordgame-row';
       var cell;
       for(var i = 0; i<cells; i++){
-        cell = document.createElement('td');
+        td = document.createElement('td');
+
+
+        td.style.width = cellWidth + '%';
+
+        cell = document.createElement('div');
         cell.className = 'wordgame-cell';
-        cell.style.width = 100 / cells + '%';
+
         cell.addEventListener('dragover', function(evt) {
           evt.preventDefault();
         });
+
         cell.addEventListener('drop', function(evt) {
           evt.preventDefault();
           if(this.childNodes.length > 0) return;
@@ -30,7 +43,8 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
           this.appendChild(document.getElementById(id));
           console.log(evt, this);
         });
-        row.appendChild(cell);
+        td.appendChild(cell);
+        row.appendChild(td);
       }
 
       table.appendChild(rowTable);
@@ -47,9 +61,11 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       evt.preventDefault();
     });
     options.texts.forEach(function(str, i){
+      var strings = str.split(':');
       var text = document.createElement('div');
       text.className = 'wordgame-text';
-      text.innerText = str;
+      text.innerText = strings[0];
+      text.title = strings[1];
       text.draggable = true;
       text.id = (options.idPrefix||'') + 'wordrank' + i;
       text.addEventListener('dragstart', function(evt) {
@@ -102,4 +118,5 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       return result;
     }
   }
+
 });
