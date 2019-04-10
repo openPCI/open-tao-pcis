@@ -1,6 +1,6 @@
 
 {
-  "scoringFunction" : "function(scoring){\n  return {\n    start: Scoring.find('start').length,\n\thuller: Scoring.find('end').length,\n\tspecial: Scoring.find('mill|obstacle|toblerone|loop').length,\n    hjoerner: Scoring.find('bend').length,\n    ramper: Scoring.find('ramp').length,\n    loese_ender: Scoring.noSnap('.'),\n    brikker: Scoring.find('.').length\n  };\n}",
+  "scoringFunction" : "function(scoring){\n  return {\n    start: Scoring.find('start').length == 1 ? 1 : 0,\n\slut: Scoring.find('end').length == 1 ? 1 : 0,\n\tloop: Scoring.find('loop').length == 1 ? 1:0,\n\tspecial: Scoring.find('mill|obstacle|toblerone').length,\n    hjoerner: Scoring.find('bend').length,\n    ramper: Scoring.find('ramp').length,\n    ingen_loese_ender: Scoring.noSnap('.') == 0 ? 1:0,\n    brikker: Scoring.find('.').length\n  };\n}",
   "objects": [],
   "scene" : "minigolf/scene.glb",
   "assets":[
