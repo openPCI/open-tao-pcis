@@ -64,6 +64,14 @@
           <label>Kolonne</label>
           <input type="text" id="column" value="110">
         </div>
+        <div id="taskRecalculateVoxelcraft" class="taskoptions">
+          <label>Scorings function (?)</label>
+          <textarea id="voxelScoringFunc">
+              function(){
+
+              }
+          </textarea>
+        </div>
         <div id="taskRecalculateRoomExcersize" class="taskoptions">
           <div>
             <label>Excersize fix (?)</label>
@@ -110,7 +118,6 @@
         if(messageListeners[type])
         while(messageListeners[type].length > 0){
           var handler = messageListeners[type][messageListeners[type].length-1];
-          console.log(messageListeners);
           handler(event);
           messageListeners[type].pop();
         }
@@ -239,7 +246,6 @@
         playarea.innerHTML = '<iframe width="800" height="600" src="http://localhost/open-tao-pcis/theroom/runtime/theroom.html"></iframe>';
         var i = -1;
         onceMessage('ready', function(){
-          console.log('ready');
           function next(){
             i++;
             if(i >= data.length) return done();
@@ -263,15 +269,15 @@
 
 
       function taskRecalculateVoxelcraft(data, column, playarea, done){
-        var excersize = document.getElementById('excersizeFix').value;
-        playarea.innerHTML = '<iframe width="800" height="600" src="http://localhost/open-tao-pcis/voxelcraft/game/index.html"></iframe>';
+        var scoringFunction = document.getElementById('voxelScoringFunc').value;
+        playarea.innerHTML = '<iframe width="800" height="600" src="../voxelcraft/game/index.html"></iframe>';
         var i = -1;
         onceMessage('ready', function(){
+          sendMessage('setScoringFunction',scoringFunction);
           console.log('ready');
           function next(){
             i++;
             if(i >= data.length) return done();
-            console.log(data.length, i);
             recalculateVoxelcraft(data[i], column, next);
           }
       		next();
@@ -279,13 +285,14 @@
       }
 
       function recalculateVoxelcraft(row, column, callback){
-        onceMessage('rescore', function(event){
-          console.log('rescore');
-          row[column] = event.data.value;
-          setTimeout(callback, 10);
-        });
         try {
-          sendMessage('rescore', JSON.parse(row[column]));
+          var data = JSON.parse(row[column]);
+          onceMessage('rescore', function(event){
+            console.log('rescore', event.data.value);
+            row[column] = JSON.stringify(event.data.value);
+            setTimeout(callback, 10);
+          });
+          sendMessage('rescore', data);
         } catch(e){
           console.log('JSON PARSE ERROR', e);
           callback();
