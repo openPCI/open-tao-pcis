@@ -46,7 +46,7 @@ define([
             return {
                 colors: '#cc0000\n#cc6900\n#f7ef00\n#afe000\n#00b512\n#00bfa5\n#009bbf\n#008af4\n#ae00f4\n#f400e3\n#f40000\n#cccccc\n#ffffff\n#222222',
                 scene: '[]',
-                scoring: 'function(){\n\n}',
+                scoring: 'function score(){\n\n}',
                 gameUrl: 'https://surveyinfo.au.dk/pci-external/open-tao-pcis/voxelcraft/game/'
             };
         },

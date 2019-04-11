@@ -133,7 +133,10 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-
+          $iframe[0].contentWindow.postMessage({
+            type :'rescore',
+            value : state
+          },'*');
         },
         /**
          * Get the current state of the interaction as a string.
@@ -143,8 +146,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-
-            return {};
+            return this.responseContainer;
         }
     };
 

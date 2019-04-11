@@ -73,10 +73,10 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                     value : config.colors.split('\n')
                   },'*');
                   if(config.scoring)
-                  $iframe[0].contentWindow.postMessage({
-                    type: 'setScoringFunction',
-                    value: config.scoring
-                  });
+                    $iframe[0].contentWindow.postMessage({
+                      type: 'setScoringFunction',
+                      value: config.scoring
+                    });
                   try {
                     var scene = JSON.parse(config.scene)
                     $iframe[0].contentWindow.postMessage({
@@ -84,8 +84,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                       value : scene
                     },'*');
                   } catch(e){}
-
-
                 break;
                 case 'updateResult':
                   _this.responseContainer.base.string = JSON.stringify(event.data.value);

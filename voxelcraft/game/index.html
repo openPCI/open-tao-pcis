@@ -83,27 +83,20 @@
     <script src="hammer.js"></script>
     <script>
       var colors = [
-        // '#cc0000',
-        // '#cc6900',
-        // '#f7ef00',
-        // '#afe000',
-        // '#00b512',
-        // '#00bfa5',
-        // '#009bbf',
-        // '#008af4',
-        // '#ae00f4',
-        // '#f400e3',
-        // '#f40000',
-        // '#cccccc',
-        // '#ffffff',
-        // '#222222'
-        '#AFE000',
-        '#00B512',
-        '#222222',
-        '#CC6900',
-        '#008AF4',
-        '#00BFA5',
-        '#f400e3'
+        '#cc0000',
+        '#cc6900',
+        '#f7ef00',
+        '#afe000',
+        '#00b512',
+        '#00bfa5',
+        '#009bbf',
+        '#008af4',
+        '#ae00f4',
+        '#f400e3',
+        '#f40000',
+        '#cccccc',
+        '#ffffff',
+        '#222222'
       ];
 
       var KEY = {
@@ -417,6 +410,8 @@
             break;
             case 'rescore':
               setTimeout(function(){
+                console.log(event.data);
+                setScene(event.data.value && event.data.value.data ? event.data.value.data : event.data.value);
                 window.parent.postMessage({
                   type: 'rescore',
                   value: {data: getScene(), score: scoringFunction()},
