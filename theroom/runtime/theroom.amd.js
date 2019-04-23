@@ -91,7 +91,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} response
          */
         setResponse : function setResponse(response){
-            var Scontainer = $(this.dom),value;
+            console.log('setResponse', response);
         },
         /**
          * Get the response in the json format described in
@@ -110,9 +110,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         resetResponse : function resetResponse(){
-
             var Scontainer = $(this.dom);
-
         },
         /**
          * Reverse operation performed by render()
@@ -133,11 +131,13 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
+          console.log('setSerializedState', state)
           $iframe[0].contentWindow.postMessage({
             type :'rescore',
             value : state
           },'*');
         },
+
         /**
          * Get the current state of the interaction as a string.
          * It enables saving the state for later usage.
@@ -146,7 +146,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-            return this.responseContainer;
+          return this.responseContainer.base.string;
         }
     };
 

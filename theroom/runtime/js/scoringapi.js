@@ -329,4 +329,38 @@ var Scoring = new (function(){
     else return 0;
   }
   this.ACloserThanB = ACloserThanB;
+
+
+  /**
+   * lineOfSight - Return the number of objType objects that have line of sight to point
+   *
+   * @param  {type} objType description
+   * @param  {type} point   description
+   * @return {type}         description
+   */
+  function lineOfSight(objType, point){
+
+    var objs = findByType(objType);
+    var res = objs.length;
+
+    var targetObjects = [];
+    room.traverse(function(o){
+      if(o instanceof THREE.Mesh){
+        targetObjects.push(o);
+      }
+    });
+
+    objs.forEach(function(o){
+      var raycaster = new THREE.Raycaster(o.position);
+      raycaster.ray.lookAt(point);
+      raycaster.far = o.position.clone().sub(point).length();
+      var result = raycaster.intersectObjects( targetObjects )
+      if(result.length){
+        res--;
+      }
+    });
+
+    return res;
+  }
+  this.lineOfSight = lineOfSight;
 })();
