@@ -400,7 +400,11 @@ function modifyModel(scene){
         o.material.opacity = 0.5;
         o.material.transparent = true;
         return;
-       }
+      }
+      if(o.name && /zone/.test(o.name)){
+        o.visible = false;
+        return;
+      }
       o.receiveShadow = true;
       o.castShadow = true;
 
