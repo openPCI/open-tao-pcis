@@ -363,4 +363,54 @@ var Scoring = new (function(){
     return res;
   }
   this.lineOfSight = lineOfSight;
+
+  function objZoneTest(objType, area, otherType, useRoom){
+    var collisions = 0;
+    var otherObjs = findByType(otherType);
+    var objs = findByType(objType);
+    var others = []
+    if(useRoom){
+        room.traverse(function(o){
+          if(!(o instanceof THREE.Mesh)) return;
+          if(o.name && o.name.indexOf('zone') > -1) return;
+          others.push(o);
+        });
+    }
+    otherObjs.forEach(function(o){
+      o.traverse(function(o){
+        if(!(o instanceof THREE.Mesh)) return;
+        if(o.name && o.name.indexOf('zone') > -1) return;
+        others.push(o);
+      });
+    });
+
+    objs.forEach(function(o){
+      var objAreas = [];
+
+      o.traverse(function(o){
+        if(o.name.indexOf('zone') > -1){
+          if(area.test(o.name)){
+            objAreas.push(o);
+          }
+        }
+      });
+      objAreas.some(function(area){
+        var areaBox = new THREE.Box3();
+        var otherBox = new THREE.Box3();
+        areaBox.setFromObject(area);
+
+        return otherObjs.some(function(other){
+          if(o.children.indexOf(other) > -1) return;
+          otherBox.setFromObject(other);
+          if(otherBox.intersectsBox(areaBox)){
+            collisions++;
+            return true;
+          }
+        });
+      });
+    });
+    return collisions;
+  }
+  this.objZoneTest = objZoneTest;
+
 })();
