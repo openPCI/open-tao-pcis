@@ -402,7 +402,9 @@ function modifyModel(scene){
         return;
       }
       if(o.name && /zone/.test(o.name)){
-        o.visible = false;
+      //  o.visible = false;
+        o.material.transparent = true;
+        o.material.opacity = 0.5;
         return;
       }
       o.receiveShadow = true;

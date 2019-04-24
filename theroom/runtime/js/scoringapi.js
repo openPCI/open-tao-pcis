@@ -17,15 +17,23 @@ var Scoring = new (function(){
 
   this.find = findByType;
 
-  /**
-   * areaTest - Test if objType is in area
-   *
-   * @param  {type} area    zone blender name
-   * @param  {type} objType Objects to test (regex)
-   * @return {type}         description
-   */
-  this.areaTest = function(area, objType){
-    var result = 0;
+  function zoneRotationCheck(area, objType, rotation){
+    var objs = findByArea(area, objType);
+    var wrongOrientation = 0;
+    objs.forEach(function(o){
+      var y = o.rotation._y;
+      while(y >= Math.PI * 2){
+        y -= Math.PI * 2;
+      }
+      while(y < 0) y += Math.PI * 2;
+      if(Math.abs(y - rotation) > 0.01) wrongOrientation++;
+    });
+    return wrongOrientation;
+  }
+  this.zoneRotationCheck = zoneRotationCheck;
+
+  function findByArea(area, objType){
+    var result = [];
     var areaObjs = [];
     var reg = new RegExp(area ,"i");
     scene.traverse(function(o){
@@ -40,10 +48,22 @@ var Scoring = new (function(){
       var areaBB = new THREE.Box3().setFromObject(areaObj);
       for(var i = 0; i<objs.length; i++){
         var objBB = new THREE.Box3().setFromObject(objs[i]);
-        if(areaBB.isIntersectionBox(objBB)) result++;
+        if(areaBB.isIntersectionBox(objBB)) result.push(objs[i])
       }
     });
     return result;
+  }
+  this.findByArea = findByArea;
+
+  /**
+   * areaTest - Test if objType is in area
+   *
+   * @param  {type} area    zone blender name
+   * @param  {type} objType Objects to test (regex)
+   * @return {type}         description
+   */
+  this.areaTest = function(area, objType){
+    return findByArea(area, objType).length;
   };
 
 
@@ -377,19 +397,17 @@ var Scoring = new (function(){
         });
     }
     otherObjs.forEach(function(o){
-      o.traverse(function(o){
-        if(!(o instanceof THREE.Mesh)) return;
+      o.children.forEach(function(o){
         if(o.name && o.name.indexOf('zone') > -1) return;
         others.push(o);
       });
     });
 
-    objs.forEach(function(o){
+    objs.forEach(function(object){
       var objAreas = [];
-
-      o.traverse(function(o){
-        if(o.name.indexOf('zone') > -1){
-          if(area.test(o.name)){
+      object.traverse(function(o){
+        if(o.name && o.name.indexOf('zone') > -1){
+          if(o.name.indexOf(area) > -1){
             objAreas.push(o);
           }
         }
@@ -398,9 +416,8 @@ var Scoring = new (function(){
         var areaBox = new THREE.Box3();
         var otherBox = new THREE.Box3();
         areaBox.setFromObject(area);
-
-        return otherObjs.some(function(other){
-          if(o.children.indexOf(other) > -1) return;
+        return others.some(function(other){
+          if(object.children.indexOf(other) > -1) return;
           otherBox.setFromObject(other);
           if(otherBox.intersectsBox(areaBox)){
             collisions++;
