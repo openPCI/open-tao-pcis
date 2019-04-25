@@ -45,7 +45,7 @@ var Scoring = new function(){
       var res = voxels.some(function(v){
         return v.position.equals(sp) && (!useColor || v.material.color.getHex() == s.c);
       });
-      return s.ws || s.c == wsColor ? res : !res;
+      return (s.ws || s.c == wsColor) ? res : !res;
     });
 
     return !noMatch;
