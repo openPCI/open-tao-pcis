@@ -388,8 +388,9 @@
          if(e.keyCode == 13) {
            currentRow = rowInput.value;
            loadCurrentRow();
+           e.preventDefault();
          }
-         e.preventDefault();
+
       });
       document.getElementById('runBtn').addEventListener('click',runTask);
 
