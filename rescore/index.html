@@ -36,6 +36,38 @@
        width:400px;
        height: 200px;
      }
+     #playarea {
+       width:60%;
+       position:relative;
+     }
+     #playarea > * {
+       width:100%;
+     }
+     #scoreTable {
+       position:absolute;
+       right: 5px;
+       top: 5px;
+       width:35%;
+     }
+     #scoreTable table {
+       border: 1px solid #eee;
+       border-collapse: collapse;
+       width:100%;
+       padding-left:20px;
+     }
+     #scoreTable tr th {
+       font-size: 110%;
+     }
+     #scoreTable td {
+       border: 1px solid #eee;
+       padding: 8px;
+     }
+     #scoreTable tr > td:last-child {
+       text-align:center;
+     }
+     .scoringarea {
+       position:relative;
+     }
     </style>
     <script
       src="https://code.jquery.com/jquery-3.3.1.min.js"
@@ -100,8 +132,9 @@
     </div>
     <div class="collapsable">
       <h2>Øvelse</h2>
-      <div class="content">
+      <div class="content scoringarea">
         <div id="playarea"></div>
+        <div id="scoreTable">dadadw</div>
         <div class="controls fuse">
           <button id="prevBtn">«</button><input type="text" id="csvRowNum" value="0"/><button id="nextBtn">»</button>
         </div>
@@ -112,7 +145,8 @@
       var data;
       var currentRow = 0;
       var file;
-
+      var scoreTable = document.getElementById('scoreTable');
+      var rowInput = document.getElementById('csvRowNum');
       window.addEventListener('message', function(event){
         var type = event.data.type;
         if(messageListeners[type])
@@ -256,7 +290,7 @@
                 d.excersize = excersize;
                 data[i][column] = JSON.stringify(d);
               } catch(e){
-                console.log(e);
+                console.log(e, data[i][column]);
                 next();
                 return;
               }
@@ -267,6 +301,32 @@
         });
       }
 
+      function objectToTable(obj, title){
+        var table = document.createElement('table');
+        if(title){
+          var th = document.createElement('tr');
+          var td = document.createElement('th');
+          td.colSpan = 2;
+          td.innerText = title;
+          th.appendChild(td);
+          table.appendChild(th);
+        }
+        for(var k in obj){
+          var tr = document.createElement('tr');
+
+          var td = document.createElement('td');
+          td.innerText = k;
+
+          var valTd = document.createElement('td');
+          valTd.innerText = obj[k];
+
+          tr.appendChild(td);
+          tr.appendChild(valTd);
+
+          table.appendChild(tr);
+        }
+        return table;
+      }
 
       function taskRecalculateVoxelcraft(data, column, playarea, done){
         var scoringFunction = document.getElementById('voxelScoringFunc').value;
@@ -303,17 +363,34 @@
         var task = document.getElementById('task').value;
         var column = document.getElementById('column').value;
         var playarea = document.getElementById('playarea');
-        window[task]([data[currentRow]], column, playarea, function(){});
+        window[task]([data[currentRow]], column, playarea, function(){
+          scoreTable.innerHTML = '';
+          try {
+            var dat = JSON.parse(data[currentRow][column]);
+            scoreTable.appendChild(objectToTable(dat['score'] ? dat['score'] : dat, 'Score'));
+          } catch(e){
+            scoreTable.innerText = e.toString();
+          }
+        });
       }
 
       document.getElementById('nextBtn').addEventListener('click', function(){
         currentRow++;
+        rowInput.value = currentRow;
         loadCurrentRow();
       });
       document.getElementById('prevBtn').addEventListener('click', function(){
         currentRow--;
+        rowInput.value = currentRow;
         loadCurrentRow();
-      })
+      });
+      rowInput.addEventListener('keyDown', function(e){
+         if(e.keyCode == 13) {
+           currentRow = rowInput.value;
+           loadCurrentRow();
+         }
+         e.preventDefault();
+      });
       document.getElementById('runBtn').addEventListener('click',runTask);
 
       document.getElementById('saveBtn').addEventListener('click', function(){
