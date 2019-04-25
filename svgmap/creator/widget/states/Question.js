@@ -45,7 +45,8 @@ define([
             poi: interaction.prop('poi'),
             dotresolution: interaction.prop('dotresolution'),
             pathlayer: interaction.prop('pathlayer'),
-            identifier : interaction.attr('responseIdentifier')
+            identifier : interaction.attr('responseIdentifier'),
+            scoring: interaction.prop('scoring')
         }));
 
         function fileToString(file, callback){
@@ -85,7 +86,11 @@ define([
                 interaction.prop('pathlayer', value);
                 interaction.triggerPci('cfgChange', ['pathlayer',value]);
             },
-            identifier : function(i, value){
+            scoring: function(interaction, value){
+                interaction.prop('scoring', value);
+                interaction.triggerPci('cfgChange', ['scoring',value]);
+            },
+            identifier : function(interaction, value){
                 response.id(value);
                 interaction.attr('responseIdentifier', value);
             }

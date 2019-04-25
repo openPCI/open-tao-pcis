@@ -18,6 +18,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         pathLayer: config.pathlayer,
         svg: config.backdrop,
         poi: pois,
+        scoringFunction: config.scoring,
         editorCallback: window.editor_mode ? function(point){
           __updateSvgMapPoi(point);
         } : false,

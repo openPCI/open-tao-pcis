@@ -47,7 +47,8 @@ define([
                 backdrop: "",
                 poi: "{}",
                 pathlayer: "path",
-                dotresolution: 5
+                dotresolution: 5,
+                scoring: 'function scoring(path){}'
             };
         },
         /**

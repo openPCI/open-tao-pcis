@@ -10,8 +10,17 @@ return function SvgMap(options){
 
   var dots = [];
   var result = [];
-
+  var scoringFunction = function(){};
   var startDot;
+
+  if(options.scoringFunction){
+    try {
+      var f = eval('(' + options.scoringFunction + ')');
+      if(typeof f == "function") scoringFunction = f;
+    } catch(e){
+      console.log(e);
+    }
+  }
 
   this.destroy = function(){
     $(options.element).html('');
@@ -27,7 +36,7 @@ return function SvgMap(options){
         poiResult.push(k);
       }
     });
-    return [result, poiResult];
+    return {path:result, poi:poiResult, scoring: scoringFunction(result)};
   }
 
   this.getResult = getResult;

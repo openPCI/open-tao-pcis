@@ -14,6 +14,9 @@
   <label>Punkt densitet</label>
   <input name="dotresolution" type="text" value="{{dotresolution}}" />
 
+  <label>Scorings funktion</label>
+  <textarea name="scoring">{{scoring}}</textarea>
+
 </div>
 
 <div class="panel">
