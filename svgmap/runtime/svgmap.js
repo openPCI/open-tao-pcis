@@ -36,10 +36,19 @@ return function SvgMap(options){
         poiResult.push(k);
       }
     });
-    return {path:result, poi:poiResult, scoring: scoringFunction(result)};
+    return {path:result, poi:poiResult, score: scoringFunction(result)};
   }
 
   this.getResult = getResult;
+
+  function setResult(state){
+    state.path.forEach(function(n){
+      dots[n].dot.addClass('svgmap-visited');
+      result.push(n);
+    });
+  }
+
+  this.setResult = setResult;
 
   function onWindowResize(){
     var viewBox = svg.viewBox.baseVal;

@@ -5,29 +5,7 @@ Build by Wiquid's PCI Generator for TAO platform Free to use
 
 define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', 'svgmap/runtime/svgmap'], function(qtiCustomInteractionContext, $, event, SvgMap){
     'use strict';
-    var svgmap;
-    function startsvgmap(dom, config, resultObject){
-      if(svgmap) svgmap.destroy();
 
-      var pois = [];
-      try { pois = JSON.parse(config.poi); } catch(e){}
-
-      svgmap = new SvgMap({
-        element: dom,
-        dotResolution: parseInt(config.dotresolution),
-        pathLayer: config.pathlayer,
-        svg: config.backdrop,
-        poi: pois,
-        scoringFunction: config.scoring,
-        editorCallback: window.editor_mode ? function(point){
-          __updateSvgMapPoi(point);
-        } : false,
-        pathCallback: function(result){
-            resultObject.base.string = JSON.stringify(result);
-        }
-      });
-
-    }
 
     var svgmap = {
         id : -1,
@@ -41,6 +19,28 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} config - json
          */
         initialize : function initialize(id, dom, config, assetManager){
+            var that = this;
+            function startsvgmap(dom, config, resultObject){
+              if(that.svgmap) that.svgmap.destroy();
+
+              var pois = [];
+              try { pois = JSON.parse(config.poi); } catch(e){}
+
+              that.svgmap = new SvgMap({
+                element: dom,
+                dotResolution: parseInt(config.dotresolution),
+                pathLayer: config.pathlayer,
+                svg: config.backdrop,
+                poi: pois,
+                scoringFunction: config.scoring,
+                editorCallback: window.editor_mode ? function(point){
+                  __updateSvgMapPoi(point);
+                } : false,
+                pathCallback: function(result){
+                    resultObject.base.string = JSON.stringify(result);
+                }
+              });
+            }
 
             //add method on(), off() and trigger() to the current object
             event.addEventMgr(this);
@@ -115,7 +115,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-
+          this.svgmap.setResult(state);
         },
         /**
          * Get the current state of the interaction as a string.
@@ -125,8 +125,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-
-            return {};
+            return this.svgmap.getResult();
         }
     };
 
