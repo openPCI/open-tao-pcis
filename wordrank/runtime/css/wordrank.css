@@ -24,8 +24,10 @@
   margin: 10px;
   text-align: center;
 }
+.wordgame-table table {
+  margin:auto !important;
+}
 .wordgame .wordgame-cell {
-  display: inline-block;
   background: #5cc5e3;
   height:32px;
   box-sizing: border-box;
@@ -49,6 +51,7 @@
   background: #FFF;
   padding: 0px 5px;
 }
+
 .wordgame .wordgame-text:hover {
   background: #F5F5F5;
 }

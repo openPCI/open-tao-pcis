@@ -5,27 +5,6 @@ Build by Wiquid's PCI Generator for TAO platform Free to use
 
 define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', 'wordrank/runtime/wordgame'], function(qtiCustomInteractionContext, $, event, WordGame){
     'use strict';
-    var wordGame;
-    function startWordRank(dom, config, responseContainer){
-      if(wordGame){
-        wordGame.destroy();
-      }
-
-      var texts = [];
-      var cells = [];
-
-      try {
-        texts = config.texts.split('\n');
-        cells = JSON.parse(config.cells);
-      } catch(e){
-        console.log(e);
-      }
-      wordGame = new WordGame({
-        element: dom,
-        cells: cells,
-        texts: texts
-      });
-    }
 
     var wordrank = {
         id : -1,
@@ -39,7 +18,27 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} config - json
          */
         initialize : function initialize(id, dom, config, assetManager){
+            var that = this;
+            function startWordRank(dom, config, responseContainer){
+              if(that.wordGame){
+                that.wordGame.destroy();
+              }
 
+              var texts = [];
+              var cells = [];
+
+              try {
+                texts = config.texts.split('\n');
+                cells = JSON.parse(config.cells);
+              } catch(e){
+                console.log(e);
+              }
+              that.wordGame = new WordGame({
+                element: dom,
+                cells: cells,
+                texts: texts
+              });
+            }
             //add method on(), off() and trigger() to the current object
             event.addEventMgr(this);
 
