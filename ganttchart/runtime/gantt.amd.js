@@ -6,8 +6,6 @@ Build by Wiquid's PCI Generator for TAO platform Free to use
 define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', 'gantt/runtime/ganttjs/gantt'], function(qtiCustomInteractionContext, $, event, GanttJS){
     'use strict';
 
-    console.log(GanttJS);
-
     function deserializeConfig(cfg){
       var ret = JSON.parse(JSON.stringify(cfg));
 
@@ -17,6 +15,8 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       });
       return ret;
     }
+
+    var curGantt;
 
     var gantt = {
         id : -1,
@@ -56,9 +56,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                 ganttChart = new GanttJS(dom, deserializeConfig(_this.config));
                 this.ganttChart = ganttChart;
             });
-
-
-
         },
         /**
          * Programmatically set the response following the json schema described in
@@ -113,7 +110,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-
+            this.ganttChart.setState(state);
         },
         /**
          * Get the current state of the interaction as a string.
@@ -123,8 +120,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-
-            return {};
+            return this.ganttChart.getState();
         }
     };
 

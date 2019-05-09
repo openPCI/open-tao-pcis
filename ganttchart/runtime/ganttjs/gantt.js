@@ -312,7 +312,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       clearInterval(dragScrollInterval);
     };
 
-    this.getData = function(){
+    this.getState = function(){
       var res = [];
       options.tasks.forEach(function(t, ti){
         var taskData = [];
@@ -323,6 +323,19 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         res.push(taskData);
       });
       return res;
+    }
+
+    this.setState = function(state){
+      options.tasks.forEach(function(t, ti){
+        var taskData = state[ti];
+
+        $($container.find('.ganttjs-task').get(ti)).children().each(function(i, item){
+          if(taskData.indexOf(i) > -1){
+            $(this).addClass('.selected');
+          }
+        });
+        res.push(taskData);
+      });
     }
 
 
