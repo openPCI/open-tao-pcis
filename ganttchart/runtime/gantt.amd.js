@@ -52,9 +52,8 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             this.on('cfgChange', function(key, value){
               console.log('cfgChange');
                 _this.config[key] = value;
-                ganttChart.destroy();
-                ganttChart = new GanttJS(dom, deserializeConfig(_this.config));
-                this.ganttChart = ganttChart;
+                _this.ganttChart.destroy();
+                _this.ganttChart = new GanttJS(dom, deserializeConfig(_this.config));
             });
         },
         /**
