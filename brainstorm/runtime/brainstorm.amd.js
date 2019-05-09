@@ -46,7 +46,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         this.resume();
     }
 
-    function startBrainstorm(dom, config, resultObject){
+    function startBrainstorm(dom, config, resultObject, preview){
       var playerName = config.nickname || 'Test-tager';
       var messages = config.messages.split('\n');
       var timeLimit = parseInt(config.timeLimit) || 60;
@@ -73,7 +73,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         msg = msg.split(';');
         if(msg.length == 4){
           var t = parseInt(msg[0])*1000;
-
 
           timers.push(new Timer(function() {
             writeChatLine(t, msg[1], msg[3], false, msg[2]);
@@ -168,7 +167,9 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       function showStartMsg(){
         showMsg(config.startText, function(){ start(); })
       }
+      if(preview){
 
+      } else
       if(window.editor_mode){
         simulate();
       } else {
@@ -180,7 +181,9 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       }
 
     }
-
+    var curDom;
+    var curPlayerName;
+    var curConfig;
     var brainstorm = {
         id : -1,
         getTypeIdentifier : function getTypeIdentifier(){
@@ -193,7 +196,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} config - json
          */
         initialize : function initialize(id, dom, config, assetManager){
-
             //add method on(), off() and trigger() to the current object
             event.addEventMgr(this);
 
@@ -202,6 +204,10 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             this.dom = dom;
             this.config = config || {};
             this.responseContainer = {base : {string : ''}};
+
+            curDom = dom;
+            curConfig = config;
+            curPlayerName = config.nickname;
 
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);
@@ -265,7 +271,19 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-
+          startBrainstorm(curDom, curConfig, {}, true);
+          var $chat = $(curDom).find('.chat');
+          state.split('\n').forEach(function(m){
+            var msg = m.split(';');
+            //[timestamp(elapsed), name, msg].join(';');
+            var $time = $('<span>').text(msg[0]);
+            var $name = $('<span>',{class:'name'}).text(msg[1]);
+            var $msg = $('<div>').append([$name, msg[2]]);
+            if(msg[1] == (curPlayerName || 'Test-tager')){
+              $msg.addClass('is-player');
+            }
+            $chat.append($msg);
+          });
         },
         /**
          * Get the current state of the interaction as a string.
@@ -275,8 +293,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-
-            return {};
+            return this.responseContainer;
         }
     };
 
