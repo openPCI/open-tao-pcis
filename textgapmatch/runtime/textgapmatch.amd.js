@@ -6,29 +6,7 @@ Build by Wiquid's PCI Generator for TAO platform Free to use
 define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', 'textgapmatch/runtime/gapmatch','textgapmatch/runtime/DragDropTouch'], function(qtiCustomInteractionContext, $, event, GapMatch){
     'use strict';
 
-    var gapmatch;
-    function startGapmatch(dom, config, resultObject){
-      if(gapmatch) gapmatch.destroy();
-      gapmatch = new GapMatch(dom, {
-        image: config.backdrop,
-        dropzones: JSON.parse(config.dropzones),
-        strings: config.strings.split('\n'),
-        editor: window.editor_mode,
-        infiniteTexts: config.infiniteTexts,
-        maxDropped : parseInt(config.maxDropped),
-        droppedStyle: config.droppedStyle,
-        numbering: config.numbering,
-        onChange: function(result){
-          resultObject.base.string = JSON.stringify(result);
-        },
-        editorCallback: function(dropzones){
-          if(window.editor_mode){
-            // This is absolutely a hack, because this shouldn't be a thing in TAO. Its illegal to do it, but it is the only way :p
-            window.__updateDropzones(dropzones);
-          }
-        }
-      });
-    }
+
 
     var textgapmatch = {
         id : -1,
@@ -42,6 +20,29 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} config - json
          */
         initialize : function initialize(id, dom, config, assetManager){
+            var that = this;
+            function startGapmatch(dom, config, resultObject){
+              if(that.gapmatch) that.gapmatch.destroy();
+              that.gapmatch = new GapMatch(dom, {
+                image: config.backdrop,
+                dropzones: JSON.parse(config.dropzones),
+                strings: config.strings.split('\n'),
+                editor: window.editor_mode,
+                infiniteTexts: config.infiniteTexts,
+                maxDropped : parseInt(config.maxDropped),
+                droppedStyle: config.droppedStyle,
+                numbering: config.numbering,
+                onChange: function(result){
+                  resultObject.base.string = JSON.stringify(result);
+                },
+                editorCallback: function(dropzones){
+                  if(window.editor_mode){
+                    // This is absolutely a hack, because this shouldn't be a thing in TAO. Its illegal to do it, but it is the only way :p
+                    window.__updateDropzones(dropzones);
+                  }
+                }
+              });
+            }
 
             //add method on(), off() and trigger() to the current object
             event.addEventMgr(this);
@@ -112,7 +113,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-          console.log('setSerializedState');
+          this.gapmatch.setResult(state);
         },
         /**
          * Get the current state of the interaction as a string.
@@ -122,8 +123,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-            console.log('getSerializedState');
-            return {};
+            return this.gapmatch.getResult();
         }
     };
 

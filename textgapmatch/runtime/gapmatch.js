@@ -289,11 +289,19 @@ function GapMatchFactory($){
     }
     this.getResult = getResult;
 
-    function setState(state){
-
+    function setResult(state){
+      var result = {};
+      $zones = $elem.find('.gapmatch-dropzone');
+      $zones.each(function(i){
+        var $zone = $(this);
+        var strings = state[$zone.data('dropzone')];
+        strings.forEach(function(str){
+          $zone.append($('<div>', {class: 'gapmatch-string', text: str}));
+        });
+      });
     }
 
-    this.setState = setState;
+    this.setResult = setResult;
 
     this.destroy = function(){
       $elem.off('mousedown mouseup tochend touchstart dblclick dragstart drop dragover');
