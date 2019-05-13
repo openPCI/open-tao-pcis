@@ -1,6 +1,6 @@
 
 /*
-Build by Wiquid's PCI Generator for TAO platform Free to use 
+Build by Wiquid's PCI Generator for TAO platform Free to use
  */
 define([
     'taoQtiItem/qtiCreator/widgets/states/factory',
@@ -8,5 +8,5 @@ define([
     'theroom/creator/widget/states/Question'
 ], function(factory, states){
     'use strict';
-    return factory.createBundle(states, arguments, ['answer', 'correct', 'map']);
+    return factory.createBundle(states, arguments, ['map']);
 });

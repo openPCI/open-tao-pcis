@@ -402,7 +402,7 @@ function modifyModel(scene){
         return;
       }
       if(o.name && /zone/.test(o.name)){
-      //  o.visible = false;
+        o.visible = false;
         o.material.transparent = true;
         o.material.opacity = 0.5;
         return;
@@ -900,6 +900,6 @@ document.addEventListener("DOMContentLoaded", function(){
   isTouch();
   setHelpText();
   sendMessage('ready', 1);
-  if(window === window.parent) loadExcersize('butik.json', null, animate);
+  if(window === window.parent) loadExcersize('teater.json', null, animate);
   else animate();
 });
