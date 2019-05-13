@@ -6,3 +6,4 @@ for i in * ; do
     cd ..
   fi
 done
+zip --delete ./builds/theroom.zip "excersizes/*"
