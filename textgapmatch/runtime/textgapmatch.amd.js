@@ -113,7 +113,9 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-          this.gapmatch.setResult(state);
+          if(state.response){
+            this.gapmatch.setResult(JSON.parse(state.response.base.string));
+          }
         },
         /**
          * Get the current state of the interaction as a string.
@@ -123,7 +125,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-            return this.gapmatch.getResult();
+            return {};
         }
     };
 

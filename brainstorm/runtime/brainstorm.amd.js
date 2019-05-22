@@ -81,7 +81,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       }
 
       function writeChatLine(elapsed, name, msg, player, color){
-        resultObject.base.string += "\n" + [timestamp(elapsed), name, msg].join(';');
+        resultObject.base.string += "|" + [timestamp(elapsed), name, msg].join(';');
 
         var $time = $('<span>').text(timestamp(elapsed));
         var $name = $('<span>',{class:'name'}).text(name);
@@ -168,7 +168,8 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         showMsg(config.startText, function(){ start(); })
       }
       if(preview){
-
+        var $overlay = $dom.find('.msg-overlay');
+        $overlay.hide();
       } else
       if(window.editor_mode){
         simulate();
@@ -229,7 +230,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} response
          */
         setResponse : function setResponse(response){
-            var Scontainer = $(this.dom),value;
+          console.log('setResponse', response);
         },
         /**
          * Get the response in the json format described in
@@ -239,6 +240,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object}
          */
         getResponse : function getResponse(){
+            console.log('getResponse');
             return this.responseContainer;
         },
         /**
@@ -248,7 +250,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         resetResponse : function resetResponse(){
-
+            console.log('resetResponse');
             var Scontainer = $(this.dom);
 
         },
@@ -260,7 +262,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         destroy : function destroy(){
-
+            console.log('destroy');
             var Scontainer = $(this.dom);
             Scontainer.off().empty();
         },
@@ -271,19 +273,23 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-          startBrainstorm(curDom, curConfig, {}, true);
-          var $chat = $(curDom).find('.chat');
-          state.split('\n').forEach(function(m){
-            var msg = m.split(';');
-            //[timestamp(elapsed), name, msg].join(';');
-            var $time = $('<span>').text(msg[0]);
-            var $name = $('<span>',{class:'name'}).text(msg[1]);
-            var $msg = $('<div>').append([$name, msg[2]]);
-            if(msg[1] == (curPlayerName || 'Test-tager')){
-              $msg.addClass('is-player');
-            }
-            $chat.append($msg);
-          });
+          console.log('st',state);
+
+          if(state.response){
+            startBrainstorm(curDom, curConfig, {}, true);
+            var $chat = $(curDom).find('.chat');
+            state.response.base.string.split('|').forEach(function(m){
+              var msg = m.split(';');
+              //[timestamp(elapsed), name, msg].join(';');
+              var $time = $('<span>').text(msg[0]);
+              var $name = $('<span>',{class:'name'}).text(msg[1]);
+              var $msg = $('<div>').append([$name, msg[2]]);
+              if(msg[1] == (curPlayerName || 'Test-tager')){
+                $msg.addClass('is-player');
+              }
+              $chat.append($msg);
+            });
+          }
         },
         /**
          * Get the current state of the interaction as a string.
@@ -293,7 +299,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-            return this.responseContainer;
+            return {}
         }
     };
 

@@ -74,10 +74,16 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object}
          */
         getResponse : function getResponse(){
-            return {base : {string : this.ganttChart.getResult().map(function(a){
-              return a.join(', ');
-            }).join(';\n')
-          }};
+          return {
+            base : {
+              string : JSON.stringify({
+                response: this.ganttChart.getResult().map(function(a){
+                  return a.join(', ');
+                }).join(';'),
+                state: this.ganttChart.getState()
+              })
+            }
+          };
         },
         /**
          * Remove the current response set in the interaction
@@ -86,8 +92,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         resetResponse : function resetResponse(){
-
-            var Scontainer = $(this.dom);
+          console.log('resetResponse');
 
         },
         /**
@@ -109,7 +114,10 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-            this.ganttChart.setState(state);
+            if(state.response){
+              var data = JSON.parse(state.response.base.string);
+              this.ganttChart.setState(data.state);
+            }
         },
         /**
          * Get the current state of the interaction as a string.
@@ -119,7 +127,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-            return this.ganttChart.getState();
+            return {state: this.ganttChart.getState()};
         }
     };
 

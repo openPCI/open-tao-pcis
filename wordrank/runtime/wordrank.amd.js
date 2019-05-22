@@ -29,7 +29,8 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
               try {
                 texts = config.texts.split('\n');
-                cells = JSON.parse(config.cells);
+                console.log(config);
+                cells = config.cells.split(',');
               } catch(e){
                 console.log(e);
               }
@@ -79,7 +80,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object}
          */
         getResponse : function getResponse(){
-            return this.responseContainer;
+            return {base : {string : JSON.stringify(this.wordGame.getResult())}};
         },
         /**
          * Remove the current response set in the interaction
@@ -111,7 +112,9 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-
+          if(state.response){
+            this.wordGame.setResult(JSON.parse(state.response.base.string));
+          }
         },
         /**
          * Get the current state of the interaction as a string.
@@ -121,7 +124,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-
             return {};
         }
     };

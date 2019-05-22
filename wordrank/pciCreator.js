@@ -44,7 +44,7 @@ define([
         getDefaultProperties : function(pci){
             console.log('getDefaultProperties', arguments);
             return {
-                cells: "[3,5,3]",
+                cells: "3,5,3",
                 texts: 'Tekst 1\nTekst 2\nTekst 3\nTekst 4'
             };
         },

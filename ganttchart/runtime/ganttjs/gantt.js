@@ -330,12 +330,16 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         var taskData = state[ti];
         $($container.find('.ganttjs-task').get(ti)).children().each(function(i, item){
           if(taskData.indexOf(i) > -1){
-            $(this).addClass('.selected');
+            $(this).addClass('selected');
+            $(this).css('background-color', $(this.parentNode).prop('active-color'));
           }
         });
       });
     }
 
+    this.setResult = function(result){
+
+    }
 
     this.getResult = function(){
       var res = [];

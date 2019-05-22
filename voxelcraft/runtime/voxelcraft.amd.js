@@ -2,32 +2,10 @@
 /*
 Build by Wiquid's PCI Generator for TAO platform Free to use
  */
-
 define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event'], function(qtiCustomInteractionContext, $, event){
     'use strict';
 
-    var $iframe;
 
-    function startGame(dom, config, responseContainer){
-      if(!$iframe){
-        $iframe = $('<iframe>');
-        $iframe.attr('allow', 'fullscreen');
-        $iframe.css('width','100%');
-        $(dom).append($iframe);
-        $iframe.css('height', $iframe.width() * 0.56 + 'px');
-        $iframe[0].focus();
-
-
-        $(dom).on('mouseover', function(){
-          $iframe[0].focus();
-        });
-
-      }
-
-      $iframe.attr('src', config.gameUrl + '?' + Date.now());
-
-
-    }
 
     var voxelcraft = {
         id : -1,
@@ -41,6 +19,54 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} config - json
          */
         initialize : function initialize(id, dom, config, assetManager){
+            var that = this;
+            function startGame(dom, config, responseContainer){
+              if(!that.$iframe){
+                that.$iframe = $('<iframe>');
+                that.$iframe.attr('allow', 'fullscreen');
+                that.$iframe.css('width','100%');
+                $(dom).append(that.$iframe);
+                that.$iframe.css('height', that.$iframe.width() * 0.56 + 'px');
+                that.$iframe[0].focus();
+
+
+                $(dom).on('mouseover', function(){
+                  that.$iframe[0].focus();
+                });
+
+              }
+
+  
+              window.addEventListener('message', function(event){
+                console.log(event);
+                switch(event.data.type){
+                  case 'ready':
+                    that.$iframe[0].contentWindow.postMessage({
+                      type :'setPalette',
+                      value : config.colors.split('\n')
+                    },'*');
+                    if(config.scoring)
+                      that.$iframe[0].contentWindow.postMessage({
+                        type: 'setScoringFunction',
+                        value: config.scoring
+                      },'*');
+                    try {
+                      var scene = JSON.parse(config.scene)
+                      that.$iframe[0].contentWindow.postMessage({
+                        type :'setScene',
+                        value : scene
+                      },'*');
+                    } catch(e){}
+                  break;
+                  case 'updateResult':
+                    _this.responseContainer.base.string = JSON.stringify(event.data.value);
+                  break;
+                }
+              }, false);
+
+              that.$iframe.attr('src', config.gameUrl + '?' + Date.now());
+
+            }
 
             //add method on(), off() and trigger() to the current object
             event.addEventMgr(this);
@@ -65,31 +91,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
               }, 5000);
             });
 
-            window.addEventListener('message', function(event){
-              switch(event.data.type){
-                case 'ready':
-                  $iframe[0].contentWindow.postMessage({
-                    type :'setPalette',
-                    value : config.colors.split('\n')
-                  },'*');
-                  if(config.scoring)
-                    $iframe[0].contentWindow.postMessage({
-                      type: 'setScoringFunction',
-                      value: config.scoring
-                    });
-                  try {
-                    var scene = JSON.parse(config.scene)
-                    $iframe[0].contentWindow.postMessage({
-                      type :'setScene',
-                      value : scene
-                    },'*');
-                  } catch(e){}
-                break;
-                case 'updateResult':
-                  _this.responseContainer.base.string = JSON.stringify(event.data.value);
-                break;
-              }
-            }, false);
 
             startGame(dom, config, this.responseContainer);
         },
@@ -143,7 +144,17 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-
+          var that = this;
+          var onReady = function(event){
+            if(state.response && event.data.type == 'ready'){
+              that.$iframe[0].contentWindow.postMessage({
+                type :'rescore',
+                value : JSON.parse(state.response.base.string)
+              },'*');
+              window.removeEventListener('message', onReady);
+            }
+          };
+          window.addEventListener('message', onReady);
         },
         /**
          * Get the current state of the interaction as a string.
@@ -153,7 +164,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-
             return {};
         }
     };
