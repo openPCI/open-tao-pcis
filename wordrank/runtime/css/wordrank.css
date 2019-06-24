@@ -16,33 +16,41 @@
     overflow-y:scroll;
     overflow-x:hidden;
 }
+
 .wordgame {
   padding: 10px;
   font-size: 16px;
 }
+
 .wordgame .wordgame-row {
   margin: 10px;
   text-align: center;
 }
+
 .wordgame-table table {
   margin:auto !important;
 }
-
 .wordgame .wordgame-cell {
-  /* height: 32px; */
-  height: 64px;
+  background: #5cc5e3;
+  height:64px;
+  box-sizing: border-box;
+  border: 1px solid #004c6e;
+  font-size: 16px;
+  text-align: center;
+  overflow:hidden;
 }
-
 .wordgame .wordgame-texts {
-  /* margin: 10px; */
-  /* padding: 10px; */
-  margin: 5px;
-  padding: 5px;
+  min-height: 80px;
+  background-color: #EEE;
+  margin: 10px;
+  text-align: center;
+  padding: 10px;
 }
-
 
 .wordgame .wordgame-text {
-  /* margin: 3px 5px; */
+  border: 1px solid black;
+  display: inline-block;
+  background: #FFF;
   margin: 03px 5px;
   font-size: 12px;
   line-height: 1.2;
@@ -50,11 +58,9 @@
   margin: 3px;
 }
 
-.wordgame-text:hover {
+
+.wordgame .wordgame-text:hover {
+  background: #F5F5F5;
   color: red;
   cursor: pointer;
-}
-
-.wordgame-cell .wordgame-text {
-  margin: 0px;
 }
