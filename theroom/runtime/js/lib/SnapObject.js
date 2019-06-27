@@ -75,6 +75,7 @@ var PointSnapObject = function(){
       });
 
       group.pointSnap = true;
+      group.userData.pointSnap = true;
       return useBehavior;
     },
 

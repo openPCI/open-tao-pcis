@@ -20,6 +20,7 @@ var WallSnapObject = function(){
       if(/^snap/.test(o.name)){
         snappers.push(o);
         o.snapPoint = true;
+        object.wallSnap = true;
       }
     });
 

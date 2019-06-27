@@ -48,7 +48,7 @@ var Scoring = new (function(){
       var areaBB = new THREE.Box3().setFromObject(areaObj);
       for(var i = 0; i<objs.length; i++){
         var objBB = new THREE.Box3().setFromObject(objs[i]);
-        if(areaBB.isIntersectionBox(objBB)) result.push(objs[i])
+        if(areaBB.intersectsBox(objBB)) result.push(objs[i])
       }
     });
     return result;
@@ -99,6 +99,7 @@ var Scoring = new (function(){
    * wallSnapObjectTest - description
    *
    * @param  {type} object description
+   * @param  {boolean} pointSnap use point snap as well ?
    * @return {type}        description
    */
   function wallSnapObjectTest(object){
@@ -144,11 +145,10 @@ var Scoring = new (function(){
         snappers.push(o);
         o.material.side = THREE.DoubleSide;
       }
-
     });
 
     scene.children.forEach(function(o){
-      if(o.pointSnap && o != object){
+      if((o.pointSnap || o.wallSnap) && o != object){
         o.traverse(function(p){
           if(p.snapPoint){
             otherSnappers.push(p);
@@ -164,19 +164,21 @@ var Scoring = new (function(){
     var finalOther = null;
     var finalDist = 9999;
     snappers.forEach(function(snapper){
-      snapper.getWorldQuaternion(rotation);
-      var v = new THREE.Vector3(0,1,0);
-      v.applyQuaternion(rotation);
-      var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
-      var raycaster = new THREE.Raycaster( snapperPos, v, 0, 1);
-      var result = raycaster.intersectObjects(otherSnappers);
-      if(result.length){
-        if(result[0].distance < finalDist){
-          finalSnapper = snapper;
-          finalOther = result[0].object;
-          finalDist = result[0].distance;
+      [1,-1].forEach(function(dir){
+        var q = new THREE.Quaternion();
+        snapper.getWorldQuaternion(q);
+        var v = new THREE.Vector3( 0, dir , 0 ).applyQuaternion( q );
+        var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
+        var raycaster = new THREE.Raycaster( snapperPos, v, 0, 1);
+        var result = raycaster.intersectObjects(otherSnappers);
+        if(result.length){
+          if(result[0].distance < finalDist){
+            finalSnapper = snapper;
+            finalOther = result[0].object;
+            finalDist = result[0].distance;
+          }
         }
-      }
+      });
     });
     if(finalSnapper){
       return 1;
@@ -201,7 +203,7 @@ var Scoring = new (function(){
         o.traverse(function(p){
           if(p.snapPoint){
             otherSnappers.push(p);
-            p.material.side = THREE.DoubleSide;
+            //p.material.side = THREE.DoubleSide;
           }
         });
       }
@@ -250,11 +252,15 @@ var Scoring = new (function(){
     return result;
   }
 
-  this.wallSnapTest = function(objType){
+  this.wallSnapTest = function(objType, pointTest){
     var result = 0;
     var objs = findByType(objType);
     objs.forEach(function(o){
-      if(wallSnapObjectTest(o)) result++;
+      if(wallSnapObjectTest(o)){
+        result++;
+      } else {
+        if(pointTest && pointSnapObjectTest(o)) result++;
+      }
     });
     return result;
   };

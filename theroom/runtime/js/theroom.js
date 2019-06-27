@@ -900,6 +900,6 @@ document.addEventListener("DOMContentLoaded", function(){
   isTouch();
   setHelpText();
   sendMessage('ready', 1);
-  if(window === window.parent) loadExcersize('teater.json', null, animate);
+  if(window === window.parent) loadExcersize('museum.json', null, animate);
   else animate();
 });

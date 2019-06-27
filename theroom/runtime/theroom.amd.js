@@ -42,12 +42,12 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
                 if(event.data && event.data.type == 'ready'){
                   console.log('init ready')
-                  that.$iframe[0].contentWindow.postMessage({
+                  that.iframe[0].contentWindow.postMessage({
                     type :'loadExcersize',
                     value : config.excersize
                   },'*');
                   if(config.scoringFunction){
-                    that.$iframe[0].contentWindow.postMessage({
+                    that.iframe[0].contentWindow.postMessage({
                       type: 'setScoringFunction',
                       value : config.scoringFunction
                     },'*');
@@ -137,11 +137,12 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
+          var that = this;
           window.removeEventListener('message', that.messageListener);
           var onReady = function(event){
             if(state.response && event.data && event.data.type == 'ready'){
               console.log('state ready');
-              $iframe[0].contentWindow.postMessage({
+              that.iframe[0].contentWindow.postMessage({
                 type :'rescore',
                 value : JSON.parse(state.response.base.string)
               },'*');
