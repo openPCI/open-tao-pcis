@@ -36,7 +36,7 @@ return function SvgMap(options){
         poiResult.push(k);
       }
     });
-    return {path:result, poi:poiResult, score: scoringFunction(result)};
+    return {path:result, poi:poiResult, score: scoringFunction(result, poiResult)};
   }
 
   this.getResult = getResult;
