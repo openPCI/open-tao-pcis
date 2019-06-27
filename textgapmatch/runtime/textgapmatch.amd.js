@@ -25,7 +25,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
               if(that.gapmatch) that.gapmatch.destroy();
               that.gapmatch = new GapMatch(dom, {
                 image: config.backdrop,
-                dropzones: JSON.parse(config.dropzones),
+                dropzones: config.dropzones instanceof Array ? config.dropzones : JSON.parse(config.dropzones),
                 strings: config.strings.split('\n'),
                 editor: window.editor_mode,
                 infiniteTexts: config.infiniteTexts,
