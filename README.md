@@ -15,5 +15,5 @@ To install the PCIs:
 - Click 'Add Interaction'
 - Either drag the zip-files to the designated drop area or find them by pressing 'Browse...'
 
-# Localization
- Not yet  ¯\\_(ツ)_/¯
+#Building
+In order to build the PCI interactions, you must run the `./build.sh` script.
