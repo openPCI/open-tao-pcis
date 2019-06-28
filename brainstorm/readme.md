@@ -7,6 +7,8 @@ Other participants are "bots" that respond with suggestions when the test-taker 
 Each line must be consist of a Name, Color, Delay and Message, semi-colon separated.
 
 Example:
+```CSV
 5;Anne;darkred;En stor samling af økser
 10;Kai;green;Film om hvordan vikingerne boede
 14;Eske;#00a8a7;Bygge økser
+```
