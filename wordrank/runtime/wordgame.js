@@ -41,7 +41,6 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
           if(this.childNodes.length > 0) return;
           var id = evt.dataTransfer.getData('text/wordrank');
           this.appendChild(document.getElementById(id));
-          console.log(evt, this);
         });
         td.appendChild(cell);
         row.appendChild(td);

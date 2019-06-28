@@ -30,7 +30,6 @@ define([
          * @returns {Object} Widget
          */
         getWidget : function(){
-            console.log('getWidget', arguments, Widget);
             window.editor_mode = true;
             return Widget;
         },
@@ -42,7 +41,6 @@ define([
          * @returns {Object}
          */
         getDefaultProperties : function(pci){
-            console.log('getDefaultProperties', arguments);
             return {
                 cells: "3,5,3",
                 texts: 'Tekst 1\nTekst 2\nTekst 3\nTekst 4'
@@ -55,8 +53,6 @@ define([
          * @returns {Object}
          */
         afterCreate : function(pci){
-            //do some stuff
-            console.log('afterCreate', arguments);
         },
         /**
          * (required) Gives the qti pci xml template
@@ -64,7 +60,6 @@ define([
          * @returns {function} handlebar template
          */
         getMarkupTemplate : function(){
-            console.log('getMarkupTemplate', arguments);
             return markupTpl;
         },
         /**
@@ -73,7 +68,6 @@ define([
          * @returns {function} handlebar template
          */
         getMarkupData : function(pci, defaultData){
-            console.log('getMarkupData', arguments);
             defaultData.prompt = pci.data('prompt');
             return defaultData;
         }

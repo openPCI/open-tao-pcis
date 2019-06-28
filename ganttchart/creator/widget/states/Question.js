@@ -103,7 +103,6 @@ define([
                 interaction.triggerPci('cfgChange', ['months',value]);
             },
             disableWeekends : function(interaction, value){
-              console.log('disableWeekends','cfg change',arguments);
                 interaction.prop('disableWeekends', value);
                 interaction.triggerPci('cfgChange', ['disableWeekends',value]);
             },

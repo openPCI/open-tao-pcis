@@ -41,7 +41,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                 }
 
                 if(event.data && event.data.type == 'ready'){
-                  console.log('init ready')
                   that.iframe[0].contentWindow.postMessage({
                     type :'loadExcersize',
                     value : config.excersize
@@ -74,9 +73,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);
 
-
-            console.log('initialize', qtiCustomInteractionContext);
-            console.log(dom, config, this.responseContainer, this);
             var cfgTimeout = 0;
 
             //listening to dynamic configuration change
@@ -97,7 +93,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} response
          */
         setResponse : function setResponse(response){
-            console.log('setResponse', response);
         },
         /**
          * Get the response in the json format described in
@@ -141,7 +136,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
           window.removeEventListener('message', that.messageListener);
           var onReady = function(event){
             if(state.response && event.data && event.data.type == 'ready'){
-              console.log('state ready');
               that.iframe[0].contentWindow.postMessage({
                 type :'rescore',
                 value : JSON.parse(state.response.base.string)

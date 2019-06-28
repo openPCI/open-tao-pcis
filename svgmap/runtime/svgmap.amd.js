@@ -54,12 +54,9 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);
 
-            //
-            console.log('initialize', qtiCustomInteractionContext);
 
             //listening to dynamic configuration change
             this.on('cfgChange', function(key, value){
-              console.log('cfgChange');
                 _this.config[key] = value;
               startsvgmap(dom, _this.config);
             });

@@ -216,7 +216,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
             //listening to dynamic configuration change
             this.on('cfgChange', function(key, value){
-              console.log('cfgChange');
                 _this.config[key] = value;
               startBrainstorm(dom, _this.config, this.responseContainer);
             });
@@ -230,7 +229,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} response
          */
         setResponse : function setResponse(response){
-          console.log('setResponse', response);
         },
         /**
          * Get the response in the json format described in
@@ -240,7 +238,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object}
          */
         getResponse : function getResponse(){
-            console.log('getResponse');
             return this.responseContainer;
         },
         /**
@@ -250,7 +247,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         resetResponse : function resetResponse(){
-            console.log('resetResponse');
             var Scontainer = $(this.dom);
 
         },
@@ -262,7 +258,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         destroy : function destroy(){
-            console.log('destroy');
             var Scontainer = $(this.dom);
             Scontainer.off().empty();
         },
@@ -273,7 +268,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-          console.log('st',state);
 
           if(state.response){
             startBrainstorm(curDom, curConfig, {}, true);

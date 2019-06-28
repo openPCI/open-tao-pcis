@@ -29,7 +29,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
               try {
                 texts = config.texts.split('\n');
-                console.log(config);
                 cells = config.cells.split(',');
               } catch(e){
                 console.log(e);

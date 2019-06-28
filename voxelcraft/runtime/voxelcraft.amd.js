@@ -36,9 +36,8 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
               }
 
-  
+
               window.addEventListener('message', function(event){
-                console.log(event);
                 switch(event.data.type){
                   case 'ready':
                     that.$iframe[0].contentWindow.postMessage({

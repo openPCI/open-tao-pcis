@@ -37,14 +37,13 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                 },
                 editorCallback: function(dropzones){
                   if(window.editor_mode){
-                    // This is absolutely a hack, because this shouldn't be a thing in TAO. Its illegal to do it, but it is the only way :p
+                    // This is absolutely a hack, because this shouldn't be a thing in TAO.
                     window.__updateDropzones(dropzones);
                   }
                 }
               });
             }
 
-            //add method on(), off() and trigger() to the current object
             event.addEventMgr(this);
 
             var _this = this;
@@ -71,7 +70,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} response
          */
         setResponse : function setResponse(response){
-            console.log('setResponse');
         },
         /**
          * Get the response in the json format described in

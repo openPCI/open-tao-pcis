@@ -54,7 +54,6 @@ var WallSnapObject = function(){
           }
         }
       });
-      console.log(useBehavior);
 
       return useBehavior;
     },

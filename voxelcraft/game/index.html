@@ -410,7 +410,6 @@
             break;
             case 'rescore':
               setTimeout(function(){
-                console.log(event.data);
                 setScene(event.data.value && event.data.value.data ? event.data.value.data : event.data.value);
                 window.parent.postMessage({
                   type: 'rescore',
