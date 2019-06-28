@@ -78,14 +78,14 @@
   </head>
   <body>
     <div class="collapsable">
-      <h2>CSV Data og kørsel</h2>
+      <h2>CSV Data & Tasks</h2>
       <div class="content optform">
         <div>
           <label>CSV Data</label>
           <input type="file" id="fileUpload">
         </div>
         <div>
-          <label>Kørsel</label>
+          <label>Task</label>
           <select id="task">
             <option value="taskRecalculateRoomExcersize">Room (3D)</option>
             <option value="taskRecalculateCustomFunction">Brugerdefineret funktion</option>
@@ -93,11 +93,11 @@
           </select>
         </div>
         <div>
-          <label>Kolonne</label>
+          <label>Column</label>
           <input type="text" id="column" value="110">
         </div>
         <div id="taskRecalculateVoxelcraft" class="taskoptions">
-          <label>Scorings function (?)</label>
+          <label>Scoring function (?)</label>
           <textarea id="voxelScoringFunc">
               function(){
 
@@ -111,7 +111,7 @@
           </div>
         </div>
         <div id="taskRecalculateCustomFunction" class="taskoptions">
-          <label>Scorings function (?)</label>
+          <label>Scoring function (?)</label>
           <textarea id="mapScoringFunc">
               function(){
 
@@ -119,19 +119,19 @@
           </textarea>
         </div>
         <div class="fuse">
-          <button id="runBtn">Kør</button><button id="saveBtn">Gem</button>
+          <button id="runBtn">Run</button><button id="saveBtn">Save</button>
         </div>
       </div>
     </div>
 
     <div class="collapsable">
-      <h2>Kolonner</h2>
+      <h2>Data</h2>
       <div class="content" id="columns">
 
       </div>
     </div>
     <div class="collapsable">
-      <h2>Øvelse</h2>
+      <h2>Excersize</h2>
       <div class="content scoringarea">
         <div id="playarea"></div>
         <div id="scoreTable"></div>

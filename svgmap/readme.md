@@ -10,5 +10,5 @@ A scoring function can be defined as such:
       return score;
     }
 ```
-Where `pathNodes` is an array of node ids and `pois` is a list of visited point of interrests.
+Where `pathNodes` is an array of node ids and `pois` is a list of visited point of interests visited on the route.
 `score` can be anything, number, string or even an object containing sub scores.
