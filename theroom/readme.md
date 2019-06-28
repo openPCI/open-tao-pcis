@@ -12,7 +12,7 @@ Excersizes are defined in JSON files under the excersizes/ folder. This JSON fil
   "assets":[
     {
       "model" : "souvenirbutik/reol1.gltf",
-      count : 2
+      "count" : 2
     }
   ],
   "objects":[
