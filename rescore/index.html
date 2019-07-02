@@ -378,6 +378,9 @@
             currentRowData[insertColumn] = this.value;
             rebuildDataTableRow(currentRow);
           });
+          input.addEventListener('focus', function(){
+            this.select();
+          });
           input.addEventListener("keyup", function(evt) {
             currentRowData[insertColumn] = this.value;
             rebuildDataTableRow(currentRow);
