@@ -293,7 +293,7 @@
         if(task.indexOf('Recalc') > -1){
           window[task](data, column, playarea, done);
         } else {
-          currentRow = 1;
+          rowInput.value = currentRow = 1;
           loadCurrentRow();
         }
       }
