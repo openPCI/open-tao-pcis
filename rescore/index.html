@@ -191,7 +191,7 @@
           e.style.display='none';
         });
         document.getElementById(task).style.display = 'block';
-        runBtn.disabled = !(task.indexOf('Recalc') > -1);
+        runBtn.innerText = (task.indexOf('Recalc') > -1) ? 'Run rescore' : 'Do Review';
       }
 
       document.getElementById('task').addEventListener('change', showTaskOptions);
@@ -285,11 +285,17 @@
         var task = document.getElementById('task').value;
         var column = document.getElementById('column').value;
         var playarea = document.getElementById('playarea');
+
         function done(){
           console.log('done', data);
           buildDataTable(data);
         }
-        window[task](data, column, playarea, done);
+        if(task.indexOf('Recalc') > -1){
+          window[task](data, column, playarea, done);
+        } else {
+          currentRow = 1;
+          loadCurrentRow();
+        }
       }
 
 
@@ -492,7 +498,7 @@
             }
           } else {
             scoreTable.appendChild(scoringTable(column));
-            
+
             //Prevent UI from jumping around too much.
             if(parseInt("0"+playarea.style.minHeight,10) < playarea.clientHeight){
               playarea.style.minHeight = playarea.clientHeight + 'px';
