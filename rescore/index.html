@@ -67,6 +67,7 @@
      }
      .scoringarea {
        position:relative;
+       min-height:600px;
      }
     </style>
     <script
@@ -148,6 +149,7 @@
         </div>
         <div id="playarea"></div>
         <div id="scoreTable"></div>
+        <div class="cb"></div>
       </div>
     </div>
     <script>
@@ -313,7 +315,6 @@
           function next(){
             i++;
             if(i >= data.length) return done();
-            console.log(data.length, i);
             if(excersize){
               try {
                 var d = JSON.parse(data[i][column]);
@@ -474,6 +475,8 @@
       }
 
       function loadCurrentRow(cb){
+        if (typeof cb != "function") cb = function(){scoreTable.querySelectorAll('input')[0].focus();};
+
         var task = document.getElementById('task').value;
         var column = document.getElementById('column').value;
         var playarea = document.getElementById('playarea');
@@ -489,10 +492,10 @@
             }
           } else {
             scoreTable.appendChild(scoringTable(column));
+            
             //Prevent UI from jumping around too much.
             if(parseInt("0"+playarea.style.minHeight,10) < playarea.clientHeight){
               playarea.style.minHeight = playarea.clientHeight + 'px';
-              console.log(playarea);
             }
           }
           if(cb) cb();
@@ -506,16 +509,26 @@
           currentRow--;
         }
         rowInput.value = currentRow;
-        if (typeof cb != "function") cb = undefined;
         loadCurrentRow(cb);
       }
 
-      document.getElementById('nextBtn').addEventListener('click', nextInReview);
-      document.getElementById('prevBtn').addEventListener('click', function(){
+      function prevRow(){
         currentRow--;
         if(currentRow == 0) currentRow++;
         rowInput.value = currentRow;
         loadCurrentRow();
+      }
+
+      document.getElementById('nextBtn').addEventListener('click', nextInReview);
+      document.getElementById('prevBtn').addEventListener('click', prevRow);
+
+      document.addEventListener('keydown', function(evt){
+        switch(evt.which){
+          case 37: prevRow();
+          break;
+          case 39: nextInReview();
+          break;
+        }
       });
 
       rowInput.addEventListener('keydown', function(e){
