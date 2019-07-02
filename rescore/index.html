@@ -88,13 +88,23 @@
           <label>Task</label>
           <select id="task">
             <option value="taskRecalculateRoomExcersize">Room (3D)</option>
-            <option value="taskRecalculateCustomFunction">Brugerdefineret funktion</option>
+            <option value="taskRecalculateCustomFunction">User defined function</option>
             <option value="taskRecalculateVoxelcraft">Voxelcraft</option>
+            <option value="taskGenericText">Text</option>
+            <option value="taskGenericBrainstorm">Brainstorm</option>
           </select>
         </div>
         <div>
           <label>Column</label>
           <input type="text" id="column" value="110">
+        </div>
+        <div>
+          <label>Score labels</label>
+          <input type="text" id="scoreLabels" value="score 1, score 2" />
+        </div>
+        <div id="taskGenericText" class="taskoptions">
+        </div>
+        <div id="taskGenericBrainstorm" class="taskoptions">
         </div>
         <div id="taskRecalculateVoxelcraft" class="taskoptions">
           <label>Scoring function (?)</label>
@@ -119,7 +129,7 @@
           </textarea>
         </div>
         <div class="fuse">
-          <button id="runBtn">Run</button><button id="saveBtn">Save</button>
+          <button id="runBtn">Run rescore</button><button id="saveBtn">Save</button>
         </div>
       </div>
     </div>
@@ -133,20 +143,22 @@
     <div class="collapsable">
       <h2>Excersize</h2>
       <div class="content scoringarea">
-        <div id="playarea"></div>
-        <div id="scoreTable"></div>
         <div class="controls fuse">
           <button id="prevBtn">«</button><input type="text" id="csvRowNum" value="0"/><button id="nextBtn">»</button>
         </div>
+        <div id="playarea"></div>
+        <div id="scoreTable"></div>
       </div>
     </div>
     <script>
       var messageListeners = {};
       var data;
       var currentRow = 0;
+      var currentRowData = null;
       var file;
       var scoreTable = document.getElementById('scoreTable');
       var rowInput = document.getElementById('csvRowNum');
+      var scoreLabelColumns = {};
       window.addEventListener('message', function(event){
         var type = event.data.type;
         if(messageListeners[type])
@@ -157,11 +169,13 @@
         }
       });
 
+
       document.getElementById('fileUpload').addEventListener('change', function(e){
         file = this.files[0];
 
         var papa = Papa.parse(file, {
           complete: function(results) {
+            scoreLabelColumns = {};
             data = results.data;
             buildDataTable(data);
           }
@@ -170,38 +184,54 @@
       });
 
       function showTaskOptions(){
+        var task = document.getElementById('task').value;
         document.querySelectorAll('.taskoptions').forEach(function(e){
           e.style.display='none';
         });
-        document.getElementById(document.getElementById('task').value).style.display = 'block';
+        document.getElementById(task).style.display = 'block';
+        runBtn.disabled = !(task.indexOf('Recalc') > -1);
       }
-      showTaskOptions();
+
       document.getElementById('task').addEventListener('change', showTaskOptions);
 
-      function buildDataTable(rows){
+      function rebuildDataTableRow(rowNum){
+        var row = document.querySelectorAll('#columns table tr')[rowNum+1];
+
+        if(!row) return;
+
+        var tr = document.createElement('tr');
+        for(var i=0; i<data[0].length;i++){
+          s = data[rowNum][i] || '';
+          var td = document.createElement('td');
+          td.innerText = s;
+          tr.appendChild(td);
+        }
+        row.replaceWith(tr);
+      }
+
+      function buildDataTable(){
+        var rows = data;
         var table = document.createElement('table');
         var tr = document.createElement('tr');
+
         for(var i=0; i<rows[0].length;i++){
           var td = document.createElement('td');
           td.innerText = i;
           tr.appendChild(td);
         }
+
         table.appendChild(tr);
         rows.forEach(function(row){
-          var tr1 = document.createElement('tr');
           var tr2 = document.createElement('tr');
 
           table.appendChild(tr2);
-          row.forEach(function(s, i){
-            var td1 = document.createElement('td');
-            td1.innerText = i;
-
+          var s = '';
+          for(var i=0; i<rows[0].length;i++){
+            s = row[i] || '';
             var td2 = document.createElement('td');
             td2.innerText = s;
-
-            tr1.appendChild(td1);
             tr2.appendChild(td2);
-          });
+          }
         });
         var container = document.getElementById('columns');
         container.innerHTML = '';
@@ -301,6 +331,68 @@
         });
       }
 
+      function scoringTable(column){
+        var scoreLabels = document.getElementById('scoreLabels').value.split(',').map(function(l){
+          return l.trim();
+        });
+
+        var table = document.createElement('table');
+
+        var th = document.createElement('tr');
+        var td = document.createElement('th');
+        td.colSpan = 2;
+        td.innerText = "Scoring";
+        th.appendChild(td);
+        table.appendChild(th);
+
+        var newColumns = false;
+
+        scoreLabels.forEach(function(label, i){
+          var columnName = data[0][column] + '-' + label;
+          if(!scoreLabelColumns[columnName]){
+            var columnIndex = data[0].indexOf(columnName);
+            if(columnIndex > -1){
+              scoreLabelColumns[columnName] = columnIndex;
+            } else {
+              scoreLabelColumns[columnName] = data[0].length;
+              data[0].push(columnName);
+              newColumns = true;
+            }
+          }
+          var insertColumn = scoreLabelColumns[columnName];
+          var tr = document.createElement('tr');
+          var tdLabel = document.createElement('td');
+          tdLabel.innerText = label;
+          tr.appendChild(tdLabel);
+
+          var tdInput = document.createElement('td');
+          var input = document.createElement('input');
+          input.value = currentRowData[insertColumn];
+          input.addEventListener('change', function(evt){
+            currentRowData[insertColumn] = this.value;
+            rebuildDataTableRow(currentRow);
+          });
+          input.addEventListener("keyup", function(evt) {
+            currentRowData[insertColumn] = this.value;
+            rebuildDataTableRow(currentRow);
+            if(evt.keyCode != 13) return;
+            if(i+1<scoreLabels.length) table.querySelectorAll('input')[i+1].focus();
+            else nextInReview(function(){
+              scoreTable.querySelectorAll('input')[0].focus();
+            });
+
+          });
+          input.type = "number";
+          tdInput.appendChild(input);
+          tr.appendChild(tdInput);
+
+          table.appendChild(tr);
+        });
+
+        if(newColumns) buildDataTable();
+        return table;
+      }
+
       function objectToTable(obj, title){
         var table = document.createElement('table');
         if(title){
@@ -326,6 +418,28 @@
           table.appendChild(tr);
         }
         return table;
+      }
+
+      function taskGenericBrainstorm(data, column, canvas, done){
+        canvas.innerHTML = '';
+        data[0][column].split(/[|\n]/g).forEach(function(str){
+          var row = str.split(';');
+          if(row.length !== 3) return;
+          var div = document.createElement('div');
+          var name = document.createElement('strong');
+          name.innerText = row[1];
+          var msg = document.createElement('span');
+          msg.innerText = row[2];
+          div.appendChild(name);
+          div.appendChild(msg);
+          canvas.appendChild(div);
+        })
+        done();
+      }
+
+      function taskGenericText(data, column, canvas, done){
+        canvas.innerHTML = data[0][column];
+        done();
       }
 
       function taskRecalculateVoxelcraft(data, column, playarea, done){
@@ -359,40 +473,101 @@
         }
       }
 
-      function loadCurrentRow(){
+      function loadCurrentRow(cb){
         var task = document.getElementById('task').value;
         var column = document.getElementById('column').value;
         var playarea = document.getElementById('playarea');
-        window[task]([data[currentRow]], column, playarea, function(){
+        currentRowData = data[currentRow];
+        window[task]([currentRowData], column, playarea, function(){
           scoreTable.innerHTML = '';
-          try {
-            var dat = JSON.parse(data[currentRow][column]);
-            scoreTable.appendChild(objectToTable(dat['score'] ? dat['score'] : dat, 'Score'));
-          } catch(e){
-            scoreTable.innerText = e.toString();
+          if(task.indexOf('Recalc') > -1){
+            try {
+              var dat = JSON.parse(data[currentRow][column]);
+              scoreTable.appendChild(objectToTable(dat['score'] ? dat['score'] : dat, 'Score'));
+            } catch(e){
+              scoreTable.innerText = e.toString();
+            }
+          } else {
+            scoreTable.appendChild(scoringTable(column));
+            //Prevent UI from jumping around too much.
+            if(parseInt("0"+playarea.style.minHeight,10) < playarea.clientHeight){
+              playarea.style.minHeight = playarea.clientHeight + 'px';
+              console.log(playarea);
+            }
           }
+          if(cb) cb();
         });
+
       }
 
-      document.getElementById('nextBtn').addEventListener('click', function(){
+      function nextInReview(cb){
         currentRow++;
+        if(currentRow == data.length){
+          currentRow--;
+        }
         rowInput.value = currentRow;
-        loadCurrentRow();
-      });
+        if (typeof cb != "function") cb = undefined;
+        loadCurrentRow(cb);
+      }
+
+      document.getElementById('nextBtn').addEventListener('click', nextInReview);
       document.getElementById('prevBtn').addEventListener('click', function(){
         currentRow--;
+        if(currentRow == 0) currentRow++;
         rowInput.value = currentRow;
         loadCurrentRow();
       });
+
       rowInput.addEventListener('keydown', function(e){
          if(e.keyCode == 13) {
            currentRow = rowInput.value;
            loadCurrentRow();
            e.preventDefault();
          }
-
       });
-      document.getElementById('runBtn').addEventListener('click',runTask);
+
+      var runBtn = document.getElementById('runBtn');
+      runBtn.addEventListener('click',runTask);
+
+      window.onunload = function(){
+        var inputs = document.querySelectorAll('.optform input, .optform select');
+        var settings = {};
+        inputs.forEach(function(input){
+          settings[input.id] = input instanceof HTMLSelectElement ? input.selectedIndex : input.value;
+        });
+        localStorage.setItem("settings", JSON.stringify(settings));
+        localStorage.setItem("rescoreSnapshot", JSON.stringify(data));
+        localStorage.setItem("rescoreSnapshotFile", file.name);
+        localStorage.setItem("rescoreInReview", currentRow);
+      };
+
+      window.onload = function(){
+        var settings = JSON.parse(localStorage.getItem('settings'));
+        for(var k in settings){
+          var val = settings[k];
+          try {
+            var input = document.getElementById(k);
+            if(input.type == "text") input.value = val;
+            if(input instanceof HTMLSelectElement){
+              input.selectedIndex = val;
+            }
+          } catch (e){}
+        }
+        var snapshot = localStorage.getItem('rescoreSnapshot');
+        var snapshotFile = localStorage.getItem("rescoreSnapshotFile");
+        var inReview = localStorage.getItem("rescoreInReview");
+        if(snapshot && snapshotFile){
+          data = JSON.parse(snapshot);
+          file = { name : snapshotFile };
+          buildDataTable(data);
+          if(inReview){
+            rowInput.value = currentRow = parseInt(inReview,10);
+            loadCurrentRow();
+          }
+        }
+
+        showTaskOptions();
+      }
 
       document.getElementById('saveBtn').addEventListener('click', function(){
         var fn  = file.name.replace(/(-rescored)?.csv/,'-rescored.csv')
