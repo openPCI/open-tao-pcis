@@ -69,6 +69,10 @@
        position:relative;
        min-height:600px;
      }
+     .brainstorm-name {
+       width:120px;
+       display:inline-block;
+     }
     </style>
     <script
       src="https://code.jquery.com/jquery-3.3.1.min.js"
@@ -102,10 +106,6 @@
           <label>Score labels</label>
           <input type="text" id="scoreLabels" value="score 1, score 2" />
         </div>
-        <div id="taskGenericText" class="taskoptions">
-        </div>
-        <div id="taskGenericBrainstorm" class="taskoptions">
-        </div>
         <div id="taskRecalculateVoxelcraft" class="taskoptions">
           <label>Scoring function (?)</label>
           <textarea id="voxelScoringFunc">
@@ -127,6 +127,12 @@
 
               }
           </textarea>
+        </div>
+        <div id="taskGenericBrainstorm" class="taskoptions">
+          <div>
+            <label>Test-taker nick</label>
+            <input type="text" id="brainstormNickname" value="Dig">
+          </div>
         </div>
         <div class="fuse">
           <button id="runBtn">Run rescore</button><button id="saveBtn">Save</button>
@@ -430,12 +436,15 @@
       }
 
       function taskGenericBrainstorm(data, column, canvas, done){
+        var testTaker = document.getElementById('brainstormNickname').value;
         canvas.innerHTML = '';
         data[0][column].split(/[|\n]/g).forEach(function(str){
           var row = str.split(';');
           if(row.length !== 3) return;
           var div = document.createElement('div');
+          if(row[1] != testTaker) div.style.opacity = 0.5;
           var name = document.createElement('strong');
+          name.className = 'brainstorm-name';
           name.innerText = row[1];
           var msg = document.createElement('span');
           msg.innerText = row[2];
