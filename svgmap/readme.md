@@ -1,5 +1,5 @@
 # SvgMap
-In the Svg Map excersize a test-taker must chose the appropriate route trough a map.
+In the Svg Map exercise a test-taker must chose the appropriate route trough a map.
 
 The map is specified by an SVG file with lines. Lines must NOT be connected on junctions.
 

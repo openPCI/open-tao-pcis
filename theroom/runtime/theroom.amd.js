@@ -42,8 +42,8 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
                 if(event.data && event.data.type == 'ready'){
                   that.iframe[0].contentWindow.postMessage({
-                    type :'loadExcersize',
-                    value : config.excersize
+                    type :'loadExercise',
+                    value : config.exercise
                   },'*');
                   if(config.scoringFunction){
                     that.iframe[0].contentWindow.postMessage({

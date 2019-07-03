@@ -8,4 +8,4 @@ for i in  "${pcis[@]}"; do
     cd ..
   fi
 done
-zip --delete ./builds/theroom.zip "excersizes/*"
+zip --delete ./builds/theroom.zip "exercises/*"

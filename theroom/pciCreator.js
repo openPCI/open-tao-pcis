@@ -42,7 +42,7 @@ define([
          */
         getDefaultProperties : function(pci){
             return {
-                excersize: 'museum.json',
+                exercise: 'museum.json',
                 gameurl: 'https://surveyinfo.au.dk/pci-external/open-tao-pcis/theroom/runtime/theroom.html'
             };
         },

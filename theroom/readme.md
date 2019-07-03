@@ -1,13 +1,13 @@
 # Room (3D)
-The room is an creative excersize where test-takers can move around and insert objects.
-The excersize is versatile and can be used for many scenarios such as interior design excersizes.
+The room is an creative exercise where test-takers can move around and insert objects.
+The exercise is versatile and can be used for many scenarios such as interior design exercises.
 There is support for object snapping, either to walls or to other objects.
 
-# Creating an excersize
-Excersizes are defined in JSON files under the excersizes/ folder. This JSON file structure is as follows:
+# Creating an exercise
+Exercises are defined in JSON files under the exercises/ folder. This JSON file structure is as follows:
 ```JSON
 {
-  "scene" : "my_excersize/room.gltf",
+  "scene" : "my_exercise/room.gltf",
   "scoringFunction" : "function score(){}",
   "assets":[
     {
@@ -20,7 +20,7 @@ Excersizes are defined in JSON files under the excersizes/ folder. This JSON fil
   ]
 }
 ```
-`scene` is the gltf 3d file containing the room of the excersize.
+`scene` is the gltf 3d file containing the room of the exercise.
 `scoringFunction` can be defined to enable functional scoring. Scoring can be performed using the scoring API or alternatively you can access THREE.js directly.
 `assets` is an array containing the objects for the scene. `model` is the path to the gltf 3d object. `count` is the amount of this type that can be inserted into the scene.
 `objects` is an array containing all preinserted objects in the scene, along with their position and rotation.
@@ -35,7 +35,7 @@ Your scene should have a cube named `boundingbox`, this is the area where test t
 Naming anything with `zone` in the name will cause it to be invisible. Zones are for testing placement in functional scoring. You can perform boundary box tests on objects intersecting areas.
 
 ## Creating objects
-You can create assets for excersizes in any 3D program that supports gltf export such as blender.
+You can create assets for exercises in any 3D program that supports gltf export such as blender.
 There is some special naming conventions that enable certain functionality such as snapping and transparency.
 
 ### Glass
@@ -52,10 +52,10 @@ To create an object snap is similar, but name the snap plane `obj_snap`, the obj
 An object zone is a zone attached to a moveable object that you wish to score from. You can test if the zone intersects other objects etc. using the `objZoneTest` scoring function. To create a zone, simply name a box object so it contains the `zone` keyword
 
 ## Examples
-Please see the excersize/ folder for examples.
+Please see the exercise/ folder for examples.
 
 # Functional scoring
-Scoring can be performed using functional scoring. To do this, simply define a scoringFunction in the excersize definition.
+Scoring can be performed using functional scoring. To do this, simply define a scoringFunction in the exercise definition.
 You can use the Scoring API. This API defines the following helper functions for scoring:
 
 

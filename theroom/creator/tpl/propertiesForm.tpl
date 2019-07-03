@@ -4,7 +4,7 @@
     <label for="messages">Øvelse</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_nickname"}}</span>
-    <input type="text" name="excersize" value="{{excersize}}" />
+    <input type="text" name="exercise" value="{{exercise}}" />
 
     <label for="messages">Game Url</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>

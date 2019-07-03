@@ -1,5 +1,5 @@
 # Brainstorm
-Brainstorm is a simulated chat excersize for brainstorming scenarios.
+Brainstorm is a simulated chat exercise for brainstorming scenarios.
 The test-taker will have to participate in a simulated brainstorm group chat.
 Other participants are "bots" that respond with suggestions when the test-taker has not given input within a certain timelimit.
 

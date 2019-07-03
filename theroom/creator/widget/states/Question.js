@@ -41,7 +41,7 @@ define([
         //render the form using the form template
         Sform.html(formTpl({
             serial : response.serial,
-            excersize: interaction.prop('excersize'),
+            exercise: interaction.prop('exercise'),
             gameurl: interaction.prop('gameurl')
         }));
 
@@ -50,9 +50,9 @@ define([
 
         //init data change callbacks
         formElement.setChangeCallbacks(Sform, interaction, {
-            excersize : function(interaction, value){
-                interaction.prop('excersize', value);
-                interaction.triggerPci('cfgChange', ['excersize',value]);
+            exercise : function(interaction, value){
+                interaction.prop('exercise', value);
+                interaction.triggerPci('cfgChange', ['exercise',value]);
             },
             gameurl : function(interaction, value){
                 interaction.prop('gameurl', value);

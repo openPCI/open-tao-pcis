@@ -1,9 +1,9 @@
 # Voxelcraft
-The Voxelcraft excersize is a simple 3D building game, where a test-taker can
+The Voxelcraft exercise is a simple 3D building game, where a test-taker can
 build anything out of cubes.
 
 ## Functional scoring
-Excersizes can be scored by a function. This function can make use of the scoring API for voxelcraft.
+Exercises can be scored by a function. This function can make use of the scoring API for voxelcraft.
 Or alternatively you can access the THREE.js scene and do your own custom scoring.
 
 | Function | Description |

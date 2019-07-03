@@ -16,8 +16,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       return ret;
     }
 
-    var curGantt;
-
     var gantt = {
         id : -1,
         getTypeIdentifier : function getTypeIdentifier(){
@@ -60,6 +58,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} response
          */
         setResponse : function setResponse(response){
+          console.log('setResponse',response);
         },
         /**
          * Get the response in the json format described in
@@ -76,7 +75,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                   return a.join(', ');
                 }).join(';'),
                 state: this.ganttChart.getState()
-              })
+              }).replace(/"/g,"'")
             }
           };
         },
@@ -97,7 +96,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         destroy : function destroy(){
-
             var Scontainer = $(this.dom);
             Scontainer.off().empty();
         },
@@ -108,8 +106,9 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
+          console.log(state);
             if(state.response){
-              var data = JSON.parse(state.response.base.string);
+              var data = JSON.parse(state.response.base.string.replace(/'/g,'"'));
               this.ganttChart.setState(data.state);
             }
         },
@@ -121,7 +120,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-            return {state: this.ganttChart.getState()};
+            return {}
         }
     };
 

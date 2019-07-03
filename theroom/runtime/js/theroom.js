@@ -1,4 +1,4 @@
-var urlPath = '../excersizes/';
+var urlPath = '../exercises/';
 
 var moveables = [];
 
@@ -9,7 +9,7 @@ var raycaster = new THREE.Raycaster();
 var hudRaycaster = new THREE.Raycaster();
 var renderer = new THREE.WebGLRenderer();
 var scoringFunction = function(){};
-var excersizeUrl;
+var exerciseUrl;
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.setClearColor( 0xeeeeee );
 renderer.shadowMap.enabled = true;
@@ -88,11 +88,11 @@ function serializeMoveables(){
     }
     result.push(obj);
   });
-  return {excersize: excersizeUrl, scene: scenePath, objects: result};
+  return {exercise: exerciseUrl, scene: scenePath, objects: result};
 }
 
 function deserializeMoveables(data, callback){
-  if(data.excersize) loadExcersize(data.excersize, data.objects, callback);
+  if(data.exercise) loadExercise(data.exercise, data.objects, callback);
   // else {
   //   hud.reset();
   //   function cb(){
@@ -192,9 +192,9 @@ function clearThree(obj){
 }
 
 
-function loadExcersize(definitionUrl, objects, cb){
+function loadExercise(definitionUrl, objects, cb){
   var xmlhttp = new XMLHttpRequest();
-  excersizeUrl = definitionUrl;
+  exerciseUrl = definitionUrl;
 
   hud.reset();
   clearThree(scene);
@@ -562,15 +562,15 @@ function onTouchEnd(e){
 function onPostMessage(event){
   if(event.data && event.data.type){
     switch(event.data.type){
-      case 'loadExcersize':
-        loadExcersize(event.data.value);
+      case 'loadExercise':
+        loadExercise(event.data.value);
       break;
       case 'setScoringFunction':
         setScoringFunction(event.data.value);
       break;
       case 'rescore':
         var serialized = event.data.value;
-        if((serialized.scene || serialized.excersize) && serialized.objects){
+        if((serialized.scene || serialized.exercise) && serialized.objects){
           deserializeMoveables(serialized, function(){
             postResult(true);
           });
@@ -900,6 +900,6 @@ document.addEventListener("DOMContentLoaded", function(){
   isTouch();
   setHelpText();
   sendMessage('ready', 1);
-  if(window === window.parent) loadExcersize('museum.json', null, animate);
+  if(window === window.parent) loadExercise('museum.json', null, animate);
   else animate();
 });
