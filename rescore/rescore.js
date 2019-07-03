@@ -6,6 +6,7 @@ var file;
 var scoreTable = document.getElementById('scoreTable');
 var rowInput = document.getElementById('csvRowNum');
 var scoreLabelColumns = {};
+
 window.addEventListener('message', function(event){
   var type = event.data.type;
   if(messageListeners[type])
@@ -276,7 +277,7 @@ function scoringTable(column){
 
     var tdInput = document.createElement('td');
     var input = document.createElement('input');
-    input.value = currentRowData[insertColumn];
+    input.value = currentRowData[insertColumn] || "0";
     input.addEventListener('change', function(evt){
       currentRowData[insertColumn] = this.value;
       rebuildDataTableRow(currentRow);
