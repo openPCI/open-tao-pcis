@@ -133,6 +133,8 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          */
         setSerializedState : function setSerializedState(state){
           var that = this;
+          if($.isEmptyObject(state)) return;
+          
           window.removeEventListener('message', that.messageListener);
           var onReady = function(event){
             if(state.response && event.data && event.data.type == 'ready'){
