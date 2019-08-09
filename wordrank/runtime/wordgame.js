@@ -4,6 +4,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
     if (!options.cells) throw "No Cells!";
 
     var elem = options.element;
+    var currentDropId = null;
 
   // Creates the divs and HTML elements for the game.
     var table = document.createElement('div');
@@ -39,7 +40,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         cell.addEventListener('drop', function(evt) {
           evt.preventDefault();
           if(this.childNodes.length > 0) return;
-          var id = evt.dataTransfer.getData('text/wordrank');
+          var id = currentDropId;
           this.appendChild(document.getElementById(id));
         });
         td.appendChild(cell);
@@ -53,7 +54,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
     var words = document.createElement('div');
     words.className = 'wordgame-texts';
     words.addEventListener('drop', function(evt){
-      var id = evt.dataTransfer.getData('text/wordrank');
+      var id = currentDropId;
       words.appendChild(document.getElementById(id));
     });
     words.addEventListener('dragover', function(evt){
@@ -68,7 +69,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       text.draggable = true;
       text.id = (options.idPrefix||'') + 'wordrank' + i;
       text.addEventListener('dragstart', function(evt) {
-        evt.dataTransfer.setData('text/wordrank', text.id);
+        currentDropId =  text.id;
         text.style.opacity = 0.25;
       });
       text.addEventListener('dragend', function(evt){
