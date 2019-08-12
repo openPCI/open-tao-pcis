@@ -37,12 +37,19 @@ define([
             interaction = _widget.element,
             response = interaction.getResponseDeclaration();
 
+        function tryStringify(str){
+          try {
+            return JSON.stringify(str);
+          } catch(e){
+            return "{}";
+          }
+        }
 
         //render the form using the form template
         Sform.html(formTpl({
             serial : response.serial,
             backdrop: interaction.prop('backdrop'),
-            poi: interaction.prop('poi'),
+            poi: tryStringify(interaction.prop('poi')),
             dotresolution: interaction.prop('dotresolution'),
             pathlayer: interaction.prop('pathlayer'),
             identifier : interaction.attr('responseIdentifier'),
@@ -97,7 +104,7 @@ define([
         });
 
         window.__updateSvgMapPoi = function(point){
-          var val = JSON.parse(interaction.prop('poi'));
+          var val = interaction.prop('poi');
 
           var poiName = prompt('Navngiv interessepunkt');
           if(!poiName) return;

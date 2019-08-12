@@ -19,11 +19,12 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} config - json
          */
         initialize : function initialize(id, dom, config, assetManager){
+          console.log('config', config);
             var that = this;
             function startsvgmap(dom, config, resultObject){
               if(that.svgmap) that.svgmap.destroy();
 
-              var pois = [];
+              var pois = config.poi;
               try { pois = JSON.parse(config.poi); } catch(e){}
 
               that.svgmap = new SvgMap({
@@ -37,7 +38,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
                   __updateSvgMapPoi(point);
                 } : false,
                 pathCallback: function(result){
-                    resultObject.base.string = JSON.stringify(result);
+                  resultObject.base.string = JSON.stringify(result);
                 }
               });
             }
