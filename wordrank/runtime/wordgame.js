@@ -70,6 +70,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       text.id = (options.idPrefix||'') + 'wordrank' + i;
       text.addEventListener('dragstart', function(evt) {
         currentDropId =  text.id;
+        evt.dataTransfer.setData('text', text.id);
         text.style.opacity = 0.25;
       });
       text.addEventListener('dragend', function(evt){

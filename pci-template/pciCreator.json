@@ -1,0 +1,37 @@
+{
+    "typeIdentifier": "brainstorm",
+    "label": "Brainstorm",
+    "short": "Brainstorm",
+    "description": "Brainstorm simulated chat",
+    "version": "0.0.6",
+    "author": "EJTH",
+    "email": "ejth@edu.au.dk",
+    "tags": [
+        ""
+    ],
+    "response": {
+        "baseType": "string",
+        "cardinality": "single"
+    },
+    "runtime" : {
+        "hook" : "./runtime/brainstorm.amd.js",
+        "libraries" : [
+            "IMSGlobal/jquery_2_1_1"
+        ],
+        "stylesheets" : [
+            "./runtime/css/base.css",
+            "./runtime/css/brainstorm.css"
+        ], "mediaFiles" : ["./runtime/assets/download.png","./runtime/css/img/download.png"]
+    },
+            "creator" : {
+                "icon": "./creator/img/icon.svg",
+                "hook": "./pciCreator.js",
+                "libraries" : [
+                    "./creator/tpl/markup.tpl",
+                    "./creator/tpl/propertiesForm.tpl",
+                    "./creator/widget/Widget.js",
+                    "./creator/widget/states/Question.js",
+                    "./creator/widget/states/states.js"
+                ]
+            }
+        }

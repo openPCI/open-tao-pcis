@@ -209,10 +209,12 @@ function GapMatchFactory($){
 
       $elem.on('dragstart', '.gapmatch-string', function(event){
         $draggingObject = $(this);
+        event.originalEvent.dataTransfer.setData('text','');
         $draggingObject.addClass('gapmatch-dragging');
       });
 
       $elem.on('dragend', '.gapmatch-string', function(event){
+        event.preventDefault();
         $draggingObject = null;
         $(this).removeClass('gapmatch-dragging');
         if(options.numbering) redoNumbering();
@@ -222,6 +224,7 @@ function GapMatchFactory($){
         event.preventDefault();
       });
       $elem.on('drop', function(event){
+        event.preventDefault();
         $draggingObject.attr('style', '');
         if(options.infiniteTexts && $draggingObject.parent().hasClass('gapmatch-dropzone')) $draggingObject.remove();
         else if(!options.infiniteTexts) $strings.append($draggingObject);
