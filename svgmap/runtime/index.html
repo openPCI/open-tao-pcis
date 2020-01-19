@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Voxelcraft</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+    <script src="svgmap.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/base.css">
+  </head>
+  <body>
+    <div>
+      <div class="svgmap" id="svgmap">
+
+      </div>
+    </div>
+    <script>
+      var svgmap;
+      $(function(){
+
+        $.get('forlystelsesparkoptog.svg', function(data){
+          svgmap = new SvgMap({
+            element: document.getElementById('svgmap'),
+            dotResolution: 5,
+            pathLayer: 'layer1',
+            svg: data,
+            poi: {start:11},
+            editorCallback: window.editor_mode ? function(point){
+            } : false,
+            pathCallback: function(result){
+              console.log(result);
+            }
+          });
+        }, 'text');
+      });
+    </script>
+  </body>
+</html>

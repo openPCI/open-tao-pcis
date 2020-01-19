@@ -1,4 +1,6 @@
-for i in * ; do
+declare -a pcis=("brainstorm" "ganttchart" "svgmap" "voxelcraft" "theroom" "textgapmatch" "wordrank")
+
+for i in  "${pcis[@]}"; do
   if [ -d "$i" ] && [ "$i" != "builds" ]; then
     echo "$i"
     cd $i
@@ -6,3 +8,4 @@ for i in * ; do
     cd ..
   fi
 done
+zip --delete ./builds/theroom.zip "exercises/*"

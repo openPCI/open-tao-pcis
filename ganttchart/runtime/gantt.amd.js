@@ -6,8 +6,6 @@ Build by Wiquid's PCI Generator for TAO platform Free to use
 define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', 'gantt/runtime/ganttjs/gantt'], function(qtiCustomInteractionContext, $, event, GanttJS){
     'use strict';
 
-    console.log(GanttJS);
-
     function deserializeConfig(cfg){
       var ret = JSON.parse(JSON.stringify(cfg));
 
@@ -43,22 +41,14 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);
 
-            //
-            console.log('initialize', qtiCustomInteractionContext);
-
             var ganttChart = new GanttJS(dom, deserializeConfig(_this.config));
             this.ganttChart = ganttChart;
             //listening to dynamic configuration change
             this.on('cfgChange', function(key, value){
-              console.log('cfgChange');
                 _this.config[key] = value;
-                ganttChart.destroy();
-                ganttChart = new GanttJS(dom, deserializeConfig(_this.config));
-                this.ganttChart = ganttChart;
+                _this.ganttChart.destroy();
+                _this.ganttChart = new GanttJS(dom, deserializeConfig(_this.config));
             });
-
-
-
         },
         /**
          * Programmatically set the response following the json schema described in
@@ -68,7 +58,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} response
          */
         setResponse : function setResponse(response){
-            console.log('SetResponse', arguments, this)
+          console.log('setResponse',response);
         },
         /**
          * Get the response in the json format described in
@@ -78,10 +68,16 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object}
          */
         getResponse : function getResponse(){
-            return {base : {string : this.ganttChart.getResult().map(function(a){
-              return a.join(', ');
-            }).join(';\n')
-          }};
+          return {
+            base : {
+              string : JSON.stringify({
+                response: this.ganttChart.getResult().map(function(a){
+                  return a.join(', ');
+                }).join(';'),
+                state: this.ganttChart.getState()
+              }).replace(/"/g,"'")
+            }
+          };
         },
         /**
          * Remove the current response set in the interaction
@@ -90,8 +86,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         resetResponse : function resetResponse(){
-
-            var Scontainer = $(this.dom);
 
         },
         /**
@@ -102,7 +96,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         destroy : function destroy(){
-
             var Scontainer = $(this.dom);
             Scontainer.off().empty();
         },
@@ -113,7 +106,11 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-
+          console.log(state);
+            if(state.response){
+              var data = JSON.parse(state.response.base.string.replace(/'/g,'"'));
+              this.ganttChart.setState(data.state);
+            }
         },
         /**
          * Get the current state of the interaction as a string.
@@ -123,8 +120,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-
-            return {};
+            return {}
         }
     };
 

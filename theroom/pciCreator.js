@@ -30,7 +30,6 @@ define([
          * @returns {Object} Widget
          */
         getWidget : function(){
-            console.log('getWidget', arguments, Widget);
             window.editor_mode = true;
             return Widget;
         },
@@ -42,9 +41,8 @@ define([
          * @returns {Object}
          */
         getDefaultProperties : function(pci){
-            console.log('getDefaultProperties', arguments);
             return {
-                excersize: 'museum.json',
+                exercise: 'museum.json',
                 gameurl: 'https://surveyinfo.au.dk/pci-external/open-tao-pcis/theroom/runtime/theroom.html'
             };
         },
@@ -56,7 +54,6 @@ define([
          */
         afterCreate : function(pci){
             //do some stuff
-            console.log('afterCreate', arguments);
         },
         /**
          * (required) Gives the qti pci xml template
@@ -64,7 +61,6 @@ define([
          * @returns {function} handlebar template
          */
         getMarkupTemplate : function(){
-            console.log('getMarkupTemplate', arguments);
             return markupTpl;
         },
         /**
@@ -73,7 +69,6 @@ define([
          * @returns {function} handlebar template
          */
         getMarkupData : function(pci, defaultData){
-            console.log('getMarkupData', arguments);
             defaultData.prompt = pci.data('prompt');
             return defaultData;
         }

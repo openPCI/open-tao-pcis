@@ -1,4 +1,4 @@
-var urlPath = '../models/';
+var urlPath = '../exercises/';
 
 var moveables = [];
 
@@ -8,6 +8,8 @@ var boundingbox;
 var raycaster = new THREE.Raycaster();
 var hudRaycaster = new THREE.Raycaster();
 var renderer = new THREE.WebGLRenderer();
+var scoringFunction = function(){};
+var exerciseUrl;
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.setClearColor( 0xeeeeee );
 renderer.shadowMap.enabled = true;
@@ -29,6 +31,8 @@ var cameraObject;
 
 // The scene camera
 var camera;
+
+var rotate = 0;
 
 // Mouse coordinates -1 - 1
 var mouse = new THREE.Vector2();
@@ -52,6 +56,10 @@ var movingObjectOffset;
 // Initialize game HUD
 var hud = new GameHud();
 
+var lastPinchDist = 0;
+var pinchZoom = 0;
+var emulatedMouseDown = false;
+
 var objectBehaviors = [WallSnapObject, PointSnapObject];
 
 
@@ -63,8 +71,11 @@ function sendMessage(type, value){
     },'*');
 }
 
-function postResult(){
-  sendMessage('updateResult', JSON.stringify(serializeMoveables()));
+function postResult(rescore){
+  var result = serializeMoveables();
+  result.score = scoringFunction(Scoring);
+
+  sendMessage(rescore?'rescore':'updateResult', JSON.stringify(result));
 }
 
 function serializeMoveables(){
@@ -77,20 +88,24 @@ function serializeMoveables(){
     }
     result.push(obj);
   });
-  return {scene: scenePath, objects: result};
+  return {exercise: exerciseUrl, scene: scenePath, objects: result};
 }
 
-function deserializeMoveables(data){
-  loadScene(data.scene);
-  hud.reset();
-  data.objects.forEach(function(info){
-    loadGLtf(info.id, function(gltf){
-      modifyModel(gltf.scene);
-      scene.add(gltf.scene);
-      gltf.scene.position.fromArray(info.pos);
-      gltf.scene.rotation.fromArray(info.rot);
-    })
-  });
+function deserializeMoveables(data, callback){
+  if(data.exercise) loadExercise(data.exercise, data.objects, callback);
+  // else {
+  //   hud.reset();
+  //   function cb(){
+  //     data.objects.forEach(function(info){
+  //       loadGLtf(info.id, function(gltf){
+  //         addMoveable(gltf.scene, false);
+  //         gltf.scene.position.fromArray(info.pos);
+  //         gltf.scene.rotation.fromArray(info.rot);
+  //       });
+  //     });
+  //   }
+  //   loadScene(data.scene, cb);
+  // }
 }
 
 /**
@@ -118,7 +133,6 @@ function loadGLtf(path, callback){
   	// called while loading is progressing
   	function ( xhr ) {
 
-  		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 
   	},
   	// called when loading has errors
@@ -137,13 +151,13 @@ function loadGLtf(path, callback){
  * @param  {THREE.Scene} scene THREEJS Scene object
  * @return {undefined}
  */
-function addLighting(scene){
+function addLighting(scene, intensity){
   // Add global light
-  var globalLight = new THREE.AmbientLight( 0xffffff, 0.7 );
+  var globalLight = new THREE.AmbientLight( 0xffffff, intensity * 0.7 );
   scene.add( globalLight );
 
   // Add DirectionalLight for shadows
-  var sunLight = new THREE.DirectionalLight( 0xffffff, 0.3 );
+  var sunLight = new THREE.DirectionalLight( 0xffffff, intensity * 0.3);
   sunLight.castShadow = true;
 
   sunLight.target = scene.children[0];
@@ -178,38 +192,53 @@ function clearThree(obj){
 }
 
 
-function loadExcersize(definitionUrl){
+function loadExercise(definitionUrl, objects, cb){
   var xmlhttp = new XMLHttpRequest();
+  exerciseUrl = definitionUrl;
 
-  function readDefinition(json){
-    loadScene(json.scene);
+  hud.reset();
+  clearThree(scene);
+  moveables = [];
 
-    var loadNext = function(){
-      var asset = json.assets.shift();
-      if(!asset){
-        if(json.objects){
-          json.objects.forEach(function(object){
-            var info = hud.getDroppableByName(object.id);
-            if(hud.placeDroppable(info)){
-              var prop = info.gltf.scene.clone();
-              prop.info = info;
-              addMoveable(prop, object.static);
-              prop.position.fromArray(object.pos);
-              prop.rotation.fromArray(object.rot);
-            }
-          });
+  function readDefinition(json, callback){
+    if(objects) json.objects = objects;
+    loadScene(json.scene, function(){
+
+      var loadNext = function(){
+        var asset = json.assets.shift();
+        if(!asset){
+          if(json.objects){
+            json.objects.forEach(function(object){
+              var info = hud.getDroppableByName(object.id);
+              if(hud.placeDroppable(info)){
+                var prop = info.gltf.scene.clone();
+                prop.info = info;
+                addMoveable(prop, object.static);
+                prop.position.fromArray(object.pos);
+                prop.rotation.fromArray(object.rot);
+                startAnimation(prop);
+                addOutline(prop);
+                removeOutline(prop);
+                movingObject = prop;
+              }
+            });
+          }
+          if(callback) setTimeout(callback, 200);
+          return;
         }
-        return;
+        loadMoveable(asset.model, asset.count || 1, loadNext);
       }
-      loadMoveable(asset.model, asset.count || 1, loadNext);
-    }
 
-    loadNext();
+      if(json.scoringFunction){
+        setScoringFunction(json.scoringFunction);
+      }
+      loadNext();
+    });
   }
 
   xmlhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
-          readDefinition(JSON.parse(this.responseText));
+          readDefinition(JSON.parse(this.responseText), cb);
       }
   };
 
@@ -223,13 +252,11 @@ function loadExcersize(definitionUrl){
  * @param  {type} file GLTF scene to load
  * @return {undefined}
  */
-function loadScene(file){
-  clearThree(scene);
-
+function loadScene(file, cb){
   loadGLtf(file, function(gltf){
     scenePath = file;
 
-    movePlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(500, 500, 2, 2),
+    movePlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(5000, 5000, 2, 2),
        new THREE.MeshBasicMaterial( {
            color: 0x248f24, alphaTest: 0, visible: false
     }));
@@ -238,24 +265,31 @@ function loadScene(file){
 
     gltf.scene.traverse(function(o){
       if(o instanceof THREE.Mesh){
+        if(o.material) o.material.side = THREE.DoubleSide;
         if(o.name && /glass/.test(o.name)) return;
+        if(o.name && /zone/.test(o.name)){
+          o.visible = false;
+          return;
+        }
         o.receiveShadow = true;
         o.castShadow = true;
       }
     });
+
     gltf.scene.collisionStatic = true;
     scene.add(gltf.scene);
     var bbobj = scene.getObjectByName('boundingbox');
-    console.log(bbobj);
+
     if(bbobj){
       boundingbox = new THREE.Box3().setFromObject(bbobj);
       bbobj.parent.remove(bbobj);
     }
     room = gltf.scene;
 
-    addLighting(scene);
+    addLighting(scene, room.userData.light_intensity || 1);
     addCameraHelper();
-    animate();
+
+    if(cb) cb();
   });
 }
 
@@ -294,71 +328,6 @@ function resetMaterial(obj){
   });
 }
 
-
-
-/**
- * collisionTest - Test collision between two objects by raytracing from the vertex "normals".
- *
- * @param  {type} test   Object A
- * @param  {type} target Object B
- * @return {type}        list of collision points
- */
-function collisionTest(test, target){
-  var testObjects = [];
-  var targetObjects = [];
-  test.traverse(function(o){
-    if(o instanceof THREE.Mesh){
-      testObjects.push(o);
-    }
-  });
-
-  target.traverse(function(o){
-    if(o instanceof THREE.Mesh){
-      targetObjects.push(o);
-    }
-  });
-  return testObjects.map(function(o){
-    return getCollisions(o, targetObjects);
-  });
-}
-
-
-/**
- * getCollisions - Test collision between  a THREE.Mesh and a list of THREE.Mesh
- *
- * @param  {type} object        description
- * @param  {type} targetObjects description
- * @return {type}               description
- */
-function getCollisions(object, targetObjects){
-    var results = [];
-    var geometry = object.tmpGeom || (object.geometry instanceof THREE.BufferGeometry ? new THREE.Geometry().fromBufferGeometry( object.geometry ) : object.geometry);
-    object.tmpGeom = geometry;
-    if(geometry.vertices.length < 25)
-    for (var vertexIndex = 0; vertexIndex < geometry.vertices.length; vertexIndex++)
-    {
-
-        var localVertex = geometry.vertices[vertexIndex].clone();
-        globalVertex = localVertex;
-        var obj = object;
-        while(obj){
-          globalVertex = globalVertex.applyMatrix4(obj.matrix);
-          obj=obj.parent;
-        }
-
-        var directionVector = globalVertex.sub( object.getWorldPosition( new THREE.Vector3()) );
-        var ray = new THREE.Raycaster( object.getWorldPosition( new THREE.Vector3()), directionVector.clone().normalize());
-        var collisionResults = ray.intersectObjects( targetObjects );
-        collisionResults.forEach(function(res){
-          if ( res.distance < directionVector.length() )
-          {
-            results.push(res);
-          }
-        });
-    }
-    return results;
-}
-
 /**
  * addCameraHelper - Adds the camera helper objects to the scene.
  *
@@ -394,7 +363,6 @@ function addMoveable(group, static){
       o.material = o.material.clone();
     }
   });
-
   scene.add(group);
   moveables.push(group);
   if(!static){
@@ -413,6 +381,7 @@ function addMoveable(group, static){
     group.position.z = movePlanePosition.z;
   }
 
+  return group;
 }
 
 function removeMoveable(group){
@@ -427,7 +396,17 @@ function removeMoveable(group){
 function modifyModel(scene){
   scene.traverse(function(o){
     if(o instanceof THREE.Mesh){
-      if(o.name && /glass/.test(o.name)) return;
+      if(o.name && /glass/.test(o.name)){
+        o.material.opacity = 0.5;
+        o.material.transparent = true;
+        return;
+      }
+      if(o.name && /zone/.test(o.name)){
+        o.visible = false;
+        o.material.transparent = true;
+        o.material.opacity = 0.5;
+        return;
+      }
       o.receiveShadow = true;
       o.castShadow = true;
 
@@ -448,7 +427,7 @@ function modifyModel(scene){
 function loadMoveable(asset, count, callback){
   loadGLtf(asset, function(gltf){
     // Force shadows on and handle special case with glass
-    modifyModel(gltf.scene)
+    modifyModel(gltf.scene);
 
     hud.addDroppable(gltf, count, asset);
     if(callback) callback();
@@ -456,146 +435,360 @@ function loadMoveable(asset, count, callback){
 
 }
 
-var rotate = 0;
+function startAnimation(obj){
+  if(obj.info && obj.info.animations.length){
+    if(!obj.mixer) obj.mixer = new THREE.AnimationMixer( obj );
+    var clip = obj.info.animations[0];
 
-function setupInputListeners(){
-  window.addEventListener('message', function(event){
-    if(event.data && event.data.type){
-      switch(event.data.type){
-        case 'loadExcersize':
-          loadExcersize(event.data.value);
-        break;
-      }
+    var action = obj.mixer.clipAction(clip);
+    action.loop = THREE.LoopRepeat;
+    action.play();
+  }
+}
+
+function addOutline(prop){
+  if(prop.outline){
+    prop.outline.visible = true;
+    return;
+  }
+  var outline = prop.clone();
+  outline.info = prop.info;
+  outline.traverse(function(o){
+    if(o instanceof THREE.Mesh && o.material.visible){
+      if(o.name.indexOf('snap') > -1) return;
+      o.geometry.side = THREE.BackSide;
+      o.castShadow = false;
+      o.receiveShadow = false;
+      o.material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.BackSide, opacity: 0.6, transparent: true } );
     }
-  }, false);
-
-  window.addEventListener('paste', function(e){
-    console.log('test');
-    var data = (e.clipboardData || window.clipboardData).getData('text');
-    try {
-      var serialized = JSON.parse(data);
-      if(serialized.scene && serialized.objects){
-        deserializeMoveables(serialized);
-      }
-    } catch(ex){}
+  });
+  outline.position.clone(prop.position);
+  outline.rotation.clone(prop.rotation);
+  outline.traverse(function(o){
+   o.scale.multiplyScalar(1.01);
   });
 
-  document.getElementById('rotateLeft').addEventListener('mousedown', function(event){
-    rotate = -1;
-    mouseDown = false;
-    event.stopPropagation();
-  }, false);
-  document.getElementById('rotateRight').addEventListener('mousedown', function(event){
-    rotate = 1;
-    mouseDown = false;
-    event.stopPropagation();
-  }, false);
+  scene.add(outline);
+  prop.outline = outline;
+  startAnimation(outline);
+}
 
-  function addOutline(prop){
-    if(prop.outline){
-      prop.outline.visible = true;
-      return;
-    }
-    var outline = prop.clone();
-    outline.traverse(function(o){
-      if(o instanceof THREE.Mesh){
-        o.geometry.side = THREE.BackSide;
-        o.material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.BackSide } );
-      }
-    });
-  	outline.position.clone(prop.position);
-    outline.rotation.clone(prop.rotation);
-  	outline.scale.multiplyScalar(1.05);
-    scene.add(outline);
-    prop.outline = outline;
+function removeOutline(prop){
+  if(prop.outline){
+    prop.outline.visible = false;
   }
-  function removeOutline(prop){
-    if(prop.outline){
-      prop.outline.visible = false;
+}
+
+var lastPinchPan = 0;
+function onTouchMove(e){
+
+  e.preventDefault();
+  e.stopPropagation();
+  if(emulatedMouseDown){
+    var touch = e.changedTouches[0];
+    var event = new Event('mousemove');
+    event.clientX = touch.clientX;
+    event.clientY = touch.clientY;
+    event.button = 0;
+    window.dispatchEvent(event);
+    return;
+  }
+  if(e.touches.length == 2){
+    var a = e.touches[0].clientX - e.touches[1].clientX;
+    var b = e.touches[0].clientY - e.touches[1].clientY;
+    var dist = Math.sqrt(a*a+b*b);
+    if(lastPinchDist > 0){
+      pinchZoom = lastPinchDist - dist;
+      cameraObject.position.z += pinchZoom / 10;
+      if(cameraObject.position.z < 0) cameraObject.position.z = 0;
+      if(cameraObject.position.z > 20) cameraObject.position.z = 20;
+    }
+    var pinchY =  e.touches[0].clientY + e.touches[1].clientY / 2;
+    if(lastPinchPan > 0){
+      var pinchPan = lastPinchPan - pinchY;
+      rotateObject.rotation.x += pinchPan / 1000;
+      if(rotateObject.rotation.x < 5) rotateObject.rotation.x = 5;
+      if(rotateObject.rotation.x > 5.7) rotateObject.rotation.x = 5.7;
+    }
+    lastPinchPan = pinchY
+    lastPinchDist = dist;
+  }
+  return false;
+}
+
+function onTouchStart(e){
+  e.preventDefault();
+  if(e.touches.length == 1){
+    emulatedMouseDown = true;
+    var touch = e.touches[0];
+
+    onTouchMove(e);
+    onTouchMove(e);
+
+    event = new Event('mousedown');
+    event.clientX = touch.clientX;
+    event.clientY = touch.clientY;
+    event.button = 0;
+    window.dispatchEvent(event);
+  } else {
+    if(emulatedMouseDown){
+      var touch = e.touches[0];
+      var event = new Event('mouseup');
+      event.clientX = touch.clientX;
+      event.clientY = touch.clientY;
+      event.button = 0;
+      window.dispatchEvent(event);
+      emulatedMouseDown = false;
     }
   }
 
-  window.addEventListener( 'mousedown', function(event){
-    if(movingObject) removeOutline(movingObject);
-    mouseDown = true;
-    movingObject = null;
+}
 
-    for(var i = 0; i < hud.droppables.length; i++){
-      var intersects = hudRaycaster.intersectObjects( hud.droppables[i].prop.children );
-      if(intersects.length){
-        console.log(intersects)
-        var hudInfo = hud.droppables[i];
-        if(hud.placeDroppable(hudInfo)){
-          var prop = hud.droppables[i].gltf.scene.clone();
-          prop.info = hudInfo;
-          addMoveable(prop);
-          addOutline(prop);
-          movingObject = prop;
-          return;
+function onTouchEnd(e){
+  e.preventDefault();
+  if(e.touches.length == 0 && emulatedMouseDown){
+    var touch = e.changedTouches[0];
+    var event = new Event('mouseup');
+    event.clientX = touch.clientX;
+    event.clientY = touch.clientY;
+    event.button = 0;
+    window.dispatchEvent(event);
+  }
+  emulatedMouseDown = false;
+  lastPinchDist = -1;
+  lastPinchPan = -1;
+}
+
+function onPostMessage(event){
+  if(event.data && event.data.type){
+    switch(event.data.type){
+      case 'loadExercise':
+        loadExercise(event.data.value);
+      break;
+      case 'setScoringFunction':
+        setScoringFunction(event.data.value);
+      break;
+      case 'rescore':
+        var serialized = event.data.value;
+        if((serialized.scene || serialized.exercise) && serialized.objects){
+          deserializeMoveables(serialized, function(){
+            postResult(true);
+          });
         }
-      }
+      break;
     }
+  }
+}
 
-    for(var i = 0; i < moveables.length; i++){
-      var intersects = raycaster.intersectObjects( moveables[i].children );
-      if(intersects.length){
-        movingObject = moveables[i];
-        addOutline(movingObject);
-        behavior(movingObject, 'onDragStart', [movingObject]);
+function setScoringFunction(funcString){
+  scoringFunction = eval('('+ funcString +')');
+}
+
+function onPaste(e){
+
+  var data = (e.clipboardData || window.clipboardData).getData('text');
+  try {
+    var serialized = JSON.parse(data);
+    if(serialized.scene && serialized.objects){
+      deserializeMoveables(serialized);
+    }
+  } catch(ex){}
+}
+
+var lastMouseDown = 0;
+function onMouseDown(event){
+  if(movingObject){
+    if(Date.now() - lastMouseDown < 800){
+      movingObject.rotation.y += Math.PI / 2;
+      movingObject.outline.rotation.y = movingObject.rotation.y;
+      postResult();
+      lastMouseDown = 0;
+      return;
+    } else {
+      lastMouseDown = Date.now();
+    }
+  }
+
+  if(movingObject) removeOutline(movingObject);
+  mouseDown = true;
+  movingObject = null;
+  hudRaycaster.setFromCamera( mouse, hud.camera );
+  hudRaycaster.far = 1000;
+  for(var i = 0; i < hud.droppables.length; i++){
+
+    var intersects = hudRaycaster.intersectObjects( [hud.droppables[i].prop], true );
+    if(intersects.length){
+      var hudInfo = hud.droppables[i];
+      if(hud.placeDroppable(hudInfo)){
+        var prop = hud.droppables[i].gltf.scene.clone();
+        prop.info = hudInfo;
+        addMoveable(prop);
+        startAnimation(prop);
+        addOutline(prop);
+        movingObject = prop;
         return;
       }
     }
-  }, false);
+  }
 
-
-  window.addEventListener( 'mouseup', function(event){
-    if(movingObject && boundingbox){
-      if(!boundingbox.containsPoint(movingObject.position)){
-        removeMoveable(movingObject);
-      }
+  for(var i = 0; i < moveables.length; i++){
+    var intersects = raycaster.intersectObjects( [moveables[i]], true );
+    if(intersects.length && !moveables[i].static){
+      movingObject = moveables[i];
+      addOutline(movingObject);
+      behavior(movingObject, 'onDragStart', [movingObject]);
+      return;
     }
+  }
+}
+
+
+function onMouseUp(event){
+  if(movingObject && boundingbox){
+    if(!boundingbox.containsPoint(movingObject.position)){
+      removeMoveable(movingObject);
+    }
+  }
+  mouseDown = false;
+  movingObjectOffset = null;
+  rotate = 0;
+  postResult();
+}
+
+function onWheel(event){
+  var multiplier = event.deltaMode == event.DOM_DELTA_LINE ? 40 : event.deltaMode == event.DOM_DELTA_PAGE ? 0.1:1;
+  var d =  event.deltaY * multiplier;
+  cameraObject.position.z += d/100;
+  rotateObject.rotation.x -= d/10000;
+  if(rotateObject.rotation.x < 5) rotateObject.rotation.x = 5;
+  if(rotateObject.rotation.x > 5.7) rotateObject.rotation.x = 5.7;
+
+  if(cameraObject.position.z < 0) cameraObject.position.z = 0;
+  if(cameraObject.position.z > 20) cameraObject.position.z = 20;
+  event.preventDefault();
+}
+
+function onMouseMove(event){
+  lastMouse.copy(mouse);
+  // calculate mouse position in normalized device coordinates
+  // (-1 to +1) for both components
+  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+  mouseDelta.copy(mouse);
+  mouseDelta.sub(lastMouse);
+  raycaster.setFromCamera( mouse, camera );
+  var intersects = raycaster.intersectObjects( [movePlane] );
+  if(intersects.length){
+    movePlanePosition = intersects[0].point.clone();
+    movePlanePosition.y = 0;
+  }
+}
+
+function onKeyDown(event){
+
+  if(!movingObject) return;
+  if(/Right$/.test(event.key)){
+    movingObject.rotation.y -= Math.PI / 2;
+  }
+  if(/Left$/.test(event.key)){
+    movingObject.rotation.y += Math.PI / 2;
+  }
+  movingObject.outline.rotation.y = movingObject.rotation.y;
+  postResult();
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  hud.setCameraSize(window.innerWidth, window.innerHeight);
+
+  hud.renderer.setSize( window.innerWidth, window.innerHeight );
+}
+
+function setupInputListeners(){
+  window.addEventListener( 'resize', onWindowResize, false );
+
+  window.addEventListener('touchmove', onTouchMove, false);
+
+  window.addEventListener('touchstart', onTouchStart, false);
+
+  window.addEventListener('touchend', onTouchEnd, false);
+
+  window.addEventListener('message', onPostMessage, false);
+
+  window.addEventListener('paste', onPaste);
+
+  window.addEventListener( 'mousedown', onMouseDown, false);
+
+  window.addEventListener( 'mouseup', onMouseUp, false);
+
+  function rotateLeft(){
+    rotate = -1;
     mouseDown = false;
-    movingObjectOffset = null;
+    event.stopPropagation();
+  }
+
+  function rotateRight(){
+    rotate = 1;
+    mouseDown = false;
+    event.stopPropagation();
+  }
+
+  function rotateStop(){
     rotate = 0;
+    mouseDown = false;
+    event.stopPropagation();
+  }
 
-    postResult();
-  }, false);
-
-  window.addEventListener( 'wheel', function(event){
-    var d =  event.deltaY > 0 ? 100 : -100;
-    cameraObject.position.z += d/100;
-    rotateObject.rotation.x -= d/10000;
-    if(rotateObject.rotation.x < 5) rotateObject.rotation.x = 5;
-    if(rotateObject.rotation.x > 5.7) rotateObject.rotation.x = 5.7;
-
-    if(cameraObject.position.z < 0) cameraObject.position.z = 0;
-    if(cameraObject.position.z > 20) cameraObject.position.z = 20;
-    event.preventDefault();
-  });
-
-  window.addEventListener( 'mousemove', function ( event ) {
-    lastMouse.copy(mouse);
-  	// calculate mouse position in normalized device coordinates
-  	// (-1 to +1) for both components
-  	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-    mouseDelta.copy(mouse);
-    mouseDelta.sub(lastMouse);
-  }, false );
-
-  window.addEventListener( 'keydown', function( event) {
-    console.log('key', event);
-    if(!movingObject) return;
-    if(/Right$/.test(event.key)){
-      movingObject.rotation.y -= Math.PI / 2;
+  function requestFullscreen(){
+    var elem = document.body
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { /* Firefox */
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+      elem.msRequestFullscreen();
     }
-    if(/Left$/.test(event.key)){
-      movingObject.rotation.y += Math.PI / 2;
-    }
-    movingObject.outline.rotation.y = movingObject.rotation.y;
-    postResult();
-  }, false)
+  }
+  var fullscreen = false;
+  function fullscreenBtn(){
+    if(fullscreen) document.exitFullscreen();
+    else requestFullscreen();
+  }
+
+  var btnLeft = document.getElementById('rotateLeft')
+  btnLeft.addEventListener('mousedown', rotateLeft, false);
+  btnLeft.addEventListener('touchstart', rotateLeft, false);
+  btnLeft.addEventListener('touchend', rotateStop);
+
+
+  var btnRight = document.getElementById('rotateRight')
+  btnRight.addEventListener('mousedown', rotateRight, false);
+  btnRight.addEventListener('touchstart', rotateRight, false);
+  btnRight.addEventListener('touchend', rotateStop);
+
+  var btnFullscreen = document.getElementById('fullscreen');
+  btnFullscreen.addEventListener('mouseup', fullscreenBtn, false);
+  btnFullscreen.addEventListener('touchend', fullscreenBtn);
+
+  function onFullScreenChange(event){
+    fullscreen = (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined);
+  }
+
+  document.addEventListener('webkitfullscreenchange', onFullScreenChange, false);
+  document.addEventListener('mozfullscreenchange', onFullScreenChange, false);
+  document.addEventListener('fullscreenchange', onFullScreenChange, false);
+  document.addEventListener('MSFullscreenChange', onFullScreenChange, false);
+
+  window.addEventListener( 'wheel', onWheel);
+
+  window.addEventListener( 'mousemove', onMouseMove, false );
+
+  window.addEventListener( 'keydown', onKeyDown, false);
 }
 
 function behavior(obj, listener, params){
@@ -606,44 +799,50 @@ function behavior(obj, listener, params){
   }
 }
 
+var clock = new THREE.Clock();
+
 var animate = function () {
+  requestAnimationFrame( animate );
+  if(!lookObject) return;
+
+  var deltaTime = clock.getDelta();
+  //play animations
+  scene.children.forEach(function(o){
+    if(o.mixer){
+      o.mixer.update(deltaTime);
+    }
+  });
+
   lookObject.rotation.y += rotate * 0.02;
   // update the picking ray with the camera and mouse position
-	raycaster.setFromCamera( mouse, camera );
-  hudRaycaster.setFromCamera( mouse, hud.camera );
-  hudRaycaster.far = 100;
-  hudRaycaster.near = -100
 
-	var intersects = raycaster.intersectObjects( [movePlane] );
-  if(intersects.length){
-    movePlanePosition = intersects[0].point.clone();
-    movePlanePosition.y = 0;
-  }
+
+  var intersects = raycaster.intersectObjects( [movePlane] );
   if(intersects.length && mouseDown){
 
     if(movingObject){
+      var oldPos = movingObject.position.clone();
 
+      if(!movingObjectOffset) movingObjectOffset = intersects[0].point.clone().sub(movingObject.position);
+      var v = intersects[0].point.clone().sub(movingObjectOffset);
+      v.y = 0;
 
-      var dontMove = behavior(movingObject, 'onDrag', [movingObject, movingObject.position, oldPos]);
-      if(!dontMove && !movingObject.static){
-        if(!movingObjectOffset) movingObjectOffset = intersects[0].point.clone().sub(movingObject.position);
-        var v = movingObject.position.clone().sub(intersects[0].point.clone().sub(movingObjectOffset));
-        var dist = v.length();
-        v.normalize();
-        v.multiplyScalar(dist*0.1);
-        v.y = 0;
-
+      if(!movingObject.static){
         var oldPos = movingObject.position.clone();
-        movingObject.position.sub(v);
+        movingObject.position.copy(v);
 
 
         movingObject.updateMatrix();
         movingObject.updateMatrixWorld(true);
+      }
 
+      var dontMove = behavior(movingObject, 'onDrag', [movingObject, movingObject.position, oldPos]);
 
-        if(movingObject.outline){
-          movingObject.outline.position.copy(movingObject.position);
-        }
+      if(dontMove){
+        movingObject.position.copy(oldPos);
+
+        movingObject.updateMatrix();
+        movingObject.updateMatrixWorld(true);
       }
 
     } else {
@@ -658,14 +857,49 @@ var animate = function () {
 
   }
 
+  if(movingObject){
+     movingObject.outline.position.copy(movingObject.position);
+  }
+
   hud.render();
 
-	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
+};
+
+function isTouch(){
+  var result = false;
+  if (window.PointerEvent && ('maxTouchPoints' in navigator)) {
+    // if Pointer Events are supported, just check maxTouchPoints
+    if (navigator.maxTouchPoints > 0) {
+      result = true;
+    }
+  } else {
+    // no Pointer Events...
+    if (window.matchMedia && window.matchMedia("(any-pointer:coarse)").matches) {
+      // check for any-pointer:coarse which mostly means touchscreen
+      result = true;
+    } else if (window.TouchEvent || ('ontouchstart' in window)) {
+      // last resort - check for exposed touch events API / event handler
+      result = true;
+    }
+  }
+  return result;
+};
+
+function setHelpText(){
+  var helpText = document.getElementById("help");
+  if (isTouch()){
+    helpText.innerHTML = "Træk en genstand for at flytte. Dobbelt klik eller tryk to gange for at rotere. Scroll eller brug to fingre for at zoome.";
+  } else {
+    helpText.innerHTML = "Træk en genstand for at flytte. Dobbelt klik for at rotere. Scroll for at zoome.";
+  }
 };
 
 document.addEventListener("DOMContentLoaded", function(){
   setupInputListeners();
-  sendMessage('ready', 1)
-  if(window === window.parent) loadExcersize('museum.json');
+  isTouch();
+  setHelpText();
+  sendMessage('ready', 1);
+  if(window === window.parent) loadExercise('museum.json', null, animate);
+  else animate();
 });

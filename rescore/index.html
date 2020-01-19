@@ -1,0 +1,162 @@
+<!doctype HTML>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="ui-style.css" />
+    <script src="PapaParse-4.6.0/papaparse.js">
+    </script>
+    <style>
+     .optform input, .optform select {
+       width:300px;
+     }
+     #columns {
+       overflow-x: scroll;
+       overflow-y: scroll;
+       height: 300px;
+
+     }
+     #columns td {
+       white-space: nowrap;
+     }
+     #columns table {
+       border-collapse: collapse;
+     }
+     #columns td {
+       border: 1px solid gray;
+     }
+
+     #csvRowNum {
+       width:50px;
+       text-align:center;
+     }
+     .taskoptions {
+       display:none;
+     }
+     textarea {
+       width:400px;
+       height: 200px;
+     }
+     #playarea {
+       width:60%;
+       position:relative;
+     }
+     #playarea > * {
+       width:100%;
+     }
+     #scoreTable {
+       position:absolute;
+       right: 5px;
+       top: 5px;
+       width:35%;
+     }
+     #scoreTable table {
+       border: 1px solid #eee;
+       border-collapse: collapse;
+       width:100%;
+       padding-left:20px;
+     }
+     #scoreTable tr th {
+       font-size: 110%;
+     }
+     #scoreTable td {
+       border: 1px solid #eee;
+       padding: 8px;
+     }
+     #scoreTable tr > td:last-child {
+       text-align:center;
+     }
+     .scoringarea {
+       position:relative;
+       min-height:600px;
+     }
+     .brainstorm-name {
+       width:120px;
+       display:inline-block;
+     }
+    </style>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+
+  </head>
+  <body>
+    <div class="collapsable">
+      <h2>CSV Data & Tasks</h2>
+      <div class="content optform">
+        <div>
+          <label>CSV Data</label>
+          <input type="file" id="fileUpload">
+        </div>
+        <div>
+          <label>Task</label>
+          <select id="task">
+            <option value="taskRecalculateRoomExercise">(Rescore) Room </option>
+            <option value="taskRecalculateCustomFunction">(Rescore) User defined function</option>
+            <option value="taskRecalculateVoxelcraft">(Rescore) Voxelcraft</option>
+            <option value="taskGenericText">(Review) Text</option>
+            <option value="taskGenericBrainstorm">(Review) Brainstorm</option>
+          </select>
+        </div>
+        <div>
+          <label>Column</label>
+          <input type="text" id="column" value="110">
+        </div>
+        <div>
+          <label>Score labels</label>
+          <input type="text" id="scoreLabels" value="score 1, score 2" />
+        </div>
+        <div id="taskRecalculateVoxelcraft" class="taskoptions">
+          <label>Scoring function (?)</label>
+          <textarea id="voxelScoringFunc">
+              function(){
+
+              }
+          </textarea>
+        </div>
+        <div id="taskRecalculateRoomExercise" class="taskoptions">
+          <div>
+            <label>Exercise fix (?)</label>
+            <input type="text" id="exerciseFix" value="restaurant.json">
+          </div>
+        </div>
+        <div id="taskRecalculateCustomFunction" class="taskoptions">
+          <label>Scoring function (?)</label>
+          <textarea id="mapScoringFunc">
+              function(){
+
+              }
+          </textarea>
+        </div>
+        <div id="taskGenericBrainstorm" class="taskoptions">
+          <div>
+            <label>Test-taker nick</label>
+            <input type="text" id="brainstormNickname" value="Dig">
+          </div>
+        </div>
+        <div class="fuse">
+          <button id="runBtn">Run rescore</button><button id="saveBtn">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="collapsable">
+      <h2>Data</h2>
+      <div class="content" id="columns">
+
+      </div>
+    </div>
+    <div class="collapsable">
+      <h2>Exercise</h2>
+      <div class="content scoringarea">
+        <div class="controls fuse">
+          <button id="prevBtn">«</button><input type="text" id="csvRowNum" value="0"/><button id="nextBtn">»</button>
+        </div>
+        <div id="playarea"></div>
+        <div id="scoreTable"></div>
+        <div class="cb"></div>
+      </div>
+    </div>
+    <script src="rescore.js"></script>
+  </body>
+</html>

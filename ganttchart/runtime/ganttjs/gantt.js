@@ -150,7 +150,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       var ld = new Date(dateStart);
       var d = new Date(dateStart);
       var i = 0;
-
+      var moreDays = 0;
       while(tdc < options.period){
 
         if(d.getHours() > options.dayEnd){
@@ -159,8 +159,8 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         }
 
         if(options.useHours){
-          console.log(tdc, options.period)
-          $th = $('<th>', {text: time(d)});
+          var nd = new Date(d.getTime() + dateIncrement);
+          $th = $('<th>', {text: time(d)+( options.showTimeRange ? '-'+time(nd) : '')});
           $timeTr.append($th);
           if(options.disableWeekends && [6,0].indexOf(d.getDay()) > -1){
             $th.text('-');
@@ -170,7 +170,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
         c++; dc++;
 
         if(d.getDate() != ld.getDate()){
-          $th = $('<th>', {text: ld.getDate()});
+          $th = $('<th>', {text: (options.weekNumHack ? 'Uge ' : '') + ld.getDate()});
           $th.attr('colspan', c);
           $dateTr.append($th);
 
@@ -182,6 +182,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
 
           $th.attr('colspan', c);
           $weekdayTr.append($th);
+          moreDays++;
           c = 0;
           tdc++;
         }
@@ -213,7 +214,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       var ret = [];
 
       if(options.months) ret.push($monthTr);
-      ret.push($dateTr);
+      if(moreDays > 1) ret.push($dateTr);
       if(options.weekDays) ret.push($weekdayTr);
       if(options.useHours) ret.push($timeTr);
 
@@ -311,7 +312,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       clearInterval(dragScrollInterval);
     };
 
-    this.getData = function(){
+    this.getState = function(){
       var res = [];
       options.tasks.forEach(function(t, ti){
         var taskData = [];
@@ -324,6 +325,21 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       return res;
     }
 
+    this.setState = function(state){
+      options.tasks.forEach(function(t, ti){
+        var taskData = state[ti];
+        $($container.find('.ganttjs-task').get(ti)).children().each(function(i, item){
+          if(taskData.indexOf(i) > -1){
+            $(this).addClass('selected');
+            $(this).css('background-color', $(this.parentNode).prop('active-color'));
+          }
+        });
+      });
+    }
+
+    this.setResult = function(result){
+
+    }
 
     this.getResult = function(){
       var res = [];

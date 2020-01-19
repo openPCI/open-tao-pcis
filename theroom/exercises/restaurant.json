@@ -1,0 +1,136 @@
+{
+  "scene" : "restaurant/room.gltf",
+  "scoringFunction": "function fu(scoring){\n return {\n\tlegetaeppe_hjoerne: Scoring.areaTest('playarea','playcorner') ? 1 : 0,\n    kollisioner: Scoring.collisionTest('.','.') ? 0 : 1,\n    borde_snap_vaeg: Scoring.wallSnapTest('fortwo'),\n    fam_borde_legehjoerne: Scoring.ACloserThanB('table.gltf', 'fortwo','playcorner'),\n    buffet_i_zone: Scoring.areaTest('buffetzone', 'buffet'),\n    toilet_ikke_blokeret: Scoring.areaTest('toilet', 'table') > 0 ? 0 : 1,\n    kokken_ikke_blokeret: Scoring.areaTest('doortable', 'table') > 0 ? 0 : 1,\n    indgang_ikke_blokeret: Scoring.areaTest('entrance', 'table') > 0 ? 0 : 1,\n};\n  return score;\n}",
+  "assets":[
+    {
+      "model" : "restaurant/table.gltf",
+      "count" : 4
+    },
+    {
+      "model" : "restaurant/tablefortwo.gltf",
+      "count" : 2
+    },
+    {
+      "model" : "restaurant/playcorner.gltf",
+      "count" : 1
+    },
+    {
+      "model" : "restaurant/buffet.gltf",
+      "count" : 1
+    }
+  ],
+  "objects": [
+    {
+      "id": "restaurant/table.gltf",
+      "pos": [
+        -1.6337043062632324,
+        0,
+        -6.798096244446115
+      ],
+      "rot": [
+        0,
+        -3.141592653589793,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "restaurant/table.gltf",
+      "pos": [
+        -1.6150345327625033,
+        0,
+        -3.84652759914967
+      ],
+      "rot": [
+        0,
+        -3.141592653589793,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "restaurant/table.gltf",
+      "pos": [
+        -1.3603698067697654,
+        0,
+        -0.9472821188551304
+      ],
+      "rot": [
+        0,
+        -3.141592653589793,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "restaurant/table.gltf",
+      "pos": [
+        -1.319911405609193,
+        0,
+        1.8452123285491688
+      ],
+      "rot": [
+        0,
+        -3.141592653589793,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "restaurant/playcorner.gltf",
+      "pos": [
+        5.196333231140964,
+        0,
+        -4.66806807148761
+      ],
+      "rot": [
+        0,
+        9.42477796076938,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "restaurant/buffet.gltf",
+      "pos": [
+        6.765997299777444,
+        0,
+        2.3187478240437067
+      ],
+      "rot": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "restaurant/tablefortwo.gltf",
+      "pos": [
+        4.543947343550299,
+        0,
+        -7.753886631299964
+      ],
+      "rot": [
+        0,
+        21.991148575128555,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "restaurant/tablefortwo.gltf",
+      "pos": [
+        7.9583342900444265,
+        0,
+        -5.063689826743707
+      ],
+      "rot": [
+        0,
+        7.853981633974483,
+        0,
+        "XYZ"
+      ]
+    }
+  ]
+}

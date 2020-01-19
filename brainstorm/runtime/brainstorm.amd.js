@@ -24,15 +24,42 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         };
     }
 
-    function startBrainstorm(dom, config, resultObject){
-      console.log(config)
+    function Timer(callback, delay) {
+        var timerId, start, remaining = delay;
+        var paused = false;
+        this.pause = function() {
+            if(paused) return;
+            paused = true;
+            window.clearTimeout(timerId);
+            remaining -= new Date() - start;
+        };
+
+        this.resume = function() {
+            if(remaining >= 0){
+              start = new Date();
+              window.clearTimeout(timerId);
+              timerId = window.setTimeout(callback, remaining);
+              paused = false;
+            }
+        };
+
+        this.resume();
+    }
+
+    function startBrainstorm(dom, config, resultObject, preview){
       var playerName = config.nickname || 'Test-tager';
       var messages = config.messages.split('\n');
       var timeLimit = parseInt(config.timeLimit) || 60;
+      var timeLeft;
       var $dom = $(dom);
-      var timeouts = [];
+      var timers = [];
       var timeStart;
-
+      var continueTimeout;
+      var countdownInterval;
+      if($dom.find('.brainstorm-progress').length == 0){
+        $dom.find('.chat').after($('<div class="brainstorm-progress-wrapper"><div class="brainstorm-progress"></div></div>'));
+      }
+      var $progressBar = $(dom).find('.brainstorm-progress');
       $dom.find('.chat').empty();
       $dom.find('.prompt').val('');
 
@@ -46,14 +73,15 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         msg = msg.split(';');
         if(msg.length == 4){
           var t = parseInt(msg[0])*1000;
-          setTimeout( function(){
+
+          timers.push(new Timer(function() {
             writeChatLine(t, msg[1], msg[3], false, msg[2]);
-          }, now ? 0 : t);
+          }, now ? 0 : t));
         }
       }
 
       function writeChatLine(elapsed, name, msg, player, color){
-        resultObject.base.string += "\n" + [timestamp(t), name, msg].join(';');
+        resultObject.base.string += "|" + [timestamp(elapsed), name, msg].join(';');
 
         var $time = $('<span>').text(timestamp(elapsed));
         var $name = $('<span>',{class:'name'}).text(name);
@@ -62,7 +90,10 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
           $msg.addClass('is-player');
         }
         if(color) $name.css('color', color);
-        $dom.find('.chat').append($msg);
+
+        var $chat = $dom.find('.chat');
+        $chat.append($msg);
+        $chat.scrollTop($chat.prop('scrollHeight'));
       }
 
       function endBrainstorm(){
@@ -98,8 +129,27 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
         $dom.find('input').focus();
         $dom.find('input').on('keydown', function(evt){
           evt.stopPropagation();
+          clearTimeout(continueTimeout);
+          timers.forEach(function(t){
+            t.pause();
+          });
+          continueTimeout = setTimeout(function(){
+            timers.forEach(function(t){
+              t.resume();
+            });
+          }, 3000);
         });
-        var timeLimitTimeout = setTimeout(endBrainstorm,timeLimit*1000);
+        timeLeft = timeLimit;
+        countdownInterval = setInterval(countdown, 100);
+      }
+
+      function countdown(){
+        timeLeft -= 0.1;
+        $progressBar.css('width', (timeLeft / timeLimit) * 100 + '%');
+        if(timeLeft <= 0){
+          clearInterval(countdownInterval);
+          endBrainstorm();
+        }
       }
 
       function showMsg(msg, onClick){
@@ -117,7 +167,10 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       function showStartMsg(){
         showMsg(config.startText, function(){ start(); })
       }
-
+      if(preview){
+        var $overlay = $dom.find('.msg-overlay');
+        $overlay.hide();
+      } else
       if(window.editor_mode){
         simulate();
       } else {
@@ -129,7 +182,9 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
       }
 
     }
-
+    var curDom;
+    var curPlayerName;
+    var curConfig;
     var brainstorm = {
         id : -1,
         getTypeIdentifier : function getTypeIdentifier(){
@@ -142,7 +197,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} config - json
          */
         initialize : function initialize(id, dom, config, assetManager){
-
             //add method on(), off() and trigger() to the current object
             event.addEventMgr(this);
 
@@ -152,17 +206,18 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             this.config = config || {};
             this.responseContainer = {base : {string : ''}};
 
+            curDom = dom;
+            curConfig = config;
+            curPlayerName = config.nickname;
+
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);
 
-            //
-            console.log('initialize', qtiCustomInteractionContext);
 
             //listening to dynamic configuration change
             this.on('cfgChange', function(key, value){
-              console.log('cfgChange');
                 _this.config[key] = value;
-              startBrainstorm(dom, _this.config);
+              startBrainstorm(dom, _this.config, this.responseContainer);
             });
             startBrainstorm(dom, config, this.responseContainer);
         },
@@ -174,7 +229,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} response
          */
         setResponse : function setResponse(response){
-            var Scontainer = $(this.dom),value;
         },
         /**
          * Get the response in the json format described in
@@ -193,7 +247,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         resetResponse : function resetResponse(){
-
             var Scontainer = $(this.dom);
 
         },
@@ -205,7 +258,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         destroy : function destroy(){
-
             var Scontainer = $(this.dom);
             Scontainer.off().empty();
         },
@@ -217,6 +269,21 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          */
         setSerializedState : function setSerializedState(state){
 
+          if(state.response){
+            startBrainstorm(curDom, curConfig, {}, true);
+            var $chat = $(curDom).find('.chat');
+            state.response.base.string.split('|').forEach(function(m){
+              var msg = m.split(';');
+              //[timestamp(elapsed), name, msg].join(';');
+              var $time = $('<span>').text(msg[0]);
+              var $name = $('<span>',{class:'name'}).text(msg[1]);
+              var $msg = $('<div>').append([$name, msg[2]]);
+              if(msg[1] == (curPlayerName || 'Test-tager')){
+                $msg.addClass('is-player');
+              }
+              $chat.append($msg);
+            });
+          }
         },
         /**
          * Get the current state of the interaction as a string.
@@ -226,8 +293,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-
-            return {};
+            return {}
         }
     };
 

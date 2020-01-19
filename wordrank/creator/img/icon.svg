@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #000;
+        stroke-width: 5px;
+      }
+
+      .cls-2 {
+        font-size: 20px;
+        fill: #010100;
+        font-family: "Myriad Pro";
+        font-weight: 700;
+      }
+    </style>
+  </defs>
+  <rect class="cls-1" x="20" y="312" width="142" height="61"/>
+  <text id="ABC" class="cls-2" x="237" y="174.37">ABC</text>
+  <text id="ABC-2" data-name="ABC" class="cls-2" x="110" y="262.37">ABC</text>
+  <rect class="cls-1" x="351" y="312" width="142" height="61"/>
+  <rect class="cls-1" x="186" y="312" width="142" height="61"/>
+  <rect class="cls-1" x="20" y="138" width="473" height="61"/>
+  <rect class="cls-1" x="265" y="225" width="228" height="61"/>
+  <rect class="cls-1" x="20" y="225" width="217" height="61"/>
+  <text id="ABC-3" data-name="ABC" class="cls-2" x="237" y="350.37">ABC</text>
+  <text id="ABC-4" data-name="ABC" class="cls-2" x="361" y="262.37">ABC</text>
+</svg>

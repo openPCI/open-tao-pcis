@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>three.js webgl - interactive - voxel painter</title>
+    <title>Voxelcraft</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
     <style>
       body {
         background:#777;
@@ -41,10 +43,23 @@
         width:100%;
         text-align:center;
       }
-
-      #palette {
+      #controls {
         position:absolute;
         bottom: 10px;
+        width:100%;
+        text-align:center;
+      }
+      #controls button {
+        width:48px;
+        height:48px;
+        margin:2px;
+      }
+      button.enabled {
+        border: 1px buttonface inset;
+      }
+      #palette {
+        position:absolute;
+        bottom: 60px;
         text-align:center;
         width:100%;
       }
@@ -65,10 +80,10 @@
   <body>
 
     <script src="three.js"></script>
-
+    <script src="hammer.js"></script>
     <script>
+
       var colors = [
-        '#cc0000',
         '#cc6900',
         '#f7ef00',
         '#afe000',
@@ -93,11 +108,13 @@
         control: 17
       }
 
+      var scoringFunction = function(){};
+
       var mouseDelta = new THREE.Vector2();
       var lastMouse = new THREE.Vector2();
 
-      var camera, cameraObject, scene, renderer;
-      var plane, cube;
+      var camera, cameraObject, scene, renderer, defaultSave;
+      var plane, cube, lineDrawPlane;
       var mouse, raycaster
 
       var rollOverMesh;
@@ -114,8 +131,82 @@
 
       var mouseDown, mouseClick;
 
-      init();
-      render();
+      var selectedTool = 'toolDraw';
+
+      var lineDrawVoxels = [];
+      var lineDrawFrom;
+
+      var noHit = false;
+
+      function line(x0, y0, x1, y1) {
+        x0 = Math.round(x0);
+        y0 = Math.round(y0);
+        x1 = Math.round(x1);
+        y1 = Math.round(y1);
+        var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+        var dy = Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+        var err = (dx>dy ? dx : -dy)/2;
+
+        while (true) {
+          var point = new THREE.Vector3(x0*50,lineDrawFrom.y,y0*50)
+          lineDrawVoxels.push(createVoxel(point, true));
+          if (x0 === x1 && y0 === y1) break;
+          var e2 = err;
+          if (e2 > -dx) { err -= dy; x0 += sx; }
+          if (e2 < dy) { err += dx; y0 += sy; }
+        }
+      }
+
+      function createVoxel(point, preview){
+        var voxel = new THREE.Mesh( cubeGeo, preview ? rollOverMaterial : cubeMaterials[color] );
+        voxel.userData.color = color;
+        voxel.position.copy(point);
+        voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+        voxel.castShadow = true;
+        voxel.receiveShadow = true;
+        scene.add( voxel );
+        if(!preview){
+          objects.push( voxel );
+          voxels.push(voxel);
+        }
+        return voxel;
+      }
+
+      function beginLine(point){
+        if(lineDrawFrom) return;
+        lineDrawFrom = point;
+        objects.push(lineDrawPlane);
+        scene.add(lineDrawPlane);
+        lineDrawPlane.position.y = point.y
+      }
+
+      function updateLine(point){
+        lineDrawVoxels.forEach(function(o){
+          scene.remove(o);
+        });
+        lineDrawVoxels = [];
+        line(lineDrawFrom.x/50, lineDrawFrom.z/50, point.x/50, point.z/50)
+      }
+
+      function commitLine(){
+        lineDrawVoxels.forEach(function(voxel){
+          createVoxel(voxel.position);
+          scene.remove(voxel);
+        });
+        lineDrawFrom = null;
+        lineDrawVoxels = [];
+        scene.remove(lineDrawPlane);
+        objects.splice( objects.indexOf( lineDrawPlane ), 1 );
+      }
+
+      function cancelLine(){
+        lineDrawVoxels.forEach(function(voxel){
+          scene.remove(voxel);
+        });
+        lineDrawVoxels = [];
+        scene.remove(lineDrawPlane);
+        objects.splice( objects.indexOf( lineDrawPlane ), 1 );
+      }
 
       function setPalette(colors){
 
@@ -126,6 +217,7 @@
         }
         palette.innerHTML = '';
         palette.id = 'palette';
+        palette.style.display ="none";
         cubeMaterials = [];
         colors.forEach(function(color, i){
            cubeMaterials.push(new THREE.MeshLambertMaterial( { color: parseInt(color.slice(1),16) } ));
@@ -136,7 +228,6 @@
         });
 
         color = 0;
-
         rollOverMaterial.color = cubeMaterials[0].color
       }
 
@@ -183,23 +274,104 @@
         plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
         scene.add( plane );
 
+
         objects.push( plane );
+
+
+        geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
+        geometry.rotateX( - Math.PI / 2 );
+        lineDrawPlane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
+        scene.add(lineDrawPlane);
 
         // lights
 
-        var ambientLight = new THREE.AmbientLight( 0x606060 );
+        var ambientLight = new THREE.AmbientLight( 0xffffff, 0.8 );
         scene.add( ambientLight );
 
-        var directionalLight = new THREE.DirectionalLight( 0xffffff );
-        directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
+        var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.1 );
+        directionalLight.position.set( 0.3, 0.75, 0.3 ).normalize();
+        directionalLight.target.position.set(0,0,0);
+        directionalLight.position.multiplyScalar(2000)
+        directionalLight.castShadow = true;
+        var shadow = directionalLight.shadow;
+        shadow.mapSize.x = 1024;
+        shadow.mapSize.y = 1024;
+        shadow.camera.near = 0.5;
+        shadow.camera.far = 3000;
+        shadow.camera.scale.set(150,150,1);
+        directionalLight.shadow.bias = 0.0000000001;
+
+
         scene.add( directionalLight );
+        scene.add( directionalLight.target );
 
         renderer = new THREE.WebGLRenderer( { antialias: true } );
+
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( renderer.domElement );
 
 
+        setupToolbar();
+
+        var lastPinchDist = -1;
+        var pinchZoom = 0;
+        var emulatedMouseDown = false;
+
+        renderer.domElement.addEventListener('touchmove', function(e){
+          e.preventDefault();
+          if(emulatedMouseDown){
+            var touch = e.changedTouches[0];
+            var event = new Event('mousemove');
+            event.clientX = touch.clientX;
+            event.clientY = touch.clientY;
+            event.button = 0;
+            document.dispatchEvent(event);
+          }
+          if(e.touches.length == 2){
+            var a = e.touches[0].clientX - e.touches[1].clientX;
+            var b = e.touches[0].clientY - e.touches[1].clientY;
+            var dist = Math.sqrt(a*a+b*b);
+            if(lastPinchDist > 0){
+              pinchZoom = lastPinchDist - dist;
+              if(camera.position.x+pinchZoom > 100) camera.position.x += pinchZoom * 2;
+            }
+            lastPinchDist = dist;
+          }
+        });
+
+        renderer.domElement.addEventListener('touchstart', function(e){
+          e.preventDefault();
+          if(e.touches.length == 1){
+            emulatedMouseDown = true;
+            var touch = e.touches[0];
+            var event = new Event('mousedown');
+            event.clientX = touch.clientX;
+            event.clientY = touch.clientY;
+            event.button = 0;
+            mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+            document.dispatchEvent(event);
+          } else {
+            emulatedMouseDown = false;
+          }
+        });
+
+        renderer.domElement.addEventListener('touchend', function(e){
+          e.preventDefault();
+          if(e.touches.length == 0 && emulatedMouseDown){
+            var touch = e.changedTouches[0];
+            var event = new Event('mouseup');
+            event.clientX = touch.clientX;
+            event.clientY = touch.clientY;
+            event.button = 0;
+            document.dispatchEvent(event);
+          }
+          emulatedMouseDown = false;
+          lastPinchDist = -1;
+        });
 
         document.addEventListener( 'mousemove', onDocumentMouseMove, false );
         document.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -211,7 +383,16 @@
         window.addEventListener('paste', onWindowPaste);
         window.addEventListener( 'resize', onWindowResize, false );
         window.addEventListener('message', onPostMessage, false)
+        document.addEventListener('webkitfullscreenchange', onFullScreenChange, false);
+        document.addEventListener('mozfullscreenchange', onFullScreenChange, false);
+        document.addEventListener('fullscreenchange', onFullScreenChange, false);
+        document.addEventListener('MSFullscreenChange', onFullScreenChange, false);
 
+      }
+
+      function onFullScreenChange(event){
+        fullscreen = (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined);
+        $('#fullscreen').toggleClass('enabled', fullscreen);
       }
 
       function onPostMessage(event){
@@ -222,7 +403,19 @@
               setPalette(colors);
             break;
             case 'setScene':
-              setScene(event.data.value);
+              setScene(event.data.value, true);
+            break;
+            case 'setScoringFunction':
+              scoringFunction = eval('(' + event.data.value + ')');
+            break;
+            case 'rescore':
+              setTimeout(function(){
+                setScene(event.data.value && event.data.value.data ? event.data.value.data : event.data.value);
+                window.parent.postMessage({
+                  type: 'rescore',
+                  value: {data: getScene(), score: scoringFunction()},
+                },"*");
+              }, 10);
             break;
           }
         }
@@ -261,65 +454,89 @@
       }
 
       function onDocumentMouseUp( event ){
+        postResult();
         mouseClick = Date.now() - mouseDown < 250;
         mouseDown = false;
 
 
         raycaster.setFromCamera( mouse, camera );
-
         var intersects = raycaster.intersectObjects( objects );
 
-        if(event.target && event.target.parentNode.id == 'palette'){
-          color = event.target.paintColor;
-          rollOverMaterial.color = cubeMaterials[color].color;
+        if(lineDrawFrom) {
+          commitLine();
           return;
         }
+
+        if(event.target && event.target.parentNode){
+          if(event.target.parentNode.id == 'palette'){
+            color = event.target.paintColor;
+            rollOverMaterial.color = cubeMaterials[color].color;
+            return;
+          }
+          if(event.target.parentNode.id == 'controls'){
+            return;
+          }
+        }
+
 
         if ( mouseClick && intersects.length > 0 ) {
 
           var intersect = intersects[ 0 ];
 
           // delete cube
-
-          if ( keyStates[KEY.shift] || event.button == 2 ) {
+          if( selectedTool === 'toolPalette'){
+            if(intersect.object !== plane)
+            intersect.object.material = cubeMaterials[color];
+            intersect.object.userData.color = color;
+          } else
+          if ( (selectedTool === 'toolDraw' && (keyStates[KEY.shift] || event.button == 2)) || (selectedTool == 'toolRemove' && event.button == 0) ) {
 
             if ( intersect.object !== plane ) {
-
               scene.remove( intersect.object );
               voxels.splice( voxels.indexOf( intersect.object ), 1 );
               objects.splice( objects.indexOf( intersect.object ), 1 );
-
             }
 
-            // create cube
-
-          } else {
-
-
-            var voxel = new THREE.Mesh( cubeGeo, cubeMaterials[color] );
-            voxel.userData.color = color;
-            voxel.position.copy( intersect.point ).add( intersect.face.normal );
-            voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
-            scene.add( voxel );
-
-            objects.push( voxel );
-            voxels.push(voxel);
-
-            window.parent.postMessage({
-              type: 'updateResult',
-              value: getScene(),
-            },"*");
-
+          } else if(selectedTool == 'toolDraw' && event.button == 0) {
+            if(!lineDrawFrom){
+              createVoxel(intersect.point.add( intersect.face.normal ));
+            }
           }
 
         }
 
       }
 
+      function postResult(){
+        setTimeout(function(){
+          window.parent.postMessage({
+            type: 'updateResult',
+            value: {data: getScene(), score: scoringFunction()},
+          },"*");
+        },10);
+      }
+
       function onDocumentMouseDown( event ) {
+        if(event.target && event.target && event.target.parentNode && event.target.parentNode.id == 'controls'){
+          return;
+        }
+
         mouseDown = Date.now();
         event.preventDefault();
-
+        if(selectedTool == 'toolDraw' && event.button == 0){
+          raycaster.setFromCamera( mouse, camera );
+          var intersects = raycaster.intersectObjects( objects );
+          if(intersects.length){
+            var intersect = intersects[0];
+            intersect.point.add( intersect.face.normal );
+            intersect.point.divideScalar( 50 ).floor().multiplyScalar( 50 )
+            beginLine(intersect.point);
+            updateLine(intersect.point);
+            noHit = false;
+          } else {
+            noHit = true;
+          }
+        }
         //mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
 
       }
@@ -330,21 +547,26 @@
         })
       }
 
-      function setScene(save){
+      function setScene(save, setDefault){
         voxels.forEach(function(o){
           scene.remove(o);
         });
         voxels = [];
         objects = [plane];
 
+        if(setDefault){
+          defaultSave = save;
+        }
+
         save.forEach(function(def){
           var c = def.c;
-          if(!(c instanceof Number)){
+          if(typeof c !== "number"){
             c = new THREE.Color(c.r,c.g,c.b);
           }
-          console.log(c);
           var voxel = new THREE.Mesh( cubeGeo, new THREE.MeshLambertMaterial( { color: c } ) );
           voxel.position.fromArray(def.p);
+          voxel.castShadow = true;
+          voxel.receiveShadow = true;
           objects.push(voxel);
           voxels.push(voxel);
           scene.add(voxel);
@@ -383,28 +605,37 @@
       }
 
       function raycastVoxelHelper(){
+
         raycaster.setFromCamera( mouse, camera );
 
         var intersects = raycaster.intersectObjects( objects );
 
+        rollOverMesh.visible = ['toolDraw','toolRemove','toolPalette'].indexOf(selectedTool) > -1 && !lineDrawFrom;
         if ( intersects.length > 0 ) {
           var intersect = intersects[ 0 ];
-
-          rollOverMesh.position.copy( intersect.point ).add( intersect.face.normal );
-          rollOverMesh.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
-
+          if(lineDrawFrom){
+            intersect.point.add( intersect.face.normal );
+            intersect.point.divideScalar( 50 ).floor().multiplyScalar( 50 )
+            updateLine(intersect.point);
+            return;
+          } else {
+            intersect.point.add( intersect.face.normal );
+            rollOverMesh.position.copy(intersect.point);
+            rollOverMesh.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+          }
         }
+
       }
 
       function render() {
         var cameraChanged = false;
-        if(keyStates[KEY.shift] && mouseDown){
+        if((keyStates[KEY.shift] || selectedTool == 'cameraMove') && mouseDown){
           cameraObject.translateZ(mouseDelta.x * -400);
           cameraObject.translateY(mouseDelta.y * 400);
         } else
-        if(keyStates[KEY.control] && mouseDown){
-          cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), mouseDelta.x );
-          cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), mouseDelta.y);
+        if((keyStates[KEY.control] || selectedTool == 'cameraRotate' || noHit) && mouseDown){
+          cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), mouseDelta.x*2 );
+          cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), mouseDelta.y*2);
         }
 
         mouseDelta.set(0,0);
@@ -424,19 +655,65 @@
         renderer.render( scene, camera );
         window.requestAnimationFrame(render);
       }
-      render();
 
-      if(window.parent !== window){
-        window.parent.postMessage({
-          type: 'ready'
-        },'*');
-      } else {
-        setPalette(colors);
+
+      var fullscreen = false;
+      function openFullscreen() {
+        var elem = document.body
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { /* Firefox */
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+          elem.msRequestFullscreen();
+        }
       }
 
+      function setupToolbar(){
+        $('#fullscreen').on('click', function(){
+          if(fullscreen) document.exitFullscreen();
+          else openFullscreen();
+        });
+
+        $('#controls > .tool').on('click', function(){
+          if(this.id == 'toolClear'){
+            var sure = confirm("Er du sikker på at du vil rydde alt?")
+            if(sure) setScene(defaultSave);
+            return;
+          }
+
+          selectedTool = this.id;
+          $(this.parentNode).find('.tool').removeClass('enabled');
+          $(this).addClass('enabled');
+
+          $('#palette').toggle($('#toolPalette').hasClass('enabled'));
+        });
+      }
+
+      $(function(){
+        init();
+        render();
+        if(window.parent !== window){
+          window.parent.postMessage({
+            type: 'ready'
+          },'*');
+        } else {
+          setPalette(colors);
+        }
+      });
     </script>
-    <div id="help">
-      <img src="leftclick.png" alt="Venstreklik" />: Tegn, <img src="rightclick.png" alt="Højreklik" />: Slet, <span>Shift</span>+<img src="leftclick.png" alt="Træk med mus" />: Flyt kamera, <span>Ctrl</span>+<img src="leftclick.png" alt="Træk med mus" />: Rotér kamera, <img src="scroll.png" alt="Musehjul" />: Zoom
+    <script src="scoringapi.js"></script>
+
+    <div id="controls">
+      <button id="toolDraw" class="tool fas fa-pencil-alt enabled" title="Tegn" />
+      <button id="toolRemove" class="tool fas fa-eraser" title="Slet"/>
+      <button id="toolPalette" class="tool fas fa-palette" title="Farver"/>
+      <button id="cameraMove" class="tool fas fa-arrows-alt" title="Flyt kamera"/>
+      <button id="cameraRotate" class="tool fas fa-sync-alt" title="Rotér kamera"/>
+      <button id="toolClear" class="tool fas fa-trash" title="Start forfra"/>
+      <button id="fullscreen" class="fas fa-desktop" title="Fuldskærm"/>
     </div>
   </body>
 

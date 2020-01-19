@@ -1,0 +1,39 @@
+{
+    "typeIdentifier": "textgapmatch",
+    "label": "textgapmatch",
+    "short": "textgapmatch",
+    "description": "textgapmatch",
+    "version": "0.0.17",
+    "author": "EJTH",
+    "email": "ejth@edu.au.dk",
+    "tags": [
+        ""
+    ],
+    "response": {
+        "baseType": "string",
+        "cardinality": "single"
+    },
+    "runtime" : {
+        "hook" : "./runtime/textgapmatch.amd.js",
+        "libraries" : [
+            "IMSGlobal/jquery_2_1_1",
+            "./runtime/gapmatch.js",
+            "./runtime/DragDropTouch.js"
+        ],
+        "stylesheets" : [
+            "./runtime/css/base.css",
+            "./runtime/css/textgapmatch.css"
+        ], "mediaFiles" : ["./runtime/assets/download.png","./runtime/css/img/download.png"]
+    },
+            "creator" : {
+                "icon": "./creator/img/icon.svg",
+                "hook": "./pciCreator.js",
+                "libraries" : [
+                    "./creator/tpl/markup.tpl",
+                    "./creator/tpl/propertiesForm.tpl",
+                    "./creator/widget/Widget.js",
+                    "./creator/widget/states/Question.js",
+                    "./creator/widget/states/states.js"
+                ]
+            }
+        }

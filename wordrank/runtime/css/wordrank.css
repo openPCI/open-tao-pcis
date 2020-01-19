@@ -1,0 +1,66 @@
+
+
+/*add some style, need to scope (using the typeIdentifier as class prefix) every style declaration to prevent collision */
+@import url('base.css');
+
+.qti-customInteraction .wordrank .prompt {
+  position:relative;
+  width: 100%;
+}
+
+.qti-customInteraction .wordrank .chat {
+    height: 200px;
+    border: 1px solid #ccc;
+    margin-bottom: 8px;
+    padding:4px;
+    overflow-y:scroll;
+    overflow-x:hidden;
+}
+
+.wordgame {
+  padding: 10px;
+  font-size: 16px;
+}
+
+.wordgame .wordgame-row {
+  margin: 10px;
+  text-align: center;
+}
+
+.wordgame-table table {
+  margin:auto !important;
+}
+.wordgame .wordgame-cell {
+  background: #5cc5e3;
+  height:64px;
+  box-sizing: border-box;
+  border: 1px solid #004c6e;
+  font-size: 16px;
+  text-align: center;
+  overflow:hidden;
+}
+.wordgame .wordgame-texts {
+  min-height: 80px;
+  background-color: #EEE;
+  margin: 10px;
+  text-align: center;
+  padding: 10px;
+}
+
+.wordgame .wordgame-text {
+  border: 1px solid black;
+  display: inline-block;
+  background: #FFF;
+  margin: 03px 5px;
+  font-size: 12px;
+  line-height: 1.2;
+  padding: 4px;
+  margin: 3px;
+}
+
+
+.wordgame .wordgame-text:hover {
+  background: #F5F5F5;
+  color: red;
+  cursor: pointer;
+}

@@ -30,7 +30,6 @@ define([
          * @returns {Object} Widget
          */
         getWidget : function(){
-            console.log('getWidget', arguments, Widget);
             window.editor_mode = true;
             return Widget;
         },
@@ -42,10 +41,10 @@ define([
          * @returns {Object}
          */
         getDefaultProperties : function(pci){
-            console.log('getDefaultProperties', arguments);
             return {
                 colors: '#cc0000\n#cc6900\n#f7ef00\n#afe000\n#00b512\n#00bfa5\n#009bbf\n#008af4\n#ae00f4\n#f400e3\n#f40000\n#cccccc\n#ffffff\n#222222',
                 scene: '[]',
+                scoring: 'function score(){\n\n}',
                 gameUrl: 'https://surveyinfo.au.dk/pci-external/open-tao-pcis/voxelcraft/game/'
             };
         },
@@ -56,8 +55,6 @@ define([
          * @returns {Object}
          */
         afterCreate : function(pci){
-            //do some stuff
-            console.log('afterCreate', arguments);
         },
         /**
          * (required) Gives the qti pci xml template
@@ -65,7 +62,6 @@ define([
          * @returns {function} handlebar template
          */
         getMarkupTemplate : function(){
-            console.log('getMarkupTemplate', arguments);
             return markupTpl;
         },
         /**
@@ -74,7 +70,6 @@ define([
          * @returns {function} handlebar template
          */
         getMarkupData : function(pci, defaultData){
-            console.log('getMarkupData', arguments);
             defaultData.prompt = pci.data('prompt');
             return defaultData;
         }

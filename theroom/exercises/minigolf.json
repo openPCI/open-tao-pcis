@@ -1,0 +1,55 @@
+{
+  "scoringFunction": "function(scoring){\n  return {\n    start: Scoring.find('start').length == 1 ? 1 : 0,\nslut: Scoring.find('end').length == 1 ? 1 : 0,\n\tloop: Scoring.find('loop').length == 1 ? 1:0,\n\tspecial: Scoring.find('mill|obstacle|toblerone').length,\n    hjoerner: Scoring.find('bend').length,\n    ramper: Scoring.find('ramp').length,\n    ingen_loese_ender: Scoring.noSnap('.') == 0 ? 1:0,\n    brikker: Scoring.find('.').length\n  };\n}",
+  "objects": [],
+  "scene" : "minigolf/scene.glb",
+  "assets":[
+    {
+      "model" : "minigolf/soft_start.glb",
+      "count" : 100
+    },
+    {
+      "model" : "minigolf/straight.glb",
+      "count" : 100
+    },
+    {
+      "model" : "minigolf/hard_bend.glb",
+      "count" : 100
+    },
+    {
+      "model" : "minigolf/soft_bend.glb",
+      "count" : 100
+    },
+    {
+      "model" : "minigolf/slope.glb",
+      "count" : 100
+    },
+    {
+      "model" : "minigolf/raised.glb",
+      "count" : 100
+    },
+    {
+      "model" : "minigolf/soft_end.glb",
+      "count" : 100
+    },
+    {
+      "model" : "minigolf/mill.glb",
+      "count" : 100
+    },
+    {
+      "model" : "minigolf/loopdeloop.glb",
+      "count" : 100
+    },
+    {
+      "model" : "minigolf/obstacle.glb",
+      "count" : 100
+    },
+    {
+      "model" : "minigolf/toblerone.glb",
+      "count" : 100
+    },
+    {
+      "model" : "minigolf/tilt.glb",
+      "count" : 100
+    }
+  ]
+}

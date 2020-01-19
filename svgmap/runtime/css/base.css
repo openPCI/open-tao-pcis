@@ -1,0 +1,58 @@
+.qti-customInteraction .svgmap{
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
+  margin-bottom: 20px;
+}
+
+.dot {
+  position: absolute;
+  opacity: 0.1;
+  border-radius: 2vw;
+  z-index: 100;
+  width: 0.75vw;
+  height: 0.75vw;
+  border: 1vw solid rgba(0, 0, 0, 0);
+  margin-top: -0.7vw;
+  margin-left: -0.7vw;
+  z-index: 100;
+}
+
+.dot:hover {
+  position: absolute;
+  cursor:pointer;
+  background: grey;
+  border-color: grey;
+  opacity: 0.5;
+}
+.dots {
+  position:absolute;
+  top: -0.5vw;
+  left: -0.5vw;
+}
+
+.dot.svgmap-visited {
+  box-shadow: 0 0 0 0.1vw white;
+  background: red;
+  height: 0.25vw;
+  width: 0.25vw;
+  border-radius: 2vw;
+  border: 0.25vw solid rgba(0, 0, 0, 0);
+  opacity: 0.5;
+  margin-top: 0px;
+  margin-left: 0px;
+  z-index: 102;
+}
+
+
+.svgmap-poi {
+  background: red !important;
+}
+
+.svgmap {
+  width: 100%;
+  position: relative;
+}
+.svgmap-junction {
+  z-index: 101;
+}

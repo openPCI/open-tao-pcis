@@ -1,0 +1,179 @@
+{
+  "scoringFunction" : "function score(){\n  var kasse = Scoring.find('kasse');   \n  return {\n    kasse_placering : kasse.length && kasse[0].position.z < -4 ? 1 : 0,\n    slik_ved_kasse : Scoring.closerThanOthers('slik','reol','kasse'),\n    is_ved_kasse : Scoring.closerThanOthers('fryser','reol','kasse'),\n    reoler_mod_væg : Scoring.wallSnapTest('reol'),\n    reoler_fri_front : Scoring.objZoneTest('reol','front','.', true) ? 0 : 1,\n    doere_fri : Scoring.areaTest('door','.') ? 0 : 1\n  }\n}",
+  "scene" : "souvenirbutik/room.gltf",
+  "assets":[
+    {
+      "model" : "souvenirbutik/reol1.gltf"
+    },
+    {
+      "model" : "souvenirbutik/reol2.gltf"
+    },
+    {
+      "model" : "souvenirbutik/reol3.gltf"
+    },
+    {
+      "model" : "souvenirbutik/reol4.gltf"
+    },
+    {
+      "model" : "souvenirbutik/reol5.gltf"
+    },
+    {
+      "model" : "souvenirbutik/reol6.gltf"
+    },
+    {
+      "model" : "souvenirbutik/reol7.gltf"
+    },
+    {
+      "model" : "souvenirbutik/fryser.gltf"
+    },
+    {
+      "model" : "souvenirbutik/slik.gltf"
+    },
+    {
+      "model" : "souvenirbutik/kasse.gltf"
+    }
+  ],
+  "objects": [
+  {
+    "id": "souvenirbutik/kasse.gltf",
+    "pos": [
+      3.961289730095336,
+      0,
+      7.1252544280668255
+    ],
+    "rot": [
+      0,
+      1.5707963267948966,
+      0,
+      "XYZ"
+    ]
+  },
+  {
+    "id": "souvenirbutik/slik.gltf",
+    "pos": [
+      3.57151007958539,
+      0,
+      5.136801354149081
+    ],
+    "rot": [
+      0,
+      1.5707963267948966,
+      0,
+      "XYZ"
+    ]
+  },
+  {
+    "id": "souvenirbutik/reol7.gltf",
+    "pos": [
+      0.1675112120590335,
+      0,
+      9.027621095960988
+    ],
+    "rot": [
+      0,
+      1.5707963267948966,
+      0,
+      "XYZ"
+    ]
+  },
+  {
+    "id": "souvenirbutik/reol3.gltf",
+    "pos": [
+      0.9527672423360484,
+      0,
+      -1.2813660370990458
+    ],
+    "rot": [
+      0,
+      0,
+      0,
+      "XYZ"
+    ]
+  },
+  {
+    "id": "souvenirbutik/reol5.gltf",
+    "pos": [
+      4.842749622433258,
+      0,
+      -4.122594281400741
+    ],
+    "rot": [
+      0,
+      1.5707963267948966,
+      0,
+      "XYZ"
+    ]
+  },
+  {
+    "id": "souvenirbutik/reol4.gltf",
+    "pos": [
+      4.924088065110114,
+      0,
+      -8.818037934477506
+    ],
+    "rot": [
+      0,
+      1.5707963267948966,
+      0,
+      "XYZ"
+    ]
+  },
+  {
+    "id": "souvenirbutik/reol2.gltf",
+    "pos": [
+      4.8012585911606855,
+      0,
+      1.826532478352719
+    ],
+    "rot": [
+      0,
+      1.5707963267948966,
+      0,
+      "XYZ"
+    ]
+  },
+  {
+    "id": "souvenirbutik/reol1.gltf",
+    "pos": [
+      -2.107782731086106,
+      0,
+      1.8462017132201327
+    ],
+    "rot": [
+      0,
+      0,
+      0,
+      "XYZ"
+    ]
+  },
+  {
+    "id": "souvenirbutik/fryser.gltf",
+    "pos": [
+      -4.737013894124449,
+      0,
+      6.942535983335195
+    ],
+    "rot": [
+      0,
+      0,
+      0,
+      "XYZ"
+    ]
+  },
+  {
+    "id": "souvenirbutik/reol6.gltf",
+    "pos": [
+      -2.170832847108791,
+      0,
+      -6.425588843061204
+    ],
+    "rot": [
+      0,
+      0,
+      0,
+      "XYZ"
+    ]
+  }
+]
+
+}

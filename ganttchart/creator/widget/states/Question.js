@@ -41,6 +41,7 @@ define([
         //render the form using the form template
         Sform.html(formTpl({
             serial : response.serial,
+            weekNumHack: interaction.prop('weekNumHack'),
             startDate: interaction.prop('startDate'),
             period: interaction.prop('period'),
             weekDays: interaction.prop('weekDays'),
@@ -73,6 +74,10 @@ define([
                 interaction.prop('weekDays', value);
                 interaction.triggerPci('cfgChange', ['weekDays',value]);
             },
+            weekNumHack : function(interaction, value){
+                interaction.prop('weekNumHack', value);
+                interaction.triggerPci('cfgChange', ['weekNumHack',value]);
+            },
             useHours : function(interaction, value){
                 interaction.prop('useHours', value);
                 interaction.triggerPci('cfgChange', ['useHours',value]);
@@ -80,6 +85,10 @@ define([
             useHalfHours : function(interaction, value){
                 interaction.prop('useHalfHours', value);
                 interaction.triggerPci('cfgChange', ['useHalfHours',value]);
+            },
+            showTimeRange : function(interaction, value){
+                interaction.prop('showTimeRange', value);
+                interaction.triggerPci('cfgChange', ['showTimeRange',value]);
             },
             dayStart : function(interaction, value){
                 interaction.prop('dayStart', value);
@@ -94,7 +103,6 @@ define([
                 interaction.triggerPci('cfgChange', ['months',value]);
             },
             disableWeekends : function(interaction, value){
-              console.log('disableWeekends','cfg change',arguments);
                 interaction.prop('disableWeekends', value);
                 interaction.triggerPci('cfgChange', ['disableWeekends',value]);
             },

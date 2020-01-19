@@ -19,27 +19,28 @@ var WallSnapObject = function(){
     object.traverse(function(o){
       if(/^snap/.test(o.name)){
         snappers.push(o);
+        o.snapPoint = true;
+        object.wallSnap = true;
       }
     });
 
     var rotation = new THREE.Quaternion();
     var snapper;
-
-      for(var i=0; i<snappers.length; i++){
-        snapper = snappers[i];
-        snapper.getWorldQuaternion(rotation);
-        var v = new THREE.Vector3(0,1,0);
-        v.applyQuaternion(rotation);
-        var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
-        var raycaster = new THREE.Raycaster( snapperPos, v, 0, 0.4);
-        var result = raycaster.intersectObjects(targetObjects);
-        if(result.length){
-          snapperPos.sub(result[0].point);
-          object.position.sub(snapperPos);
-          return true;
-        }
+    for(var i=0; i<snappers.length; i++){
+      snapper = snappers[i];
+      snapper.getWorldQuaternion(rotation);
+      var v = new THREE.Vector3(0,1,0);
+      v.applyQuaternion(rotation);
+      var snapperPos = snapper.getWorldPosition( new THREE.Vector3() );
+      var raycaster = new THREE.Raycaster( snapperPos, v, 0, 0.4);
+      var result = raycaster.intersectObjects(targetObjects);
+      if(result.length){
+        snapperPos.sub(result[0].point);
+        object.position.sub(snapperPos);
+        return true;
       }
-    
+    }
+
   }
 
   return {
@@ -49,11 +50,10 @@ var WallSnapObject = function(){
         if(o instanceof THREE.Mesh){
           if(o.name && /^snap/.test(o.name)){
             useBehavior = true;
-            o.visible = false;
+            o.material.visible = false;
           }
         }
       });
-      console.log(useBehavior);
 
       return useBehavior;
     },

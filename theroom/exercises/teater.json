@@ -1,0 +1,189 @@
+{
+  "scoringFunction": "function score(scoring){\n  var seats = Scoring.find('seat').length;\n  return {\n    alle_stole_placeret: seats == 16 ? 1 : 0,\n    taepper_til_stole: Scoring.objZoneTest('seat','carpet','rug') == seats ? 1 : 0,\n    taeppe_afstand: Scoring.closestDistance('rug','rug') <= 4 ? 1 : 0,\n    taeppe_til_dore: Scoring.areaTest('door','rug') == 3 ? 1 : 0,\n    stole_fri_front: Scoring.objZoneTest('seat','front','seat', true) == 0 ? 1 : 0,\n    dore_ikke_blokeret: Scoring.areaTest('door','seat') == 0 ? 1 : 0,\n    udsyn: Scoring.lineOfSight('seat', new THREE.Vector3(2.4727312061784747, 0, 0.3590116360462292)) == seats ? 1 : 0,\n    stole_rotation: Scoring.zoneRotationCheck('front','seat',0) + Scoring.zoneRotationCheck('left','seat',4.71238898038469) + Scoring.zoneRotationCheck('right','seat',1.5707963267948966) == 0 ? 1 : 0\n  };\n}",
+  "scene" : "teater/theater.gltf",
+  "assets":[
+      {
+        "model" : "teater/seatrow_yellow.gltf",
+        "count" : 12
+      },
+
+      {
+        "model" : "teater/seatrow_blue.gltf",
+        "count" : 4
+      },
+      {
+        "model" : "teater/rug.gltf",
+        "count" : 9001
+      }
+      ],
+  "objects": [
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        -3.8869513630162835,
+        0,
+        -5.329107741020097
+      ],
+      "rot": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        -4.263781188395644,
+        0,
+        5.403678323332672
+      ],
+      "rot": [
+        0,
+        6.283185307179586,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        -10.45527639998285,
+        0,
+        -5.193930959992734
+      ],
+      "rot": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        -10.688934620219777,
+        0,
+        5.4624959733405625
+      ],
+      "rot": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        1.0970535979242593,
+        0,
+        -5.692062864873766
+      ],
+      "rot": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        0.957636513351583,
+        0,
+        5.490995313439582
+      ],
+      "rot": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        7.646709050762896,
+        0,
+        9.493851139737439
+      ],
+      "rot": [
+        0,
+        7.853981633974483,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        7.715365777439578,
+        0,
+        14.030739399252806
+      ],
+      "rot": [
+        0,
+        1.5707963267948966,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        7.55908193801293,
+        0,
+        18.33738278564213
+      ],
+      "rot": [
+        0,
+        1.5707963267948966,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        7.42378284419344,
+        0,
+        -13.355575449595012
+      ],
+      "rot": [
+        0,
+        4.71238898038469,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        7.4353162553260965,
+        0,
+        -9.007005852399203
+      ],
+      "rot": [
+        0,
+        4.71238898038469,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "id": "teater/seatrow_yellow.gltf",
+      "pos": [
+        7.5059911661100704,
+        0,
+        -17.82166250190905
+      ],
+      "rot": [
+        0,
+        4.71238898038469,
+        0,
+        "XYZ"
+      ]
+    }
+  ]
+}

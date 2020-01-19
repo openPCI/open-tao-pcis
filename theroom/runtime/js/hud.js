@@ -3,7 +3,7 @@ var GameHud = function(){
   hudRenderer.setSize( window.innerWidth, window.innerHeight );
   hudRenderer.setClearColor( 0x000055, 0 );
 
-  var hudScale = 25;
+  var hudScale = Math.min(25,21 * (window.innerWidth/1371));
   var width = window.innerWidth / hudScale;
   var height = window.innerHeight / hudScale;
   this.width = width;
@@ -13,24 +13,36 @@ var GameHud = function(){
   hudRenderer.domElement.className = 'hud';
   document.body.appendChild( hudRenderer.domElement );
 
+
   var hudScene = new THREE.Scene()
   var droppableProps = [];
   var droppableByName = {}
   this.droppables = droppableProps;
   this.camera = hudCamera;
   // Add global light
-  addLighting(hudScene)
+  addLighting(hudScene,1)
 
   hudScene.add( hudCamera )
 
+  function setCameraSize(w,h){
+    hudScale = Math.min(25,21 * (window.innerWidth/1371));
+    var width = w / hudScale;
+    var height = h / hudScale;
+    hudCamera.right = width;
+    hudCamera.bottom = -height;
+    hudCamera.updateProjectionMatrix();
+  }
+  this.setCameraSize = setCameraSize;
+
   function hudAddDroppable(gltf, count, name){
+
     var prop = gltf.scene.clone();
     prop.traverse(function(o){
       if(o instanceof THREE.Mesh){
         o.material = o.material.clone();
       }
     });
-    var info = {gltf: gltf, prop: prop, count: count, name: name};
+    var info = {gltf: gltf, prop: prop, count: count, name: name, animations: gltf.animations};
 
     droppableByName[name] = info;
 
@@ -76,6 +88,7 @@ var GameHud = function(){
       hudScene.remove(prop.prop);
     });
     droppableProps = [];
+    this.droppables = droppableProps;
   }
 
   function removeDroppable(info){
@@ -93,7 +106,7 @@ var GameHud = function(){
   this.render = function(){
     hudRenderer.render( hudScene, hudCamera );
   }
-
+  this.renderer = hudRenderer;
   this.getDroppableByName = getDroppableByName;
   this.addDroppable = hudAddDroppable;
   this.placeDroppable = placeDroppable;

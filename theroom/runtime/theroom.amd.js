@@ -6,19 +6,6 @@ Build by Wiquid's PCI Generator for TAO platform Free to use
 define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event'], function(qtiCustomInteractionContext, $, event){
     'use strict';
 
-    var $iframe;
-
-    function startTheRoom(dom, config){
-      var $container = $(dom);
-      if(!$iframe){
-        $iframe = $('<iframe>');
-        $iframe.css('width','100%');
-        $container.append($iframe);
-        $iframe.css('height', $iframe.width() * 0.56 + 'px');
-      }
-
-      $iframe.attr('src', config.gameurl + '?' + Date.now());
-    }
 
     var theroom = {
         id : -1,
@@ -33,6 +20,46 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          */
         initialize : function initialize(id, dom, config, assetManager){
 
+            var that = this;
+            function startTheRoom(dom, config){
+              var $container = $(dom);
+              if($container.find('iframe').length == 0){
+                that.iframe = $('<iframe>');
+                that.iframe.css('width','100%');
+                that.iframe.attr('allow','fullscreen');
+                $container.append(that.iframe);
+                that.iframe.css('height', that.iframe.width() * 0.56 + 'px');
+              } else {
+                that.iframe = $container.find('iframe');
+              }
+
+              that.messageListener = function(event){
+                if(event.data && event.data.type){
+                  if(event.data.type == "updateResult"){
+                    _this.responseContainer.base.string = event.data.value;
+                  }
+                }
+
+                if(event.data && event.data.type == 'ready'){
+                  that.iframe[0].contentWindow.postMessage({
+                    type :'loadExercise',
+                    value : config.exercise
+                  },'*');
+                  if(config.scoringFunction){
+                    that.iframe[0].contentWindow.postMessage({
+                      type: 'setScoringFunction',
+                      value : config.scoringFunction
+                    },'*');
+                  }
+                }
+              };
+
+              window.addEventListener('message', that.messageListener);
+
+              that.iframe.attr('src', config.gameurl + '?' + Date.now());
+            }
+
+
             //add method on(), off() and trigger() to the current object
             event.addEventMgr(this);
 
@@ -42,27 +69,9 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             this.config = config || {};
             this.responseContainer = {base : {string : ''}};
 
-            window.addEventListener('message', function(event){
-              if(event.data && event.data.type){
-                if(event.data.type == "updateResult"){
-                  _this.responseContainer.base.string = event.data.value;
-                }
-              }
-
-              if(event.data && event.data.type == 'ready'){
-                if($iframe)
-                $iframe[0].contentWindow.postMessage({
-                  type :'loadExcersize',
-                  value : config.excersize
-                },'*');
-              }
-            });
 
             //tell the rendering engine that I am ready
             qtiCustomInteractionContext.notifyReady(this);
-
-
-            console.log('initialize', qtiCustomInteractionContext);
 
             var cfgTimeout = 0;
 
@@ -84,7 +93,6 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} response
          */
         setResponse : function setResponse(response){
-            var Scontainer = $(this.dom),value;
         },
         /**
          * Get the response in the json format described in
@@ -103,9 +111,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         resetResponse : function resetResponse(){
-
             var Scontainer = $(this.dom);
-
         },
         /**
          * Reverse operation performed by render()
@@ -115,7 +121,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} interaction
          */
         destroy : function destroy(){
-
+            window.removeEventListener('message', this.messageListener);
             var Scontainer = $(this.dom);
             Scontainer.off().empty();
         },
@@ -126,8 +132,22 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @param {Object} serializedState - json format
          */
         setSerializedState : function setSerializedState(state){
-
+          var that = this;
+          if($.isEmptyObject(state)) return;
+          
+          window.removeEventListener('message', that.messageListener);
+          var onReady = function(event){
+            if(state.response && event.data && event.data.type == 'ready'){
+              that.iframe[0].contentWindow.postMessage({
+                type :'rescore',
+                value : JSON.parse(state.response.base.string)
+              },'*');
+              window.removeEventListener('message', onReady);
+            }
+          };
+          window.addEventListener('message', onReady);
         },
+
         /**
          * Get the current state of the interaction as a string.
          * It enables saving the state for later usage.
@@ -136,8 +156,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
          * @returns {Object} json format
          */
         getSerializedState : function getSerializedState(){
-
-            return {};
+          return {};
         }
     };
 
