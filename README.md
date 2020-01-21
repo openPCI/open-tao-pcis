@@ -1,6 +1,6 @@
 # open-tao-pcis
 
-In this repository you will find a collection of currently work-in-progress
+In this repository you will find a collection of
 PCI (Portable Custom Interaction) modules for TAO and other such products that
 supports the QTI and PCI standards for Question and Tests Interoperability.
 
