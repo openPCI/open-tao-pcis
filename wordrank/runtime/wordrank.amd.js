@@ -26,17 +26,22 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
               var texts = [];
               var cells = [];
-
+			  var descriptions = [];
+			  
               try {
                 texts = config.texts.split('\n');
+				if(config.randomorder) texts=shuffle(texts)
                 cells = config.cells.split(',');
+				if(typeof config.descriptions=="string")
+					descriptions=config.descriptions.split(',')
               } catch(e){
                 console.log(e);
               }
               that.wordGame = new WordGame({
                 element: dom,
                 cells: cells,
-                texts: texts
+                texts: texts,
+                descriptions: descriptions
               });
             }
             //add method on(), off() and trigger() to the current object
@@ -129,3 +134,21 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
     qtiCustomInteractionContext.register(wordrank);
 });
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}

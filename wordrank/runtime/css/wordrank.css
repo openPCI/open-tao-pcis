@@ -59,8 +59,20 @@
 }
 
 
-.wordgame .wordgame-text:hover {
-  background: #F5F5F5;
-  color: red;
-  cursor: pointer;
+.wordgame .wordgame-descr-row {
+  margin: 10px;
+  text-align: center;
 }
+
+.wordgame-table table {
+  margin:auto !important;
+}
+.wordgame .wordgame-descr-cell {
+  background: transparent;
+/*   height:14px; */
+  box-sizing: border-box;
+  border: none;
+  font-size: 14px;
+  text-align: center;
+}
+

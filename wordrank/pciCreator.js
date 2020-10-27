@@ -43,7 +43,9 @@ define([
         getDefaultProperties : function(pci){
             return {
                 cells: "3,5,3",
-                texts: 'Tekst 1\nTekst 2\nTekst 3\nTekst 4'
+                texts: 'Tekst 1\nTekst 2\nTekst 3\nTekst 4',
+				randomorder: true,
+				descriptions: "-,,+"
             };
         },
         /**

@@ -10,6 +10,7 @@ var hudRaycaster = new THREE.Raycaster();
 var renderer = new THREE.WebGLRenderer();
 var scoringFunction = function(){};
 var exerciseUrl;
+var currentRowNo=-1
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.setClearColor( 0xeeeeee );
 renderer.shadowMap.enabled = true;
@@ -67,14 +68,14 @@ function sendMessage(type, value){
   if(window.parent)
     window.parent.postMessage({
       type: type,
-      value: value
+      value: value,
+	  currentRowNo: currentRowNo
     },'*');
 }
 
 function postResult(rescore){
   var result = serializeMoveables();
   result.score = scoringFunction(Scoring);
-
   sendMessage(rescore?'rescore':'updateResult', JSON.stringify(result));
 }
 
@@ -570,6 +571,7 @@ function onPostMessage(event){
       break;
       case 'rescore':
         var serialized = event.data.value;
+		currentRowNo= event.data.currentRowNo
         if((serialized.scene || serialized.exercise) && serialized.objects){
           deserializeMoveables(serialized, function(){
             postResult(true);

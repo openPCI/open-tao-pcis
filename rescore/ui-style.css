@@ -195,7 +195,7 @@ fieldset {
   border: 1px solid #eee;
 }
 
-.collapsable {
+.collapsible {
   border-radius: 8px;
   margin: 0px;
   border: 1px outset;
@@ -203,7 +203,7 @@ fieldset {
   perspective: 1px;
   margin: 8px;
 }
-.collapsable > h1, .collapsable > h2, .collapsable > h3 {
+.collapsible > h1, .collapsible > h2, .collapsible > h3 {
   margin: 0px;
   font-size: 1em;
   background: linear-gradient(#63b4c9, #337f93);
@@ -212,14 +212,14 @@ fieldset {
   border-bottom: 1px outset;
   padding: 8px;
 }
-.collapsable .content {
+.collapsible .content {
   background-color: #fff;
   padding: 8px;
 }
-.collapsable.collapsed .content {
+.collapsible.collapsed .content {
   display: none;
 }
-.collapsable .activator {
+.collapsible .activator {
   margin: 0px !important;
 }
 
@@ -265,5 +265,4 @@ fieldset {
 .button-list > button > .button-assignment {
   font-weight: bold;
 }
-
 /*# sourceMappingURL=ui-style.css.map */

@@ -5,11 +5,27 @@
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_nickname"}}</span>
     <input type="text" name="cells" value="{{cells}}" />
-    <label for="messages">Tekster</label>
+    <label for="texts">Tekster</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Tooltip_nickname"}}</span>
     <textarea name="texts">{{texts}}</textarea>
-
+	<label>
+    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+    <input type="checkbox" name="randomorder" {{#if randomorder}}checked="checked"{{/if}}/>
+        <span class="icon-checkbox"></span> {{__ "Randomize"}}
+    </label>
+	<label>
+	<span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content" data-tooltip-theme="info"></span>
+    <span class="tooltip-content">
+        {{__ "Randomize the texts for each testtaker."}}
+    </span>
+    </label>
+    <label for="descriptions">{{__ "Descriptions"}}</label>
+    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+    <span class="tooltip-content">{{__ "Descriptions to be placed below the boxes. Comma-separated."}}</span>
+    <textarea name="descriptions">{{descriptions}}</textarea>
+	<label>
+    
 </div>
 
 <div class="panel">

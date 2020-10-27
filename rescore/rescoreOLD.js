@@ -41,11 +41,9 @@ function showTaskOptions(){
 		document.getElementById(task).style.display = 'block';
 	}
 	runBtn.innerText = (task.indexOf('Recalc') > -1) ? 'Run rescore' : 'Do Review';
-	document.getElementById("rescoreThis").style.display = (task.indexOf('Recalc') > -1 ? 'block':'none');
 }
 
 document.getElementById('task').addEventListener('change', showTaskOptions);
-document.getElementById("rescoreThis").addEventListener('click', rescorethis);
 
 function rebuildDataTableRow(rowNum){
   var row = document.querySelectorAll('#columns table tr')[rowNum+1];
@@ -115,9 +113,6 @@ function recalculateRoomExercise(row, column, callback){
     sendMessage('rescore', JSON.parse(row[column]));
   } catch(e){
     console.log('JSON PARSE ERROR', e);
-	// Remove the listener created in onceMessage
-	messageListeners['rescore'].pop()
-
     callback();
   }
 }
@@ -147,39 +142,17 @@ function runTask(){
   if(task.indexOf('Recalc') > -1){
     window[task](data, column, playarea, done);
   } else {
-    rowInput.value = currentRow = 0;
+    rowInput.value = currentRow = 1;
     loadCurrentRow();
   }
 }
 
-function rescorethis(){
-  var task = document.getElementById('task').value;
-  var column = document.getElementById('column').value;
-	function updateRow() {
-		var rowNum = Number(document.getElementById('csvRowNum').value);
-		rebuildDataTableRow(rowNum)
-		loadCurrentRow()
-	}
 
-  var fct=task.replace(/^task/,"")
-  fct=fct.charAt(0).toLowerCase() + fct.slice(1);
-  var rowInput = Number(document.getElementById('csvRowNum').value);
-  
-  switch(fct) {
-	  case "recalculateVoxelcraft":
-		var scoringFunction = document.getElementById('voxelScoringFunc').value;
-		sendMessage('setScoringFunction',scoringFunction);
-		break;
-  }
-  
-	window[fct](data[rowInput], column, updateRow)
-}
-
-function taskRecalculateCustomFunction(thisdata, column, playarea, done){
+function taskRecalculateCustomFunction(data, column, playarea, done){
   playarea.innerHTML = '';
   try {
     var scoreFunction = eval('(' + document.getElementById('mapScoringFunc').value + ')');
-    thisdata.forEach(function(row){
+    data.forEach(function(row){
       try {
         var d = JSON.parse(row[column]);
         row[column] = JSON.stringify({data: d, score:scoreFunction(d)});
@@ -189,53 +162,35 @@ function taskRecalculateCustomFunction(thisdata, column, playarea, done){
   done();
 }
 
-function taskReviewRoomExercise(thisdata, column, playarea, done){
-  var exercise = document.getElementById('exerciseFix').value;
-  playarea.innerHTML = '<iframe width="800" height="600" src="../theroom/runtime/theroom.html"></iframe>';
-  onceMessage('ready', function(){
-	  var exercise=JSON.parse( thisdata[0][column]).data
-	  sendMessage('loadExercise',exercise);
-  });	
-	done();
-}
-function taskRecalcReviewRoomExercise(thisdata, column, playarea, done){taskReviewRoomExercise(thisdata, column, playarea, done)}
-
-
-function taskRecalculateRoomExercise(thisdata, column, playarea, done){
+function taskRecalculateRoomExercise(data, column, playarea, done){
   var exercise = document.getElementById('exerciseFix').value;
   playarea.innerHTML = '<iframe width="800" height="600" src="../theroom/runtime/theroom.html"></iframe>';
   var i = -1;
   onceMessage('ready', function(){
     function next(){
       i++;
-      if(i >= thisdata.length) {
-		  if(i>0) {
-			rowInput.value = currentRow = 0;
-			loadCurrentRow();
-		  }
-		  return done();
-	  }
+      if(i >= data.length) return done();
       if(exercise){
         try {
-          var d = JSON.parse(thisdata[i][column]);
+          var d = JSON.parse(data[i][column]);
           d.exercise = exercise;
-          thisdata[i][column] = JSON.stringify(d);
+          data[i][column] = JSON.stringify(d);
         } catch(e){
-          console.log(e, thisdata[i][column]);
+          console.log(e, data[i][column]);
           next();
           return;
         }
       }
-      recalculateRoomExercise(thisdata[i], column, next);
+      recalculateRoomExercise(data[i], column, next);
     }
     next();
   });
 }
 
-function taskGenericBrainstorm(thisdata, column, canvas, done){
+function taskGenericBrainstorm(data, column, canvas, done){
   var testTaker = document.getElementById('brainstormNickname').value;
   canvas.innerHTML = '';
-  thisdata[0][column].split(/[|\n]/g).forEach(function(str){
+  data[0][column].split(/[|\n]/g).forEach(function(str){
     var row = str.split(';');
     if(row.length !== 3) return;
     var div = document.createElement('div');
@@ -252,61 +207,44 @@ function taskGenericBrainstorm(thisdata, column, canvas, done){
   done();
 }
 
-function taskGenericText(thisdata, column, canvas, done){
-  canvas.innerHTML = thisdata[0][column];
+function taskGenericText(data, column, canvas, done){
+  canvas.innerHTML = data[0][column];
   done();
 }
-function taskReviewVoxelcraft(thisdata, column, playarea, done){
-	playarea.innerHTML = '<iframe width="800" height="600" src="../voxelcraft/game/index.html"></iframe>';
-  onceMessage('ready', function(){
-	  var scene=JSON.parse( thisdata[0][column]).data
-	  sendMessage('setScene',scene);
-  });
-	
-	done();
-}
-function taskRecalcReviewVoxelcraft(thisdata, column, playarea, done){taskReviewVoxelcraft(thisdata, column, playarea, done)}
-function taskRecalculateVoxelcraft(thisdata, column, playarea, done){
+
+function taskRecalculateVoxelcraft(data, column, playarea, done){
   var scoringFunction = document.getElementById('voxelScoringFunc').value;
   playarea.innerHTML = '<iframe width="800" height="600" src="../voxelcraft/game/index.html"></iframe>';
   var rowno = -1;
+  console.log("data.length " +data.length)
+  console.log(JSON.stringify(data))
   onceMessage('ready', function(){
     sendMessage('setScoringFunction',scoringFunction);
     console.log('ready');
     function next(){
       rowno++;
-// 	  console.log("rowno "+rowno)
-      if(rowno >= thisdata.length) {
-		if(rowno>0) {
-			rowInput.value = currentRow = 0;
-			loadCurrentRow();
-		}
-		return done();
-	  }
-      recalculateVoxelcraft(thisdata[rowno], column, next);
+	  console.log("rowno "+rowno)
+      if(rowno >= data.length) return done();
+      recalculateVoxelcraft(data[rowno], column, next);
     }
     next();
   });
 }
 
 function recalculateVoxelcraft(row, column, callback){
-// 	
-	if(row[column] && row[column].length>0) {
+// 	if(row[column].length==0) row[column]='{"data":[]}'
 		onceMessage('rescore', function(event){
 			console.log('rescore', event.data.value);
- 			row[column] = JSON.stringify(event.data.value);
-			setTimeout(callback, 10);
+			row[column] = JSON.stringify(event.data.value);
+			setTimeout(callback, 1000);
 		});
 		try {
 			var thisdata = JSON.parse(row[column]);
 			sendMessage('rescore', thisdata);
 		} catch(e){
 			console.log('JSON PARSE ERROR', e);
-			// Remove the listener created in onceMessage
-			messageListeners['rescore'].pop()
 			callback();
 		}
-	} else callback();
 }
 
 
@@ -423,8 +361,7 @@ function objectToTable(obj, title){
 }
 
 function loadCurrentRow(cb){
-	var notFunction=typeof cb != "function"
-  if (notFunction && scoreTable.querySelectorAll('input').length>0) cb = function(){scoreTable.querySelectorAll('input')[0].focus();};
+  if (typeof cb != "function") cb = function(){scoreTable.querySelectorAll('input')[0].focus();};
 
   var task = document.getElementById('task').value;
   var column = document.getElementById('column').value;
@@ -436,29 +373,24 @@ function loadCurrentRow(cb){
   extrainfoarea.innerHTML=''
   if(extracolumns.length>0) {
 	 extracolumns=extracolumns.split(",")
+	 console.log(extracolumns)
 	 var extradata=[]
 	 for(var i in extracolumns) {
 		var extracolumn=Number(extracolumns[i])
+	console.log(extracolumn)
 	 	 extradata[extradata.length]=currentRowData[extracolumn]
 	 }
 	 extrainfoarea.innerHTML=extradata.join("<br>")
   }
-  if(notFunction) {
-	switch(task) {
-		case "taskRecalculateVoxelcraft":
-			task="taskRecalcReviewVoxelcraft"
-	}
-  }
   window[task]([currentRowData], column, playarea, function(){
     scoreTable.innerHTML = '';
-    if(task.indexOf('Recalc') > -1){
+	// In an earlier version the score were integrated into the response. This is not the case anylonger. So this condition can be deleted. Keeping it just in case. But delete it when you see this...
+    if(false && task.indexOf('Recalc') > -1){
       try {
-		if(data[currentRow][column].length>0) {
-			var dat = JSON.parse(data[currentRow][column]);
-			scoreTable.appendChild(objectToTable(dat['score'] ? dat['score'] : '', 'Score'));
-		} else scoreTable.innerHTML = "<h3>Empty response</h3>"
+        var dat = JSON.parse(data[currentRow][column]);
+        scoreTable.appendChild(objectToTable(dat['score'] ? dat['score'] : dat, 'Score'));
       } catch(e){
-        scoreTable.innerText = "No score: "+e.toString();
+        scoreTable.innerText = e.toString();
       }
     } else {
       scoreTable.appendChild(scoringTable(column));
@@ -468,7 +400,7 @@ function loadCurrentRow(cb){
         playarea.style.minHeight = playarea.clientHeight + 'px';
       }
     }
-    if(typeof cb == "function") cb();
+    if(cb) cb();
   });
 
 }
@@ -513,15 +445,12 @@ document.getElementById('nextBtn').addEventListener('click', nextInReview);
 document.getElementById('prevBtn').addEventListener('click', prevRow);
 
 document.addEventListener('keydown', function(evt){
-	if(["INPUT","SELECT","TEXTAREA"].indexOf(evt.target.tagName)==-1)
-	{
-		switch(evt.which){
-			case 37: prevRow();
-			break;
-			case 39: nextInReview();
-			break;
-		}
-	}
+  switch(evt.which){
+    case 37: prevRow();
+    break;
+    case 39: nextInReview();
+    break;
+  }
 });
 
 rowInput.addEventListener('keydown', function(e){

@@ -51,6 +51,26 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
     });
     elem.appendChild(table);
 
+	if(options.descriptions.length>0) {
+		var cells=options.descriptions.length
+		var descTable = document.createElement('table');
+		var row = document.createElement('tr');
+		descTable.style.width = cellWidth*cells + '%';
+		row.className = 'wordgame-descr-row';
+		var cell;
+		for(var i = 0; i<cells; i++){
+			td = document.createElement('td');
+			td.style.width = cellWidth + '%';
+			cell = document.createElement('div');
+			cell.className = 'wordgame-descr-cell';
+			cell.innerText=options.descriptions[i]
+			td.appendChild(cell);
+			row.appendChild(td);
+		}
+		descTable.appendChild(row);
+		table.appendChild(descTable);
+	}
+	
     var words = document.createElement('div');
     words.className = 'wordgame-texts';
     words.addEventListener('drop', function(evt){
@@ -65,7 +85,7 @@ define(['IMSGlobal/jquery_2_1_1'], function($){
       var text = document.createElement('div');
       text.className = 'wordgame-text';
       text.innerText = strings[0];
-      text.title = strings[1];
+      text.title = typeof(strings[1])!="undefined"?strings[1]:strings[0];
       text.draggable = true;
       text.id = (options.idPrefix||'') + 'wordrank' + i;
       text.addEventListener('dragstart', function(evt) {

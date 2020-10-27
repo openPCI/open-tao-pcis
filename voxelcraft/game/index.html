@@ -80,23 +80,23 @@
   <body>
 
     <script src="three.js"></script>
-    <script src="hammer.js"></script>
+<!--     <script src="hammer.js"></script> -->
     <script>
 
       var colors = [
-        '#cc6900',
-        '#f7ef00',
-        '#afe000',
-        '#00b512',
-        '#00bfa5',
-        '#009bbf',
-        '#008af4',
-        '#ae00f4',
-        '#f400e3',
-        '#f40000',
-        '#cccccc',
-        '#ffffff',
-        '#222222'
+        '#cc6900',//13396224
+        '#f7ef00',//16248576
+        '#afe000',//11526144
+        '#00b512',//46354
+        '#00bfa5',//49061
+        '#009bbf',//39871
+        '#008af4',//35572
+        '#ae00f4',//11403508
+        '#f400e3',//15991011
+        '#f40000',//15990784
+        '#cccccc',//13421772
+        '#ffffff',//16777215
+        '#222222' //2236962
       ];
 
       var KEY = {
@@ -397,28 +397,30 @@
 
       function onPostMessage(event){
         if(event.data){
-          switch(event.data.type){
-            case 'setPalette':
-              colors = event.data.value;
-              setPalette(colors);
-            break;
-            case 'setScene':
-              setScene(event.data.value, true);
-            break;
-            case 'setScoringFunction':
-              scoringFunction = eval('(' + event.data.value + ')');
-            break;
-            case 'rescore':
-              setTimeout(function(){
-                setScene(event.data.value && event.data.value.data ? event.data.value.data : event.data.value);
-                window.parent.postMessage({
-                  type: 'rescore',
-                  value: {data: getScene(), score: scoringFunction()},
-                },"*");
-              }, 10);
-            break;
-          }
-        }
+			switch(event.data.type){
+				case 'setPalette':
+				colors = event.data.value;
+				setPalette(colors);
+				break;
+				case 'setScene':
+				setScene(event.data.value, true);
+				break;
+				case 'setScoringFunction':
+					if(event.data.value.length>0) scoringFunction = eval('(' + event.data.value + ')');
+					else alert("You need to provide a scoring function")
+				break;
+				case 'rescore':
+				setTimeout(function(){
+					setScene(event.data.value && event.data.value.data ? event.data.value.data : event.data.value);
+					window.parent.postMessage({
+					type: 'rescore',
+					value: {data: getScene(), score: scoringFunction()},
+					},"*");
+				}, 10);
+				break;
+			}
+			
+		}
       }
 
       function onWindowPaste(e){
@@ -704,7 +706,7 @@
         }
       });
     </script>
-    <script src="scoringapi.js"></script>
+    <script src="scoringapi.js?v=1"></script>
 
     <div id="controls">
       <button id="toolDraw" class="tool fas fa-pencil-alt enabled" title="Tegn" />

@@ -42,7 +42,9 @@ define([
         Sform.html(formTpl({
             serial : response.serial,
             cells: interaction.prop('cells'),
-            texts: interaction.prop('texts')
+            texts: interaction.prop('texts'),
+			descriptions: interaction.prop('descriptions'),
+			randomorder: interaction.prop('randomorder')
         }));
 
         //init form javascript
@@ -57,6 +59,14 @@ define([
             cells : function(interaction, value){
                 interaction.prop('cells', value);
                 interaction.triggerPci('cfgChange', ['cells',value]);
+            },
+            descriptions : function(interaction, value){
+                interaction.prop('descriptions', value);
+                interaction.triggerPci('cfgChange', ['descriptions',value]);
+            },
+            randomorder : function(interaction, value){
+                interaction.prop('randomorder', value);
+                interaction.triggerPci('cfgChange', ['randomorder',value]);
             },
             identifier : function(i, value){
                 response.id(value);
