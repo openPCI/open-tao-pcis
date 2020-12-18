@@ -44,7 +44,9 @@ define([
             cells: interaction.prop('cells'),
             texts: interaction.prop('texts'),
 			descriptions: interaction.prop('descriptions'),
-			randomorder: interaction.prop('randomorder')
+			randomorder: interaction.prop('randomorder'),
+			sample: interaction.prop('sample'),
+			numGroups: interaction.prop('numGroups')
         }));
 
         //init form javascript
@@ -67,6 +69,14 @@ define([
             randomorder : function(interaction, value){
                 interaction.prop('randomorder', value);
                 interaction.triggerPci('cfgChange', ['randomorder',value]);
+            },
+            sample: function(interaction, value){
+                interaction.prop('sample', value);
+                interaction.triggerPci('cfgChange', ['sample',value]);
+            },
+            numGroups: function(interaction, value){
+                interaction.prop('numGroups', value);
+                interaction.triggerPci('cfgChange', ['numGroups',value]);
             },
             identifier : function(i, value){
                 response.id(value);

@@ -26,14 +26,42 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
 
               var texts = [];
               var cells = [];
-			  var descriptions = [];
+			  var descriptions = [[],[],[],[]];
 			  
               try {
-                texts = config.texts.split('\n');
+                texts = config.texts.trim().split('\n');
+				if(config.sample>0) {
+					var numTexts=texts.length
+// 					console.log(config.numGroups)
+					var numGroups=1
+					if(config.numGroups>0) numGroups=config.numGroups
+					var inGroup=Math.ceil(numTexts/numGroups)
+					var sample=[]
+					var group=0
+//  					console.log(texts)
+					for(var i=0;i<config.sample;i++) {
+						do {
+							var take=Math.min(Math.floor(Math.random()*inGroup+group*inGroup),numTexts-1) //between (including) group*inGroup and (not including) group*inGroup+inGroup, and not higher than numTexts
+							var elem=texts[take]
+//  							console.log(take)
+//  							console.log(elem)
+						} while(sample.indexOf(elem)>-1)
+						sample.push(elem)
+						group++
+						if(group>=numGroups) group=0
+					}
+// 					console.log(sample)
+					texts=sample
+				}
 				if(config.randomorder) texts=shuffle(texts)
                 cells = config.cells.split(',');
 				if(typeof config.descriptions=="string")
-					descriptions=config.descriptions.split(',')
+				var desc=config.descriptions.split('\n')
+				for(var i=0;i<desc.length;i++) {
+					var d=desc[i]
+					descriptions[i]=d.split(',')
+				}
+// 				console.log(descriptions)
               } catch(e){
                 console.log(e);
               }
@@ -57,7 +85,7 @@ define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event
             qtiCustomInteractionContext.notifyReady(this);
 
             //
-            console.log('initialize', qtiCustomInteractionContext);
+//             console.log('initialize', qtiCustomInteractionContext);
 
             //listening to dynamic configuration change
             this.on('cfgChange', function(key, value){

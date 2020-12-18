@@ -564,7 +564,7 @@ function onPostMessage(event){
   if(event.data && event.data.type){
     switch(event.data.type){
       case 'loadExercise':
-        loadExercise(event.data.value);
+        loadExercise(event.data.value.exercise, event.data.value.objects, animate);
       break;
       case 'setScoringFunction':
         setScoringFunction(event.data.value);

@@ -45,7 +45,9 @@ define([
                 cells: "3,5,3",
                 texts: 'Tekst 1\nTekst 2\nTekst 3\nTekst 4',
 				randomorder: true,
-				descriptions: "-,,+"
+				descriptions: "-,,+",
+				sample: 0,
+				numGrups: 1
             };
         },
         /**

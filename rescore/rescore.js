@@ -27,6 +27,10 @@ document.getElementById('fileUpload').addEventListener('change', function(e){
       scoreLabelColumns = {};
       data = results.data;
       buildDataTable(data);
+	  localStorage.clear();
+	  rowInput.value = currentRow = 0;
+	  loadCurrentRow();
+	  
     }
   });
 
@@ -193,8 +197,15 @@ function taskReviewRoomExercise(thisdata, column, playarea, done){
   var exercise = document.getElementById('exerciseFix').value;
   playarea.innerHTML = '<iframe width="800" height="600" src="../theroom/runtime/theroom.html"></iframe>';
   onceMessage('ready', function(){
-	  var exercise=JSON.parse( thisdata[0][column]).data
-	  sendMessage('loadExercise',exercise);
+	  try {
+		var d=JSON.parse( thisdata[0][column])
+		if(typeof (d.exercise)=="undefined")
+			d.exercise = exercise;
+		sendMessage('loadExercise',d);
+	  } catch(e){
+          console.log(e, thisdata[0][column]);
+          return;
+	  }
   });	
 	done();
 }
@@ -207,26 +218,26 @@ function taskRecalculateRoomExercise(thisdata, column, playarea, done){
   var i = -1;
   onceMessage('ready', function(){
     function next(){
-      i++;
-      if(i >= thisdata.length) {
-		  if(i>0) {
-			rowInput.value = currentRow = 0;
-			loadCurrentRow();
-		  }
-		  return done();
-	  }
-      if(exercise){
-        try {
-          var d = JSON.parse(thisdata[i][column]);
-          d.exercise = exercise;
-          thisdata[i][column] = JSON.stringify(d);
-        } catch(e){
-          console.log(e, thisdata[i][column]);
-          next();
-          return;
-        }
-      }
-      recalculateRoomExercise(thisdata[i], column, next);
+		i++;
+		if(i >= thisdata.length) {
+			if(i>0) { //return
+				rowInput.value = currentRow = 0;
+				loadCurrentRow();
+			}
+			return done();
+		}
+		try {
+			var d = JSON.parse(thisdata[i][column]);
+			if(typeof (d.exercise)=="undefined") {
+				d.exercise = exercise;
+				thisdata[i][column] = JSON.stringify(d);
+			}
+		} catch(e){
+			console.log(e, thisdata[i][column]);
+			next();
+			return;
+		}
+		recalculateRoomExercise(thisdata[i], column, next);
     }
     next();
   });
@@ -447,6 +458,10 @@ function loadCurrentRow(cb){
 	switch(task) {
 		case "taskRecalculateVoxelcraft":
 			task="taskRecalcReviewVoxelcraft"
+			break
+		case "taskRecalculateRoomExercise":
+			task="taskRecalcReviewRoomExercise"
+			break
 	}
   }
   window[task]([currentRowData], column, playarea, function(){
