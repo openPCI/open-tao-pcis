@@ -3,7 +3,8 @@
 Build by Wiquid's PCI Generator for TAO platform Free to use
  */
 
-define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', 'textgapmatch/runtime/gapmatch','textgapmatch/runtime/DragDropTouch'], function(qtiCustomInteractionContext, $, event, GapMatch){
+// ,'textgapmatch/runtime/DragDropTouch' was in define, and ,"./runtime/DragDropTouch.js" in pciCreator.json. Errors were reported. Now we might have problems with drag and drop on mobile devices...
+define(['qtiCustomInteractionContext', 'jquery', 'OAT/util/event', 'textgapmatch/runtime/gapmatch'], function(qtiCustomInteractionContext, $, event, GapMatch){
     'use strict';
 
 

@@ -16,7 +16,6 @@
     "runtime" : {
         "hook" : "./runtime/wordrank.amd.js",
         "libraries" : [
-            "IMSGlobal/jquery_2_1_1",
             "./runtime/wordgame.js"
         ],
         "stylesheets" : [

@@ -16,7 +16,6 @@
     "runtime" : {
         "hook" : "./runtime/gantt.amd.js",
         "libraries" : [
-            "IMSGlobal/jquery_2_1_1",
             "./runtime/ganttjs/gantt.js"
         ],
         "stylesheets" : [

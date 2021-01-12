@@ -6,9 +6,10 @@ Build by Wiquid's PCI Generator for TAO platform Free to use
 
 define([
     'lodash',
+	'i18n',
     'brainstorm/creator/widget/Widget',
     'tpl!brainstorm/creator/tpl/markup'
-], function(_, Widget, markupTpl){
+], function(_,__, Widget, markupTpl){
     'use strict';
 
     var _typeIdentifier = 'brainstorm';
@@ -42,11 +43,11 @@ define([
          */
         getDefaultProperties : function(pci){
             return {
-                nickname: "Dig",
-                messages: "10;Anne;red;Besked efter ti sekunder\n15;Lars;green;Besked efter femten sekunder\n16;Igor;#00a8a7;Besked efter seksten sekunder",
+                nickname: __("You"),
+                messages: __("10;Anne;red;Message in red after 10 seconds\n15;Lars;green;Message in green after 15 seconds\n16;Igor;#00a8a7;Message in color #00a8a7 after 16 seconds"),
                 timeLimit: 60,
-                startText: 'Klik her når du er klar til at brainstorme',
-                endText: 'Tiden er gået, gå til næste opgave.'
+                startText: __('Click here when you are ready to brainstorm'),
+                endText: __('Time is up. Go to next task.')
             };
         },
         /**

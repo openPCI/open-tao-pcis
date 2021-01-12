@@ -1,23 +1,32 @@
 
 <div class="panel">
-    <label for="colors">Farver</label>
+    <label for="colors">{{__ "Colors"}}</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "colors"}}</span>
+    <span class="tooltip-content">{{__ "Colors to choose from. Use HTML Color codes, one on each line."}}</span>
     <textarea name="colors">{{colors}}</textarea>
+</div>
 
-    <label for="colors">Figur</label>
+<div class="panel">
+
+    <label for="colors">{{__ "Preset figure"}}</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "scene"}}</span>
+    <span class="tooltip-content">{{__ "Figure painted at the canvas from the beginning. You can draw and copy it, and insert the data here."}}</span>
     <textarea name="scene">{{scene}}</textarea>
+</div>
 
-    <label for="colors">Scoring</label>
+<div class="panel">
+
+    <label for="colors">{{__ "Scoring"}}</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "scoring"}}</span>
+    <span class="tooltip-content">{{__ "Scoring function."}}</span>
     <textarea name="scoring">{{scoring}}</textarea>
 
-    <label for="gameUrl">Game Url</label>
+</div>
+
+<div class="panel">
+    <label for="gameUrl">{{__ "Game Url"}}</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "gameUrl"}}</span>
+    <span class="tooltip-content">{{__ "Reference to where the game is found."}}</span>
     <input type="text" name="gameUrl" value="{{gameUrl}}" />
 </div>
 

@@ -1,7 +1,7 @@
 if(typeof define === "undefined"){
   window.define = function(n,f){ window.GanttJS = f($); }
 }
-define(['IMSGlobal/jquery_2_1_1'], function($){
+define(['jquery'], function($){
 
   // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart

@@ -3,7 +3,7 @@
 Build by Wiquid's PCI Generator for TAO platform Free to use
  */
 
-define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event'], function(qtiCustomInteractionContext, $, event){
+define(['qtiCustomInteractionContext', 'jquery', 'OAT/util/event'], function(qtiCustomInteractionContext, $, event){
     'use strict';
 
 

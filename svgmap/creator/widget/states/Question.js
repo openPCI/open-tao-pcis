@@ -10,8 +10,9 @@ define([
     'taoQtiItem/qtiCreator/editor/containerEditor',
     'tpl!svgmap/creator/tpl/propertiesForm',
     'lodash',
-    'jquery'
-], function(stateFactory, Question, formElement, simpleEditor, containerEditor, formTpl, _, $){
+    'jquery',
+	'i18n'
+], function(stateFactory, Question, formElement, simpleEditor, containerEditor, formTpl, _, $,__){
     'use strict';
 
     var svgmapStateQuestion = stateFactory.extend(Question, function(){
@@ -106,7 +107,7 @@ define([
         window.__updateSvgMapPoi = function(point){
           var val = interaction.prop('poi');
 
-          var poiName = prompt('Navngiv interessepunkt');
+          var poiName = prompt(__('Give the point of interest a name (only alphanumeric characters)'));
           if(!poiName) return;
 
           val[poiName] = point.i;

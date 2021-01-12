@@ -16,9 +16,7 @@
     "runtime" : {
         "hook" : "./runtime/textgapmatch.amd.js",
         "libraries" : [
-            "IMSGlobal/jquery_2_1_1",
-            "./runtime/gapmatch.js",
-            "./runtime/DragDropTouch.js"
+            "./runtime/gapmatch.js"
         ],
         "stylesheets" : [
             "./runtime/css/base.css",

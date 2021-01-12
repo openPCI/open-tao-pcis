@@ -15,9 +15,7 @@
     },
     "runtime" : {
         "hook" : "./runtime/brainstorm.amd.js",
-        "libraries" : [
-            "IMSGlobal/jquery_2_1_1"
-        ],
+        "libraries" : [],
         "stylesheets" : [
             "./runtime/css/base.css",
             "./runtime/css/brainstorm.css"

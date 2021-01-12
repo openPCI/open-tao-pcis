@@ -1,23 +1,49 @@
 
 <div class="panel">
 
-    <label>Tekster</label>
+    <label>{{__ "Texts"}}</label>
+	<span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+	<span class="tooltip-content">{{__ "Droppable texts, one on each line."}}</span>
     <textarea name="strings">{{strings}}</textarea>
+</div>
 
-    <label>billede</label>
+<div class="panel">
+
+    <label>{{__ "Image"}}</label>
+	<span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+	<span class="tooltip-content">{{__ "Image as data/image or uploaded from file."}}</span>
     <input name="backdrop" type="text" class="imageurl" value="{{backdrop}}" />
     <input type="file" name="background_uploader" class="bgupload" />
-    <div><input type="checkbox" name="infiniteTexts" {{#if infiniteTexts}}checked{{/if}} /><label for="infiniteTexts">Uendelig tekster</label></div>
-    <div><input type="checkbox" name="numbering" {{#if numbering}}checked{{/if}} /><label for="numbering">Nummerering</label></div>
-    <label>Pladser i dropzone</label>
+</div>
+
+<div class="panel">
+    <div><input type="checkbox" name="infiniteTexts" {{#if infiniteTexts}}checked{{/if}} /><label for="infiniteTexts">{{__ "Infinite texts"}}</label></div>
+</div>
+
+<div class="panel">
+    <div><input type="checkbox" name="numbering" {{#if numbering}}checked{{/if}} /><label for="numbering">{{__ "Numbering"}}</label></div>
+</div>
+
+<div class="panel">
+
+    <label>{{__ "Spots in dropzone"}}</label>
+	<span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+	<span class="tooltip-content">{{__ "Maximum number of texts allowed to be dropped in each dropzone."}}</span>
     <input name="maxDropped" type="text" value="{{maxDropped}}" />
-    <label>Ekstra CSS styling</label>
+</div>
+
+<div class="panel">
+    <label>{{__ "Extra CSS styling"}}</label>
+	<span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+	<span class="tooltip-content">{{__ "Extra styling for texts."}}</span>
     <input name="droppedStyle" type="text" value="{{droppedStyle}}" />
-    <label>Zoner</label>
+</div>
+
+<div class="panel">
+    <label>{{__ "Zones"}}</label>
+   	<span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+	<span class="tooltip-content">{{__ "Point and drag on image to create droppable zones. Data will appear here."}}</span>
     <textarea name="dropzones" class="dropzones">{{dropzones}}</textarea>
-
-
-
 
 </div>
 

@@ -302,7 +302,7 @@ return function SvgMap(options){
 }
 
 if(typeof define == "function"){
-  define(['IMSGlobal/jquery_2_1_1'], function($){
+  define(['jquery'], function($){
     return SvgMapFactory($);
   });
 } else {

@@ -205,7 +205,7 @@ var DragDropTouch;
             }
         };
         DragDropTouch.prototype._touchmove = function (e) {
-            if(this._shouldCancelPressHoldMove(e)) {
+            if (this._shouldCancelPressHoldMove(e)) {
               this._reset();
               return;
             }
@@ -233,7 +233,7 @@ var DragDropTouch;
                         this._lastTarget = target;
                     }
                     this._moveImage(e);
-                    this._dispatchEvent(e, 'dragover', target);
+                    this._isDropZone = this._dispatchEvent(e, 'dragover', target);
                 }
             }
         };
@@ -253,7 +253,7 @@ var DragDropTouch;
                 // finish dragging
                 this._destroyImage();
                 if (this._dragSource) {
-                    if (e.type.indexOf('cancel') < 0) {
+                    if (e.type.indexOf('cancel') < 0 && this._isDropZone) {
                         this._dispatchEvent(this._lastTouch, 'drop', this._lastTarget);
                     }
                     this._dispatchEvent(this._lastTouch, 'dragend', this._dragSource);
@@ -300,8 +300,9 @@ var DragDropTouch;
             this._lastTouch = null;
             this._lastTarget = null;
             this._ptDown = null;
-            this._dataTransfer = new DataTransfer();
             this._isDragEnabled = false;
+            this._isDropZone = false;
+            this._dataTransfer = new DataTransfer();
             clearInterval(this._pressHoldInterval);
         };
         // get point for a touch event
@@ -441,6 +442,6 @@ var DragDropTouch;
     // synthesize and dispatch an event
     // returns true if the event has been handled (e.preventDefault == true)
     DragDropTouch._kbdProps = 'altKey,ctrlKey,metaKey,shiftKey'.split(',');
-    DragDropTouch._ptProps = 'pageX,pageY,clientX,clientY,screenX,screenY'.split(',');
+    DragDropTouch._ptProps = 'pageX,pageY,clientX,clientY,screenX,screenY,offsetX,offsetY'.split(',');
     DragDropTouch_1.DragDropTouch = DragDropTouch;
 })(DragDropTouch || (DragDropTouch = {}));

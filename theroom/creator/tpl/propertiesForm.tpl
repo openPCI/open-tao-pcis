@@ -1,14 +1,17 @@
 
 <div class="panel">
 
-    <label for="messages">Øvelse</label>
+    <label for="messages">{{__ "Task identifier"}}</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "Tooltip_nickname"}}</span>
+    <span class="tooltip-content">{{__ "Name of the javascript file containing the task."}}</span>
     <input type="text" name="exercise" value="{{exercise}}" />
 
-    <label for="messages">Game Url</label>
+</div>
+
+<div class="panel">
+    <label for="messages">{{__ "Game Url"}}</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
-    <span class="tooltip-content">{{__ "url"}}</span>
+    <span class="tooltip-content">{{__ "Reference to where the game is found."}}</span>
     <input type="text" name="gameurl" value="{{gameurl}}" />
 </div>
 

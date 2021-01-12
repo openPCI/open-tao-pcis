@@ -1,20 +1,41 @@
+<div class="panel">
+  <label>{{__ "Points of interest"}}</label>
+	<span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+	<span class="tooltip-content">{{__ 'A json object of key-value pairs, e.g. {"start":125,"end":342}. Create new points of interest by clicking at the map.'}}</span>
+  <textarea name="poi" class="poifield">{{poi}}</textarea>
+</div>
 
 <div class="panel">
 
-  <label>Interessepunkter</label>
-  <textarea name="poi" class="poifield">{{poi}}</textarea>
-
-  <label>billede</label>
+  <label>{{__ "Image"}}</label>
+	<span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+	<span class="tooltip-content">{{__ "SVG-image including a background image and a layer of path points"}}</span>
   <input type="file" name="background_uploader" class="bgupload" />
   <textarea name="backdrop" class="imageurl">{{backdrop}}</textarea>
+</div>
 
-  <label>Sti lag</label>
+<div class="panel">
+
+  <label>{{__ "Path layer"}}</label>
+    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+    <span class="tooltip-content">{{__ "Name of path layer in the SVG image"}}</span>
   <input name="pathlayer" type="text" value="{{pathlayer}}" />
 
-  <label>Punkt densitet</label>
+</div>
+
+<div class="panel">
+  <label>{{__ "Point density"}}</label>
+    <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+    <span class="tooltip-content">{{__ "Density of points in SVG image"}}</span>
   <input name="dotresolution" type="text" value="{{dotresolution}}" />
 
-  <label>Scorings funktion</label>
+</div>
+
+<div class="panel">
+  <label>{{__ "Scoring function"}}</label>
+      <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
+    <span class="tooltip-content">{{__ "Scoring function defined as function score(path){} returning a JSON object of scores"}}</span>
+
   <textarea name="scoring">{{scoring}}</textarea>
 
 </div>

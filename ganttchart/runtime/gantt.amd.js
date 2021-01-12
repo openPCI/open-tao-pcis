@@ -3,7 +3,7 @@
 Build by Wiquid's PCI Generator for TAO platform Free to use
  */
 
-define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', 'gantt/runtime/ganttjs/gantt'], function(qtiCustomInteractionContext, $, event, GanttJS){
+define(['qtiCustomInteractionContext', 'jquery', 'OAT/util/event', 'gantt/runtime/ganttjs/gantt'], function(qtiCustomInteractionContext, $, event, GanttJS){
     'use strict';
 
     function deserializeConfig(cfg){

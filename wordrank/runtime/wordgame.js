@@ -1,4 +1,4 @@
-define(['IMSGlobal/jquery_2_1_1'], function($){
+define(['jquery'], function($){
   return function WordGame (options){
     if (!options.element) throw "No element!";
     if (!options.cells) throw "No Cells!";
