@@ -4,8 +4,8 @@ for i in  "${pcis[@]}"; do
   if [ -d "$i" ] && [ "$i" != "builds" ]; then
     echo "$i"
     cd $i
-    zip -r "../builds/$i.zip" .
+    zip -x "game/*" -r "../builds/$i.zip" .
     cd ..
   fi
 done
-zip --delete ./builds/theroom.zip "exercises/*"
+# zip --delete ./builds/theroom.zip "game/exercises/*"

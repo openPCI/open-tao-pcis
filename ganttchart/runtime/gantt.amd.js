@@ -3,13 +3,13 @@
 Build by Wiquid's PCI Generator for TAO platform Free to use
  */
 
-define(['qtiCustomInteractionContext', 'jquery', 'OAT/util/event', 'gantt/runtime/ganttjs/gantt'], function(qtiCustomInteractionContext, $, event, GanttJS){
+define(['qtiCustomInteractionContext', 'IMSGlobal/jquery_2_1_1', 'OAT/util/event', 'gantt/runtime/ganttjs/gantt'], function(qtiCustomInteractionContext, $, event, GanttJS){
     'use strict';
 
     function deserializeConfig(cfg){
       var ret = JSON.parse(JSON.stringify(cfg));
 
-      ret.startDate = /[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}/.test(cfg.startDate) ? new Date(cfg.startDate) : false;
+      ret.startDate = /[0-9]{1,2}[-/][0-9]{1,2}[-/][0-9]{4}/.test(cfg.startDate) ? new Date(cfg.startDate) : false;
       ret.tasks = cfg.tasks.split('\n').map(function(str){
         return str.split(';');
       });

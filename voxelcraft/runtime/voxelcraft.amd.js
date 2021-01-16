@@ -62,8 +62,7 @@ define(['qtiCustomInteractionContext', 'jquery', 'OAT/util/event'], function(qti
                   break;
                 }
               }, false);
-
-              that.$iframe.attr('src', config.gameUrl + '?' + Date.now());
+			  that.$iframe.attr('src', config.gameUrl + '?' + Date.now()); 
 
             }
 

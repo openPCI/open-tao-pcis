@@ -41,6 +41,7 @@ define(['qtiCustomInteractionContext', 'jquery', 'OAT/util/event'], function(qti
                 }
 
                 if(event.data && event.data.type == 'ready'){
+					console.log(config.exercise)
                   that.iframe[0].contentWindow.postMessage({
                     type :'loadExercise',
                     value : config.exercise

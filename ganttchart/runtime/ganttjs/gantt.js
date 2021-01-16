@@ -1,10 +1,6 @@
-if(typeof define === "undefined"){
-  window.define = function(n,f){ window.GanttJS = f($); }
-}
-define(['jquery'], function($){
+//TAO imports scripts and checks their mimetype based on the filesystem methods. This script was considered a text/html-document which made Firefox refuse to load it when told the mimetype was text/html... It helped changing $('<tr>') etc. to '<'+'tr'+'>' etc...
+define(['jquery','i18n'], function($,__){
 
-  // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
   if (!String.prototype.padStart) {
       String.prototype.padStart = function padStart(targetLength, padString) {
           targetLength = targetLength >> 0; //truncate if number, or convert non-number to 0;
@@ -27,11 +23,11 @@ define(['jquery'], function($){
 
     $container.addClass('ganttjs-container');
 
-    var $table = $('<table>', {class:'ganttjs-table'});
+    var $table = $('<'+'table'+'>', {class:'ganttjs-table'});
 
-    var months = ['Januar', 'Februar', 'Marts', 'April','Maj', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'December'];
-    var weekDayShort = ['Sø','Ma','Ti','On','To','Fr','Lø'];
-    var optStartDate = options.startDate || new Date('09/01/2018');
+    var months = [__('January'), __('February'), __('Marts'), __('April'),__('May'), __('June'), __('July'), __('August'), __('September'), __('October'), __('November'), __('December')];
+    var weekDayShort = [__('Son'), __('Mon'), __('Tue'), __('Wed'), __('Thu'), __('Fri'), __('Sat')];
+    var optStartDate = options.startDate || new Date();
 
 
     var hourIncrement = 24;
@@ -54,7 +50,8 @@ define(['jquery'], function($){
     var dateIncrement = hourIncrement * 3600000;
 
     function resultDate(d){
-      return d.getDate() + '/' + d.getMonth() + (options.useHours ? ' ' + time(d) : '');
+	  var m=(d.getMonth()+1)
+      return d.getDate() + '/' + m + (options.useHours ? ' ' + time(d) : '');
     }
 
     function day(d){
@@ -91,7 +88,7 @@ define(['jquery'], function($){
           d.setDate(d.getDate()+1);
         }
 
-        $td = $('<td>', {class:'timeslot'});
+        $td = $('<'+'td'+'>', {class:'timeslot'});
         $td.prop('gantt-date', d);
         $tr.append($td);
 
@@ -128,13 +125,13 @@ define(['jquery'], function($){
       var $tr;
       var ret = [];
 
-      var $monthTr = $('<tr>', {class:'ganttjs-th-month'});
-      var $dateTr =  $('<tr>', {class: 'ganttjs-th-day'});
-      $dateTr.append($('<th>'));
-      var $weekdayTr = $('<tr>', {class:'ganttjs-th-weekday'});
-      $weekdayTr.append($('<th>'));
-      var $timeTr  = $('<tr>', {class:'ganttjs-th-time'});
-      $timeTr.append($('<th>'));
+      var $monthTr = $('<'+'tr'+'>', {class:'ganttjs-th-month'});
+      var $dateTr =  $('<'+'tr'+'>', {class: 'ganttjs-th-day'});
+      $dateTr.append($('<'+'th'+'>'));
+      var $weekdayTr = $('<'+'tr'+'>', {class:'ganttjs-th-weekday'});
+      $weekdayTr.append($('<'+'th'+'>'));
+      var $timeTr  = $('<'+'tr'+'>', {class:'ganttjs-th-time'});
+      $timeTr.append($('<'+'th'+'>'));
 
       var $th;
       var mc = 0;
@@ -160,7 +157,7 @@ define(['jquery'], function($){
 
         if(options.useHours){
           var nd = new Date(d.getTime() + dateIncrement);
-          $th = $('<th>', {text: time(d)+( options.showTimeRange ? '-'+time(nd) : '')});
+          $th = $('<'+'th'+'>', {text: time(d)+( options.showTimeRange ? '-'+time(nd) : '')});
           $timeTr.append($th);
           if(options.disableWeekends && [6,0].indexOf(d.getDay()) > -1){
             $th.text('-');
@@ -170,11 +167,11 @@ define(['jquery'], function($){
         c++; dc++;
 
         if(d.getDate() != ld.getDate()){
-          $th = $('<th>', {text: (options.weekNumHack ? 'Uge ' : '') + ld.getDate()});
+          $th = $('<'+'th'+'>', {text: (options.weekNumHack ? __('Week ') : '') + ld.getDate()});
           $th.attr('colspan', c);
           $dateTr.append($th);
 
-          $th = $('<th>', {text: weekDay(ld)});
+          $th = $('<'+'th'+'>', {text: weekDay(ld)});
 
           if(options.disableWeekends && [6,0].indexOf(ld.getDay()) > -1){
             $th.addClass('disabled');
@@ -188,7 +185,7 @@ define(['jquery'], function($){
         }
 
         if(d.getMonth() != ld.getMonth()){
-          $th = $('<th>', {text: months[ld.getMonth()]});
+          $th = $('<'+'th'+'>', {text: months[ld.getMonth()]});
           $th.attr('colspan', dc);
           $monthTr.append($th);
           dc=0;
@@ -205,7 +202,7 @@ define(['jquery'], function($){
       }
 
       if(dc > 0){
-        $th = $('<th>', {text: months[ld.getMonth()]});
+        $th = $('<'+'th'+'>', {text: months[ld.getMonth()]});
         $th.attr('colspan', dc);
         $monthTr.append($th);
       }
@@ -225,8 +222,8 @@ define(['jquery'], function($){
 
 
     function addTask(t){
-      var $row = $('<tr>', {class:'ganttjs-task'});
-      var $task = $('<td>', {text: t[0], class: 'ganttjs-tasklbl'});
+      var $row = $('<'+'tr'+'>', {class:'ganttjs-task'});
+      var $task = $('<'+'td'+'>', {text: t[0], class: 'ganttjs-tasklbl'});
       $row.prop('active-color', t[1]);
       $row.append($task);
       appendTimeSlots($row);

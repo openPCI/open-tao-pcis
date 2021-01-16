@@ -1,7 +1,7 @@
 
 <div class="panel">
 
-    <label for="messages">{{__"Number of Days"}}</label>
+    <label for="messages">{{__ "Number of Days"}}</label>
     <span class="icon-help tooltipstered" data-tooltip="~ .tooltip-content:first" data-tooltip-theme="info"></span>
     <span class="tooltip-content">{{__ "Provide the number of days to show in the Gantt Chart"}}</span>
     <input type="text" name="period" value="{{period}}" />
@@ -18,13 +18,13 @@
 
 <div class="panel">
 
-    <div><input type="checkbox" name="weekNumHack" {{#if weekNumHack}}checked{{/if}} /><label for="weekNum">{{__"Show week number (Hack)"}}</label></div>
-    <div><input type="checkbox" name="weekDays" {{#if weekDays}}checked{{/if}} /><label for="weekDays">{{__"Show week days"}}</label></div>
-    <div><input type="checkbox" name="useHours" {{#if useHours}}checked{{/if}} /><label for="useHours">{{__"Show hours"}}</label></div>
-    <div><input type="checkbox" name="useHalfHours" {{#if useHalfHours}}checked{{/if}} /><labe´l for="useHalfHours">{{__"Show half hours"}}</label></div>
-    <div><input type="checkbox" name="showTimeRange" {{#if showTimeRange}}checked{{/if}} /><label for="showTimeRange">{{__"Show start and end time"}}</label></div>
-    <div><input type="checkbox" name="months" {{#if months}}checked{{/if}} /><label for="months">{{__"Show months"}}</label></div>
-    <div><input type="checkbox" name="disableWeekends" {{#if disableWeekends}}checked{{/if}} /><label for="disableWeekends">{{__"Don't use weekends"}}</label></div>
+    <div><input type="checkbox" name="weekNumHack" {{#if weekNumHack}}checked{{/if}} /><label for="weekNum">{{__ "Show week number (Hack)"}}</label></div>
+    <div><input type="checkbox" name="weekDays" {{#if weekDays}}checked{{/if}} /><label for="weekDays">{{__ "Show week days"}}</label></div>
+    <div><input type="checkbox" name="useHours" {{#if useHours}}checked{{/if}} /><label for="useHours">{{__ "Show hours"}}</label></div>
+    <div><input type="checkbox" name="useHalfHours" {{#if useHalfHours}}checked{{/if}} /><labe´l for="useHalfHours">{{__ "Show half hours"}}</label></div>
+    <div><input type="checkbox" name="showTimeRange" {{#if showTimeRange}}checked{{/if}} /><label for="showTimeRange">{{__ "Show start and end time"}}</label></div>
+    <div><input type="checkbox" name="months" {{#if months}}checked{{/if}} /><label for="months">{{__ "Show months"}}</label></div>
+    <div><input type="checkbox" name="disableWeekends" {{#if disableWeekends}}checked{{/if}} /><label for="disableWeekends">{{__ "Don't use weekends"}}</label></div>
 
 </div>
 

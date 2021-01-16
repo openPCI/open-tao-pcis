@@ -74,3 +74,12 @@ You can use the Scoring API. This API defines the following helper functions for
 | Scoring.ACloserThanB(objTypeA, objTypeB, targetType) | Returns 1 if `objTypeA` is closer to `targetType` than `objTypeB`     |
 | Scoring.lineOfSight(objType, point) | returns the count of objects that has direct line of sight to `point`. Point is a THREE.Vector3  |
 | Scoring.objZoneTest(objType, area, otherType, useRoom) | Tests wether the object zone `area` in `objType` intersects with `otherType`. if useRoom is true, then room objects will be tested in the zone as well |
+
+# Structure
+The Room PCI relies on an iframe that calls the room construction files. These files cannot be part of the PCI itself, so they have to be placed somewhere else. In this setup, the game folder is placed in a folder in your TAO instance called openPICs/theroom/game. You need to place a .htaccess-file in the openPICs folder with the content 
+
+> RewriteEngine off
+
+This prevent TAO from rewriting the URL. 
+
+The URL to this folder is https://your.tao.domain/taosubfolder/openPICs/theroom/game. But you can place it whereever you want, also at other domains.

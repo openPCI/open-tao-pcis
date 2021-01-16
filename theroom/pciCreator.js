@@ -43,7 +43,7 @@ define([
         getDefaultProperties : function(pci){
             return {
                 exercise: 'museum.json',
-                gameurl: 'https://surveyinfo.au.dk/pci-external/open-tao-pcis/theroom/runtime/theroom.html'
+                gameurl: document.URL.replace(/\/tao\/.*/,"")+'/openPCIs/theroom/game/'
             };
         },
         /**

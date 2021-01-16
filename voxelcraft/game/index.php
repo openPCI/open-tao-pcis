@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Voxelcraft</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+    <style>
+      body {
+        background:#777;
+        padding:0;
+        margin:0;
+        font-weight: bold;
+        overflow:hidden;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+         -khtml-user-select: none; /* Konqueror HTML */
+           -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                      supported by Chrome and Opera */
+      }
+      #help img {
+        height: 24px;
+        position:relative;
+        top:6px;
+      }
+
+      #help span {
+        border: 2px outset;
+        padding: 3px;
+        background-color: #fff;
+      }
+      #help {
+        position:absolute;
+        top:0px;
+        font-size:14px;
+        font-family: Verdana;
+        font-weight:lighter;
+        margin:2px;
+        opacity:0.5;
+        width:100%;
+        text-align:center;
+      }
+      #controls {
+        position:absolute;
+        bottom: 10px;
+        width:100%;
+        text-align:center;
+      }
+      #controls button {
+        width:48px;
+        height:48px;
+        margin:2px;
+      }
+      button.enabled {
+        border: 1px buttonface inset;
+      }
+      #palette {
+        position:absolute;
+        bottom: 60px;
+        text-align:center;
+        width:100%;
+      }
+      #palette span {
+        display:inline-block;
+        border: 1px solid black;
+        width:32px;
+        height: 32px;
+        opacity: 0.7;
+        margin:2px;
+      }
+
+      a {
+        color: #ff0000;
+      }
+    </style>
+  </head>
+  <body>
+
+    <script src="three.js"></script>
+<!--     <script src="hammer.js"></script> -->
+    <script>
+
+      var colors = [
+        '#cc6900',//13396224
+        '#f7ef00',//16248576
+        '#afe000',//11526144
+        '#00b512',//46354
+        '#00bfa5',//49061
+        '#009bbf',//39871
+        '#008af4',//35572
+        '#ae00f4',//11403508
+        '#f400e3',//15991011
+        '#f40000',//15990784
+        '#cccccc',//13421772
+        '#ffffff',//16777215
+        '#222222' //2236962
+      ];
+
+      var KEY = {
+        shift: 16,
+        left:  37,
+        right: 39,
+        up: 38,
+        down: 40,
+        control: 17
+      }
+
+      var scoringFunction = function(){};
+
+      var mouseDelta = new THREE.Vector2();
+      var lastMouse = new THREE.Vector2();
+
+      var camera, cameraObject, scene, renderer, defaultSave;
+      var plane, cube, lineDrawPlane;
+      var mouse, raycaster
+
+      var rollOverMesh;
+      var rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0, opacity: 0.5, transparent: true } );
+      var cubeGeo, cubeMaterial;
+
+      var keyStates = {};
+
+      var objects = [];
+
+      var cubeMaterials = [];
+      var color = 0;
+      var voxels = [];
+
+      var mouseDown, mouseClick;
+
+      var selectedTool = 'toolDraw';
+
+      var lineDrawVoxels = [];
+      var lineDrawFrom;
+
+      var noHit = false;
+
+      function line(x0, y0, x1, y1) {
+        x0 = Math.round(x0);
+        y0 = Math.round(y0);
+        x1 = Math.round(x1);
+        y1 = Math.round(y1);
+        var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+        var dy = Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+        var err = (dx>dy ? dx : -dy)/2;
+
+        while (true) {
+          var point = new THREE.Vector3(x0*50,lineDrawFrom.y,y0*50)
+          lineDrawVoxels.push(createVoxel(point, true));
+          if (x0 === x1 && y0 === y1) break;
+          var e2 = err;
+          if (e2 > -dx) { err -= dy; x0 += sx; }
+          if (e2 < dy) { err += dx; y0 += sy; }
+        }
+      }
+
+      function createVoxel(point, preview){
+        var voxel = new THREE.Mesh( cubeGeo, preview ? rollOverMaterial : cubeMaterials[color] );
+        voxel.userData.color = color;
+        voxel.position.copy(point);
+        voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+        voxel.castShadow = true;
+        voxel.receiveShadow = true;
+        scene.add( voxel );
+        if(!preview){
+          objects.push( voxel );
+          voxels.push(voxel);
+        }
+        return voxel;
+      }
+
+      function beginLine(point){
+        if(lineDrawFrom) return;
+        lineDrawFrom = point;
+        objects.push(lineDrawPlane);
+        scene.add(lineDrawPlane);
+        lineDrawPlane.position.y = point.y
+      }
+
+      function updateLine(point){
+        lineDrawVoxels.forEach(function(o){
+          scene.remove(o);
+        });
+        lineDrawVoxels = [];
+        line(lineDrawFrom.x/50, lineDrawFrom.z/50, point.x/50, point.z/50)
+      }
+
+      function commitLine(){
+        lineDrawVoxels.forEach(function(voxel){
+          createVoxel(voxel.position);
+          scene.remove(voxel);
+        });
+        lineDrawFrom = null;
+        lineDrawVoxels = [];
+        scene.remove(lineDrawPlane);
+        objects.splice( objects.indexOf( lineDrawPlane ), 1 );
+      }
+
+      function cancelLine(){
+        lineDrawVoxels.forEach(function(voxel){
+          scene.remove(voxel);
+        });
+        lineDrawVoxels = [];
+        scene.remove(lineDrawPlane);
+        objects.splice( objects.indexOf( lineDrawPlane ), 1 );
+      }
+
+      function setPalette(colors){
+
+        var palette = document.getElementById('palette');
+        if(!palette){
+          palette = document.createElement('div');
+          document.body.appendChild(palette);
+        }
+        palette.innerHTML = '';
+        palette.id = 'palette';
+        palette.style.display ="none";
+        cubeMaterials = [];
+        colors.forEach(function(color, i){
+           cubeMaterials.push(new THREE.MeshLambertMaterial( { color: parseInt(color.slice(1),16) } ));
+           var btn = document.createElement('span');
+           btn.style.backgroundColor = color;
+           btn.paintColor = i;
+           palette.appendChild(btn);
+        });
+
+        color = 0;
+        rollOverMaterial.color = cubeMaterials[0].color
+      }
+
+      function init() {
+
+        cameraObject = new THREE.Object3D();
+        cameraObject.rotation.fromArray([2.1316924171107e-16, -0.12000000000000163, 0.5400000000000049, "XYZ"]);
+
+        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.set( 2000, 0, 0 );
+        cameraObject.add(camera);
+
+
+        camera.lookAt( 0, 0, 0 );
+
+        scene = new THREE.Scene();
+
+        scene.add(cameraObject);
+        scene.background = new THREE.Color( 0xf0f0f0 );
+
+        // roll-over helpers
+
+        var rollOverGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
+        rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
+        scene.add( rollOverMesh );
+
+        // cubes
+
+        cubeGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
+
+        // grid
+
+        var gridHelper = new THREE.GridHelper( 1000, 20 );
+        scene.add( gridHelper );
+
+        //
+
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+
+        var geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
+        geometry.rotateX( - Math.PI / 2 );
+
+        plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
+        scene.add( plane );
+
+
+        objects.push( plane );
+
+
+        geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
+        geometry.rotateX( - Math.PI / 2 );
+        lineDrawPlane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
+        scene.add(lineDrawPlane);
+
+        // lights
+
+        var ambientLight = new THREE.AmbientLight( 0xffffff, 0.8 );
+        scene.add( ambientLight );
+
+        var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.1 );
+        directionalLight.position.set( 0.3, 0.75, 0.3 ).normalize();
+        directionalLight.target.position.set(0,0,0);
+        directionalLight.position.multiplyScalar(2000)
+        directionalLight.castShadow = true;
+        var shadow = directionalLight.shadow;
+        shadow.mapSize.x = 1024;
+        shadow.mapSize.y = 1024;
+        shadow.camera.near = 0.5;
+        shadow.camera.far = 3000;
+        shadow.camera.scale.set(150,150,1);
+        directionalLight.shadow.bias = 0.0000000001;
+
+
+        scene.add( directionalLight );
+        scene.add( directionalLight.target );
+
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+
+
+        setupToolbar();
+
+        var lastPinchDist = -1;
+        var pinchZoom = 0;
+        var emulatedMouseDown = false;
+
+        renderer.domElement.addEventListener('touchmove', function(e){
+          e.preventDefault();
+          if(emulatedMouseDown){
+            var touch = e.changedTouches[0];
+            var event = new Event('mousemove');
+            event.clientX = touch.clientX;
+            event.clientY = touch.clientY;
+            event.button = 0;
+            document.dispatchEvent(event);
+          }
+          if(e.touches.length == 2){
+            var a = e.touches[0].clientX - e.touches[1].clientX;
+            var b = e.touches[0].clientY - e.touches[1].clientY;
+            var dist = Math.sqrt(a*a+b*b);
+            if(lastPinchDist > 0){
+              pinchZoom = lastPinchDist - dist;
+              if(camera.position.x+pinchZoom > 100) camera.position.x += pinchZoom * 2;
+            }
+            lastPinchDist = dist;
+          }
+        });
+
+        renderer.domElement.addEventListener('touchstart', function(e){
+          e.preventDefault();
+          if(e.touches.length == 1){
+            emulatedMouseDown = true;
+            var touch = e.touches[0];
+            var event = new Event('mousedown');
+            event.clientX = touch.clientX;
+            event.clientY = touch.clientY;
+            event.button = 0;
+            mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+            document.dispatchEvent(event);
+          } else {
+            emulatedMouseDown = false;
+          }
+        });
+
+        renderer.domElement.addEventListener('touchend', function(e){
+          e.preventDefault();
+          if(e.touches.length == 0 && emulatedMouseDown){
+            var touch = e.changedTouches[0];
+            var event = new Event('mouseup');
+            event.clientX = touch.clientX;
+            event.clientY = touch.clientY;
+            event.button = 0;
+            document.dispatchEvent(event);
+          }
+          emulatedMouseDown = false;
+          lastPinchDist = -1;
+        });
+
+        document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+        document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+        document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+        document.addEventListener( 'keydown', onDocumentKeyDown, false );
+        document.addEventListener( 'keyup', onDocumentKeyUp, false );
+        document.addEventListener( 'wheel', onDocumentScroll, false);
+        document.addEventListener('contextmenu', onDocumentRightClick, false);
+        window.addEventListener('paste', onWindowPaste);
+        window.addEventListener( 'resize', onWindowResize, false );
+        window.addEventListener('message', onPostMessage, false)
+        document.addEventListener('webkitfullscreenchange', onFullScreenChange, false);
+        document.addEventListener('mozfullscreenchange', onFullScreenChange, false);
+        document.addEventListener('fullscreenchange', onFullScreenChange, false);
+        document.addEventListener('MSFullscreenChange', onFullScreenChange, false);
+
+      }
+
+      function onFullScreenChange(event){
+        fullscreen = (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined);
+        $('#fullscreen').toggleClass('enabled', fullscreen);
+      }
+
+      function onPostMessage(event){
+        if(event.data){
+			switch(event.data.type){
+				case 'setPalette':
+				colors = event.data.value;
+				setPalette(colors);
+				break;
+				case 'setScene':
+				setScene(event.data.value, true);
+				break;
+				case 'setScoringFunction':
+					if(event.data.value.length>0) scoringFunction = eval('(' + event.data.value + ')');
+					else alert("You need to provide a scoring function")
+				break;
+				case 'rescore':
+				setTimeout(function(){
+					setScene(event.data.value && event.data.value.data ? event.data.value.data : event.data.value);
+					window.parent.postMessage({
+					type: 'rescore',
+					value: {data: getScene(), score: scoringFunction()},
+					},"*");
+				}, 10);
+				break;
+			}
+			
+		}
+      }
+
+      function onWindowPaste(e){
+        var data = (e.clipboardData || window.clipboardData).getData('text');
+        try {
+          var serialized = JSON.parse(data);
+          setScene(serialized);
+        } catch(ex){}
+      }
+
+      function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+      }
+
+      function onDocumentMouseMove( event ) {
+        event.preventDefault();
+
+        mouseDelta.copy(mouse)
+        mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+        mouseDelta.sub(mouse);
+
+        raycastVoxelHelper();
+
+      }
+
+      function onDocumentRightClick(event){
+        event.preventDefault();
+      }
+
+      function onDocumentMouseUp( event ){
+        postResult();
+        mouseClick = Date.now() - mouseDown < 250;
+        mouseDown = false;
+
+
+        raycaster.setFromCamera( mouse, camera );
+        var intersects = raycaster.intersectObjects( objects );
+
+        if(lineDrawFrom) {
+          commitLine();
+          return;
+        }
+
+        if(event.target && event.target.parentNode){
+          if(event.target.parentNode.id == 'palette'){
+            color = event.target.paintColor;
+            rollOverMaterial.color = cubeMaterials[color].color;
+            return;
+          }
+          if(event.target.parentNode.id == 'controls'){
+            return;
+          }
+        }
+
+
+        if ( mouseClick && intersects.length > 0 ) {
+
+          var intersect = intersects[ 0 ];
+
+          // delete cube
+          if( selectedTool === 'toolPalette'){
+            if(intersect.object !== plane)
+            intersect.object.material = cubeMaterials[color];
+            intersect.object.userData.color = color;
+          } else
+          if ( (selectedTool === 'toolDraw' && (keyStates[KEY.shift] || event.button == 2)) || (selectedTool == 'toolRemove' && event.button == 0) ) {
+
+            if ( intersect.object !== plane ) {
+              scene.remove( intersect.object );
+              voxels.splice( voxels.indexOf( intersect.object ), 1 );
+              objects.splice( objects.indexOf( intersect.object ), 1 );
+            }
+
+          } else if(selectedTool == 'toolDraw' && event.button == 0) {
+            if(!lineDrawFrom){
+              createVoxel(intersect.point.add( intersect.face.normal ));
+            }
+          }
+
+        }
+
+      }
+
+      function postResult(){
+        setTimeout(function(){
+          window.parent.postMessage({
+            type: 'updateResult',
+            value: {data: getScene(), score: scoringFunction()},
+          },"*");
+        },10);
+      }
+
+      function onDocumentMouseDown( event ) {
+        if(event.target && event.target && event.target.parentNode && event.target.parentNode.id == 'controls'){
+          return;
+        }
+
+        mouseDown = Date.now();
+        event.preventDefault();
+        if(selectedTool == 'toolDraw' && event.button == 0){
+          raycaster.setFromCamera( mouse, camera );
+          var intersects = raycaster.intersectObjects( objects );
+          if(intersects.length){
+            var intersect = intersects[0];
+            intersect.point.add( intersect.face.normal );
+            intersect.point.divideScalar( 50 ).floor().multiplyScalar( 50 )
+            beginLine(intersect.point);
+            updateLine(intersect.point);
+            noHit = false;
+          } else {
+            noHit = true;
+          }
+        }
+        //mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+
+      }
+
+      function getScene(){
+        return voxels.map(function(o){
+          return {p:o.position.toArray(), c: o.material.color.getHex()};
+        })
+      }
+
+      function setScene(save, setDefault){
+        voxels.forEach(function(o){
+          scene.remove(o);
+        });
+        voxels = [];
+        objects = [plane];
+
+        if(setDefault){
+          defaultSave = save;
+        }
+
+        save.forEach(function(def){
+          var c = def.c;
+          if(typeof c !== "number"){
+            c = new THREE.Color(c.r,c.g,c.b);
+          }
+          var voxel = new THREE.Mesh( cubeGeo, new THREE.MeshLambertMaterial( { color: c } ) );
+          voxel.position.fromArray(def.p);
+          voxel.castShadow = true;
+          voxel.receiveShadow = true;
+          objects.push(voxel);
+          voxels.push(voxel);
+          scene.add(voxel);
+        });
+      }
+
+      function copyToClipboard(str){
+        var el = document.createElement('textarea');
+        el.value = str;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      }
+
+      function onDocumentKeyDown( event ) {
+        keyStates[event.keyCode] = true;
+
+        if(keyStates[KEY.control] && keyStates[67]){
+          copyToClipboard(JSON.stringify(getScene()));
+        }
+      }
+
+      function onDocumentKeyUp( event ) {
+        keyStates[event.keyCode] = false;
+      }
+
+      function onDocumentScroll( event ){
+        // Scroll events has different delta modes depending on browser+input device.
+        var multiplier = event.deltaMode == event.DOM_DELTA_LINE ? 40
+          : event.deltaMode == event.DOM_DELTA_PAGE ? 0.1 : 1;
+
+        camera.position.x += event.deltaY * multiplier;
+        camera.position.clampLength(300,3600);
+        event.preventDefault();
+      }
+
+      function raycastVoxelHelper(){
+
+        raycaster.setFromCamera( mouse, camera );
+
+        var intersects = raycaster.intersectObjects( objects );
+
+        rollOverMesh.visible = ['toolDraw','toolRemove','toolPalette'].indexOf(selectedTool) > -1 && !lineDrawFrom;
+        if ( intersects.length > 0 ) {
+          var intersect = intersects[ 0 ];
+          if(lineDrawFrom){
+            intersect.point.add( intersect.face.normal );
+            intersect.point.divideScalar( 50 ).floor().multiplyScalar( 50 )
+            updateLine(intersect.point);
+            return;
+          } else {
+            intersect.point.add( intersect.face.normal );
+            rollOverMesh.position.copy(intersect.point);
+            rollOverMesh.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+          }
+        }
+
+      }
+
+      function render() {
+        var cameraChanged = false;
+        if((keyStates[KEY.shift] || selectedTool == 'cameraMove') && mouseDown){
+          cameraObject.translateZ(mouseDelta.x * -400);
+          cameraObject.translateY(mouseDelta.y * 400);
+        } else
+        if((keyStates[KEY.control] || selectedTool == 'cameraRotate' || noHit) && mouseDown){
+          cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), mouseDelta.x*2 );
+          cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), mouseDelta.y*2);
+        }
+
+        mouseDelta.set(0,0);
+
+        if(keyStates[KEY.left] || keyStates[KEY.right]){
+          cameraObject.rotateOnWorldAxis(new THREE.Vector3(0,1,0), (keyStates[KEY.right] ? 1 : -1) * 0.015 );
+          cameraChanged = true;
+        }
+
+        if(keyStates[KEY.up] || keyStates[KEY.down]){
+          cameraObject.rotateOnAxis(new THREE.Vector3(0,0,1), (keyStates[KEY.up] ? 1 : -1) * 0.015);
+          cameraChanged = true;
+        }
+
+        if(cameraChanged) raycastVoxelHelper();
+
+        renderer.render( scene, camera );
+        window.requestAnimationFrame(render);
+      }
+
+
+      var fullscreen = false;
+      function openFullscreen() {
+        var elem = document.body
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { /* Firefox */
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+          elem.msRequestFullscreen();
+        }
+      }
+
+      function setupToolbar(){
+        $('#fullscreen').on('click', function(){
+          if(fullscreen) document.exitFullscreen();
+          else openFullscreen();
+        });
+
+        $('#controls > .tool').on('click', function(){
+          if(this.id == 'toolClear'){
+            var sure = confirm("Er du sikker på at du vil rydde alt?")
+            if(sure) setScene(defaultSave);
+            return;
+          }
+
+          selectedTool = this.id;
+          $(this.parentNode).find('.tool').removeClass('enabled');
+          $(this).addClass('enabled');
+
+          $('#palette').toggle($('#toolPalette').hasClass('enabled'));
+        });
+      }
+
+      $(function(){
+        init();
+        render();
+        if(window.parent !== window){
+          window.parent.postMessage({
+            type: 'ready'
+          },'*');
+        } else {
+          setPalette(colors);
+        }
+      });
+    </script>
+    <script src="scoringapi.js?v=1"></script>
+
+    <div id="controls">
+      <button id="toolDraw" class="tool fas fa-pencil-alt enabled" title="<?=_("Draw blocks");?>" />
+      <button id="toolRemove" class="tool fas fa-eraser" title="<?=_("Delete blocks");?>"/>
+      <button id="toolPalette" class="tool fas fa-palette" title="<?=_("Colors");?>"/>
+      <button id="cameraMove" class="tool fas fa-arrows-alt" title="<?=_("Move Camera");?>"/>
+      <button id="cameraRotate" class="tool fas fa-sync-alt" title="<?=_("Rotate Camera");?>"/>
+      <button id="toolClear" class="tool fas fa-trash" title="<?=_("Reset (deletes all blocks!)");?>"/>
+      <button id="fullscreen" class="fas fa-desktop" title="<?=_("Fullscreen");?>"/>
+    </div>
+  </body>
+
+</html>

@@ -6,13 +6,16 @@ Build by Wiquid's PCI Generator for TAO platform Free to use
 
 define([
     'lodash',
+	'i18n',
     'gantt/creator/widget/Widget',
     'tpl!gantt/creator/tpl/markup'
-], function(_, Widget, markupTpl){
+], function(_,__, Widget, markupTpl){
     'use strict';
 
     var _typeIdentifier = 'gantt';
-
+	var s=new Date()
+	var m=(s.getMonth()+1)
+	var startDate=m+"/"+s.getDate()+"/"+s.getFullYear()
     var pciCreator = {
         /**
          * (required) Get the typeIdentifier of the custom interaction
@@ -46,14 +49,14 @@ define([
               weekDays: true,
               months: true,
               disableWeekends: true,
-              startDate: '',
+              startDate: startDate,
               useHours: false,
               useHalfHours: false,
               showTimeRange: false,
               dayStart: 8,
               weekNumHack: false,
               dayEnd: 16,
-              tasks: "Task #1;#F00\nTask #2;#0F0\nTask #3;#00f"
+              tasks: __("Task #1;#F00\nTask #2;#0F0\nTask #3;#00f")
             };
         },
         /**

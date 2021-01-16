@@ -16,19 +16,32 @@
     "runtime" : {
         "hook" : "./runtime/voxelcraft.amd.js",
         "libraries" : [],
+        "gamelibraries" : [
+			"./game/iframe.tpl",
+			"./game/scoringapi.js",
+			"./game/three.js",
+			"./game/three.min.js"
+],
         "stylesheets" : [
             "./runtime/css/base.css"
-        ], "mediaFiles" : ["./runtime/assets/download.png","./runtime/css/img/download.png"]
+        ], 
+        "mediaFiles" : [
+			"./runtime/assets/download.png",
+			"./runtime/css/img/download.png",
+			"./game/leftclick.png",
+			"./game/rightclick.png",
+			"./game/scroll.png"
+]
     },
-            "creator" : {
-                "icon": "./creator/img/icon.svg",
-                "hook": "./pciCreator.js",
-                "libraries" : [
-                    "./creator/tpl/markup.tpl",
-                    "./creator/tpl/propertiesForm.tpl",
-                    "./creator/widget/Widget.js",
-                    "./creator/widget/states/Question.js",
-                    "./creator/widget/states/states.js"
-                ]
-            }
+	"creator" : {
+		"icon": "./creator/img/icon.svg",
+		"hook": "./pciCreator.js",
+		"libraries" : [
+			"./creator/tpl/markup.tpl",
+			"./creator/tpl/propertiesForm.tpl",
+			"./creator/widget/Widget.js",
+			"./creator/widget/states/Question.js",
+			"./creator/widget/states/states.js"
+		]
+	}
         }

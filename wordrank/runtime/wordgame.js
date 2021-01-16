@@ -1,7 +1,7 @@
-define(['jquery'], function($){
+define(['jquery','i18n'], function($,__){
   return function WordGame (options){
-    if (!options.element) throw "No element!";
-    if (!options.cells) throw "No Cells!";
+    if (!options.element) throw __("No element!");
+    if (!options.cells) throw __("No Cells!");
 
     var elem = options.element;
 	var outertable=document.createElement('table')

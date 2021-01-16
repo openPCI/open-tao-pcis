@@ -1,4 +1,5 @@
-var urlPath = '../exercises/';
+if(!typeof __!="function") function __(s) {return s;}
+var urlPath = './exercises/';
 
 var moveables = [];
 
@@ -562,6 +563,7 @@ function onTouchEnd(e){
 
 function onPostMessage(event){
   if(event.data && event.data.type){
+	  if(typeof(event.data.value)=="string") event.data.value={exercise:event.data.value,objects:null}
     switch(event.data.type){
       case 'loadExercise':
         loadExercise(event.data.value.exercise, event.data.value.objects, animate);
@@ -891,9 +893,9 @@ function isTouch(){
 function setHelpText(){
   var helpText = document.getElementById("help");
   if (isTouch()){
-    helpText.innerHTML = "Træk en genstand for at flytte. Dobbelt klik eller tryk to gange for at rotere. Scroll eller brug to fingre for at zoome.";
+    helpText.innerHTML = __("Drag an object to move. Double click or tap twice to rotate. Scroll or use two fingers to zoom.")//"Træk en genstand for at flytte. Dobbelt klik eller tryk to gange for at rotere. Scroll eller brug to fingre for at zoome.";
   } else {
-    helpText.innerHTML = "Træk en genstand for at flytte. Dobbelt klik for at rotere. Scroll for at zoome.";
+    helpText.innerHTML = __("Drag an object to move. Double click to rotate. Scroll to zoom.")//"Træk en genstand for at flytte. Dobbelt klik for at rotere. Scroll for at zoome.";
   }
 };
 
