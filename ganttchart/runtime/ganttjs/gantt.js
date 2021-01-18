@@ -1,6 +1,12 @@
+if(typeof define === "undefined"){
+  window.define = function(n,f){ window.GanttJS = f($); }
+}
 //TAO imports scripts and checks their mimetype based on the filesystem methods. This script was considered a text/html-document which made Firefox refuse to load it when told the mimetype was text/html... It helped changing $('<tr>') etc. to '<'+'tr'+'>' etc...
+
 define(['jquery','i18n'], function($,__){
 
+  // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
   if (!String.prototype.padStart) {
       String.prototype.padStart = function padStart(targetLength, padString) {
           targetLength = targetLength >> 0; //truncate if number, or convert non-number to 0;

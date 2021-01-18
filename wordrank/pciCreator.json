@@ -2,9 +2,9 @@
     "typeIdentifier": "wordrank",
     "label": "WordRank",
     "short": "WordRank",
-    "description": "WordRank",
-    "version": "0.0.5",
-    "author": "EJTH/JEBU",
+    "description": "WordRank from OpenPCI project of Aarhus University and Aalborg University. Elias J.T. Hansen, Anna Rusmann (andr@hum.aau.dk) & Jeppe Bundsgaard (jebu@edu.au.dk). More at https://github.com/openPCI/",
+    "version": "0.2.0",
+    "author": "OpenPCI",
     "email": "jebu@edu.au.dk",
     "tags": [
         ""

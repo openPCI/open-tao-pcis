@@ -2,10 +2,10 @@
     "typeIdentifier": "voxelcraft",
     "label": "voxelcraft",
     "short": "voxelcraft",
-    "description": "voxelcraft",
-    "version": "0.0.24",
-    "author": "EJTH",
-    "email": "ejth@edu.au.dk",
+    "description": "Voxelcraft drawing tool from OpenPCI project of Aarhus University and Aalborg University. Elias J.T. Hansen, Anna Rusmann (andr@hum.aau.dk) & Jeppe Bundsgaard (jebu@edu.au.dk). More at https://github.com/openPCI/",
+    "version": "0.2.0",
+    "author": "OpenPCI",
+    "email": "jebu@edu.au.dk",
     "tags": [
         ""
     ],
@@ -16,22 +16,13 @@
     "runtime" : {
         "hook" : "./runtime/voxelcraft.amd.js",
         "libraries" : [],
-        "gamelibraries" : [
-			"./game/iframe.tpl",
-			"./game/scoringapi.js",
-			"./game/three.js",
-			"./game/three.min.js"
-],
         "stylesheets" : [
             "./runtime/css/base.css"
         ], 
         "mediaFiles" : [
 			"./runtime/assets/download.png",
-			"./runtime/css/img/download.png",
-			"./game/leftclick.png",
-			"./game/rightclick.png",
-			"./game/scroll.png"
-]
+			"./runtime/css/img/download.png"
+		]
     },
 	"creator" : {
 		"icon": "./creator/img/icon.svg",
@@ -44,4 +35,4 @@
 			"./creator/widget/states/states.js"
 		]
 	}
-        }
+}

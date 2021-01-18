@@ -81,6 +81,7 @@ define(['qtiCustomInteractionContext', 'jquery', 'OAT/util/event'], function(qti
       }
 
       function writeChatLine(elapsed, name, msg, player, color){
+		  if(typeof resultObject!="object") resultObject = {base : {string : ''}};
         resultObject.base.string += "|" + [timestamp(elapsed), name, msg].join(';');
 
         var $time = $('<span>').text(timestamp(elapsed));

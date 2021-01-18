@@ -2,10 +2,10 @@
     "typeIdentifier": "theroom",
     "label": "The Room 3D",
     "short": "Room",
-    "description": "3D Design exercise",
-    "version": "0.0.12",
-    "author": "EJTH",
-    "email": "ejth@edu.au.dk",
+    "description": "3D Design exercise from OpenPCI project of Aarhus University and Aalborg University. Elias J.T. Hansen, Anna Rusmann (andr@hum.aau.dk) & Jeppe Bundsgaard (jebu@edu.au.dk). More at https://github.com/openPCI/",
+    "version": "0.2.0",
+    "author": "OpenPCI",
+    "email": "jebu@edu.au.dk",
     "tags": [
         ""
     ],
