@@ -1,4 +1,4 @@
-# open-tao-pcis
+# openPCIs
 
 In this repository you will find a collection of currently work-in-progress
 PCI (Portable Custom Interaction) modules for TAO and other such products that
