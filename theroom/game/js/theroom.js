@@ -682,10 +682,12 @@ function onMouseMove(event){
   mouseDelta.copy(mouse);
   mouseDelta.sub(lastMouse);
   raycaster.setFromCamera( mouse, camera );
-  var intersects = raycaster.intersectObjects( [movePlane] );
-  if(intersects.length){
-    movePlanePosition = intersects[0].point.clone();
-    movePlanePosition.y = 0;
+  if(typeof(raycaster)!="undefined" && typeof(movePlane)!="undefined") {
+	var intersects = raycaster.intersectObjects( [movePlane] );
+	if(intersects.length){
+		movePlanePosition = intersects[0].point.clone();
+		movePlanePosition.y = 0;
+	}
   }
 }
 
@@ -788,7 +790,7 @@ function setupInputListeners(){
   document.addEventListener('fullscreenchange', onFullScreenChange, false);
   document.addEventListener('MSFullscreenChange', onFullScreenChange, false);
 
-  window.addEventListener( 'wheel', onWheel);
+  window.addEventListener( 'wheel', onWheel,{ passive: false });
 
   window.addEventListener( 'mousemove', onMouseMove, false );
 
