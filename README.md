@@ -26,7 +26,7 @@ These PCIs rely on an iframe that imports a game folder. These files cannot be p
 
 > RewriteEngine off
 
-This prevent TAO from rewriting the URL.
+This prevents TAO from rewriting the URL.
 
 The URL to this folder is https://your.tao.domain/taosubfolder/openPICs/theroom/game. But you can place it whereever you want, also at other domains.
 
